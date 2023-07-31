@@ -13,7 +13,7 @@ public:
     static Camera& instance() { static Camera singleton; return singleton; }
 
 private:
-    Camera();
+    Camera() : Ray() {  };
     Camera(const Camera&);
     Camera& operator=(Camera&);
 

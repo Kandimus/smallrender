@@ -1,3 +1,9 @@
 [submodule "tinygltf"]
 	path = tinygltf
 	url = git@github.com:syoyo/tinygltf.git
+[submodule "stb"]
+	path = stb
+	url = git@github.com:nothings/stb.git
+[submodule "SimpleArgs"]
+	path = SimpleArgs
+	url = git@github.com:Kandimus/SimpleArgs.git
