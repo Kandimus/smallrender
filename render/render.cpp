@@ -7,6 +7,8 @@ static unsigned char* gBuffer = nullptr;
 static int gWidth = 320;
 static int gHeight = 240;
 
+static std::vector<StaticMesh*> gStaticMesh;
+
 Camera& camera(void)
 {
     return Camera::instance();
@@ -48,6 +50,31 @@ void init(int w, int h)
     {
         gBuffer[max_ii + ii] = 0;
     }
+
+    // camera
+    Render::camera().position() = Render::Vector3(0, 0, 0);
+    Render::camera().rotation() = Render::Quaternion(0, 0, 0, 1);
+}
+
+void finalize()
+{
+    if (gStaticMesh.size())
+    {
+        for (auto sm : gStaticMesh)
+        {
+            delete sm;
+        }
+        gStaticMesh.clear();
+    }
+}
+
+StaticMesh* addStaticMesh()
+{
+    auto sm = new StaticMesh();
+
+    gStaticMesh.push_back(sm);
+
+    return sm;
 }
 
 }

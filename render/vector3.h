@@ -9,6 +9,12 @@ namespace Render
 class Vector3
 {
 public:
+    static Vector3 c0;
+    static Vector3 c1;
+    static Vector3 cX;
+    static Vector3 cY;
+    static Vector3 cZ;
+
     Vector3() {}
     Vector3(REAL v) { m_x = m_y = m_z = v; }
     Vector3(REAL x, REAL y, REAL z)  { m_x = x; m_y = y; m_z = z; }
@@ -60,12 +66,6 @@ public:
     //    void load(FilePtr pFile);
     //    void save(FilePtr pFile) const;
 
-    static Vector3 c0() { return Vector3(0, 0, 0); };
-    static Vector3 c1() { return Vector3(1, 1, 1); };
-    static Vector3 cX() { return Vector3(1, 0, 0); };
-    static Vector3 cY() { return Vector3(0, 1, 0); };
-    static Vector3 cZ() { return Vector3(0, 0, 1); };
-
 protected:
 	union
 	{
@@ -107,14 +107,14 @@ inline Vector3 operator *(const Vector3& v1, const Vector3& v2)
 inline Vector3 operator /(const Vector3& v, REAL val)
 {
     REAL inv = (val != 0) ? 1 / val : 0;
-    return (val != 0) ? Vector3(v.x() * inv, v.y() * inv, v.z() * inv) : Vector3::c0();
+    return (val != 0) ? Vector3(v.x() * inv, v.y() * inv, v.z() * inv) : Vector3::c0;
 }
 
 inline Vector3 operator /(const Vector3& v1, const Vector3& v2)
 {
     return (v2.x() !=0 && v2.y() != 0 && v2.z() != 0)
                ? Vector3(v1.x() / v2.x(), v1.y() / v2.y(), v1.z() / v2.z())
-               : Vector3::c0();
+               : Vector3::c0;
 }
 
 inline REAL operator &(const Vector3& v1, const Vector3& v2)

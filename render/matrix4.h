@@ -18,10 +18,10 @@ public:
             REAL f20, REAL f21, REAL f22, REAL f23,REAL f30, REAL f31, REAL f32, REAL f33)
         { m_00 = f00; m_01 = f01; m_02 = f02; m_03 = f03; m_10 = f10; m_11 = f11; m_12 = f12; m_13 = f13;
           m_20 = f20; m_21 = f21; m_22 = f22; m_23 = f23; m_30 = f30; m_31 = f31; m_32 = f32; m_33 = f33; }
-    Matrix4(const Matrix4& m) { memcpy(m_value, m.data(), sizeof(REAL) * 16); }
+    Matrix4(const Matrix4& m) { *this = m; }
 
     Matrix4& operator =(REAL v) { m_00 = m_11 = m_22 = v; m_01 = m_02 = m_03 = m_10 = m_12 = m_13 = m_20 = m_21 = m_23 = m_30 = m_31 = m_32 = 0; m_33 = 1; return *this; }
-    Matrix4& operator =(const Matrix4& m) { memcpy(&m_value, m.data(), sizeof(REAL) * 16); return *this; }
+    Matrix4& operator =(const Matrix4& m) { memcpy(m_value, m.data(), sizeof(REAL) * 16); return *this; }
     Matrix4& operator =(const Matrix3& m)
     {
         reset();

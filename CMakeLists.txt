@@ -27,9 +27,9 @@ add_executable(${PROJECT_NAME} ${files_cpp}
     ${files_stb_cpp} ${files_stb_h}
 )
 
-target_include_directories(${PROJECT_NAME} PRIVATE "simpleargs/simpleargs/include/")
+target_include_directories(${PROJECT_NAME} PRIVATE "simpleargs/simpleargs/include")
 target_include_directories(${PROJECT_NAME} PRIVATE "stb")
-target_include_directories(${PROJECT_NAME} PRIVATE "tinygltf/")
+target_include_directories(${PROJECT_NAME} PRIVATE "tinygltf")
 
 target_link_libraries(${PROJECT_NAME} PRIVATE render)
 target_include_directories(${PROJECT_NAME} PRIVATE "render")

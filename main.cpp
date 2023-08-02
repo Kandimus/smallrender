@@ -20,12 +20,55 @@ const char* OUTPUT = "output";
 
 int stbi_write_png(char const *filename, int w, int h, int comp, const void  *data, int stride_in_bytes);
 
+
+bool loadCamera(const tinygltf::Model& model)
+{
+    for (auto& node : model.nodes)
+    {
+        if (node.camera >= 0 && model.cameras[node.camera].type == "perspective")
+        {
+            auto& cam = model.cameras[node.camera];
+
+            std::cout << "Found camera '" << cam.name << "'" << std::endl;
+
+            if (node.translation.size())
+            {
+                Render::camera().position() = Render::Vector3(node.translation[0], node.translation[1], node.translation[2]);
+            }
+
+            if (node.rotation.size())
+            {
+                Render::camera().rotation() = Render::Quaternion(node.rotation[0], node.rotation[1], node.rotation[2], node.rotation[3]);
+            }
+
+            return true;
+        }
+    }
+
+    return false;
+}
+
+bool loadMeshes(const tinygltf::Model& model)
+{
+    for (auto& node : model.nodes)
+    {
+        if (node.mesh >= 0)
+        {
+            auto sm = Render::addStaticMesh();
+
+            sm->loadFromTinygltf(model.meshes[node.mesh], model);
+        }
+    }
+    return false;
+}
+
+
 int main(int argc, const char** argv)
 {
     rSimpleArgs::instance()
         .addOption(arg::WIDTH, 'w', "320")
         .addOption(arg::HEIGHT, 'h', "240")
-        .addOption(arg::INPUT, 'i', "test.gltf")
+        .addOption(arg::INPUT, 'i', "triangle.gltf")
         .addOption(arg::OUTPUT, 'o', "smallrender.png");
 
     rSimpleArgs::instance().parse(argc, argv);
@@ -49,9 +92,28 @@ int main(int argc, const char** argv)
     }
 
     if (!res)
-        std::cout << "Failed to load glTF: " << std::endl;
+    {
+        std::cout << "Failed to load glTF: " << rSimpleArgs::instance().getOption(arg::INPUT) << std::endl;
+        return 1;
+    }
     else
-        std::cout << "Loaded glTF: " << std::endl;
+    {
+        std::cout << "Loaded glTF: " << rSimpleArgs::instance().getOption(arg::INPUT) << std::endl;
+    }
+
+
+    loadCamera(model);
+    loadMeshes(model);
+
+//    if (model.cameras.empty())
+//    {
+//        std::cout << "No cameras found. Created standart camera" << std::endl;
+//    }
+//    else
+//    {
+//        auto cam = model.cameras[0];
+//        Render::camera().matrix().view(cam.perspective.)
+//    }
 
 
     Render::image()[0] = 0xFF;
@@ -66,8 +128,8 @@ int main(int argc, const char** argv)
 
     // Камера смотрит строго по оси Z
     Render::camera().position() = Render::Vector3(-1, 1.99, -100);
-    Render::camera().ray().origin() = Render::Vector3::cY();
-    Render::camera().ray().direction() = Render::Vector3::cZ();
+    Render::camera().ray().origin() = Render::Vector3::cY;
+    Render::camera().ray().direction() = Render::Vector3::cZ;
 
     Render::Triangle t(Render::Vector3(-1, -1, 100), Render::Vector3(-1, 2, 100), Render::Vector3(2, -1, 100));
 
@@ -99,6 +161,8 @@ int main(int argc, const char** argv)
 
         std::cout << "X = " << x << "  time: " << t_end - t_start << std::endl;
     }
+
+    Render::finalize();
 
     return 0;
 }
