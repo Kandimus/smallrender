@@ -56,10 +56,16 @@ bool loadMeshes(const tinygltf::Model& model)
         {
             auto sm = Render::addStaticMesh();
 
-            sm->loadFromTinygltf(model.meshes[node.mesh], model);
+            if(!sm->loadFromTinygltf(model.meshes[node.mesh], model))
+            {
+                return false;
+            }
+
+            std::cout << "Load mesh '" << sm->name() << "'" << std::endl;
         }
     }
-    return false;
+
+    return true;
 }
 
 
@@ -102,8 +108,17 @@ int main(int argc, const char** argv)
     }
 
 
-    loadCamera(model);
-    loadMeshes(model);
+    if (!loadCamera(model))
+    {
+        std::cout << "Error: Load the camera fault" << std::endl;
+        return 1;
+    }
+
+    if (!loadMeshes(model))
+    {
+        std::cout << "Error: Load meshes fault" << std::endl;
+        return 1;
+    }
 
 //    if (model.cameras.empty())
 //    {

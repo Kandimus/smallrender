@@ -30,10 +30,14 @@ public:
 
     REAL& x() { return m_x; }
     REAL& y() { return m_y; }
+    REAL& u() { return m_x; }
+    REAL& v() { return m_y; }
     REAL& operator [](int i) { return m_value[i]; }
 
     REAL x() const { return m_x; }
     REAL y() const { return m_y; }
+    REAL u() const { return m_x; }
+    REAL v() const { return m_y; }
     REAL operator [](int i) const { return m_value[i]; }
 
     bool operator ==(const Vector2 &v) const { return m_x == v.x() && m_y == v.y(); }

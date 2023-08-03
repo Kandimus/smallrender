@@ -418,28 +418,6 @@ void StaticMesh::finalize()
 
 //void StaticMesh::LoadFromFile(const string& sFileName)
 //{
-//ZONE_B("StaticMesh::LoadFromFile");
-
-//FilePtr pFile = new File(sFileName + ".zsm", false);
-
-//try
-//{
-//        FileSystem::GetPointer()->AssignFile(pFile);
-//}
-//catch(Exception)
-//{
-//        pFile = new File(sFileName + "._zsm", false);
-//        try
-//        {
-//            FileSystem::GetPointer()->AssignFile(pFile);
-//        }
-//        catch(Exception)
-//        {
-//            ZONE_THROW_E("can\'t find .zsm or ._zsm: " + sFileName);
-//            throw;
-//        }
-//}
-
 //try
 //{
 //        pFile->Open();
@@ -581,106 +559,16 @@ void StaticMesh::finalize()
 //ZONE_E;
 //}
 
-//void StaticMesh::SaveToFile(const string& sFileName)
-//{
-//ZONE_B("StaticMesh::SaveToFile");
-
-//FilePtr pFile = new File(sFileName + ".zsm", true);
-
-//try
-//{
-//        FileSystem::GetPointer()->AssignFile(pFile);
-//        pFile->Open();
-
-//        int iSignature = 0x464D535A;
-//        pFile->Write(iSignature);
-
-//        pFile->Write(f_sName);
-//        /*S
-//		WorldRotate().SaveToFile(pFile);
-//		WorldTranslate().SaveToFile(pFile);
-//		pFile->Write(WorldScale());
-//*/
-//        f_pMaterial->SaveToFile(pFile);
-//        f_pRenderState->SaveToFile(pFile);
-//        f_pTextureState->SaveToFile(pFile);
-
-//        pFile->Write(f_sTexName);
-//        pFile->Write(f_sTexName2);
-//        pFile->Write(f_sTexName3);
-//        pFile->Write(f_sTexName4);
-
-//        int iVertex = Vertex().size();
-//        pFile->Write(iVertex);
-
-//        int iFlag = 0;
-//        if(TexCoord2().size() > 0)
-//        {
-//            iFlag |= 1;
-
-//            if(TexCoord3().size() > 0)
-//            {
-//                iFlag |= 2;
-
-//                if(TexCoord4().size() > 0)
-//                {
-//                    iFlag |= 4;
-//                }
-//            }
-//        }
-//        pFile->Write(iFlag);
-
-//        for(int i = 0; i < Vertex().size(); ++i)
-//        {
-//            pFile->Write(Vertex()[i].X());
-//            pFile->Write(Vertex()[i].Y());
-//            pFile->Write(Vertex()[i].Z());
-
-//            pFile->Write(TexCoord()[i].f1);
-//            pFile->Write(TexCoord()[i].f2);
-
-//            if(iFlag & 1)
-//            {
-//                pFile->Write(TexCoord2()[i].f1);
-//                pFile->Write(TexCoord2()[i].f2);
-
-//                if(iFlag & 2)
-//                {
-//                    pFile->Write(TexCoord3()[i].f1);
-//                    pFile->Write(TexCoord3()[i].f2);
-
-//                    if(iFlag & 4)
-//                    {
-//                        pFile->Write(TexCoord4()[i].f1);
-//                        pFile->Write(TexCoord4()[i].f2);
-//                    }
-//                }
-//            }
-//        }
-
-//        int iIndex = Index().size();
-//        pFile->Write(iIndex);
-//        for(i = 0; i < Index().size(); ++i)
-//        {
-//            pFile->Write(Index()[i]);
-//        }
-
-//        pFile->Write(f_iType);
-//}
-//catch(Exception)
-//{
-//        ZONE_THROW_E("can\'t save mesh: " + sFileName);
-//        throw;
-//}
-
-//ZONE_E;
-//}
-
 bool StaticMesh::loadFromTinygltf(const tinygltf::Mesh& mesh, const tinygltf::Model& model)
 {
     if (!GeomObject::loadFromTinygltf(mesh, model))
     {
         return false;
+    }
+
+    if (m_normal.empty())
+    {
+        computeNormal();
     }
 
     return true;

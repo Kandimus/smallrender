@@ -1,6 +1,6 @@
 
 #include "geom_object.h"
-
+#include "helper_gltf.h"
 #include "tiny_gltf.h"
 
 namespace Render
@@ -12,6 +12,9 @@ bool GeomObject::loadFromTinygltf(const tinygltf::Mesh& mesh, const tinygltf::Mo
 
     int idAccVertex = -1;
     int idAccNormal = -1;
+    int idAccText[4] = {-1};
+    int idAccIndices = -1;
+    int idAccMaterial = -1;
 
     for (auto& p : mesh.primitives)
     {
@@ -21,38 +24,66 @@ bool GeomObject::loadFromTinygltf(const tinygltf::Mesh& mesh, const tinygltf::Mo
             {
                 idAccVertex = a.second;
             }
-
-            if (a.first == "NORMAL")
+            else if (a.first == "NORMAL")
             {
                 idAccNormal = a.second;
             }
+            else if (a.first == "TEXCOORD_0")
+            {
+                idAccText[0] = a.second;
+            }
+            else if (a.first == "TEXCOORD_1")
+            {
+                idAccText[1] = a.second;
+            }
+            else if (a.first == "TEXCOORD_2")
+            {
+                idAccText[2] = a.second;
+            }
+            else if (a.first == "TEXCOORD_3")
+            {
+                idAccText[3] = a.second;
+            }
+        }
+
+        if (p.indices >= 0)
+        {
+            idAccIndices = p.indices;
         }
     }
 
-    auto accVertex = &model.accessors[idAccVertex];
-    if (accVertex->type != TINYGLTF_TYPE_VEC3 && accVertex->componentType != TINYGLTF_COMPONENT_TYPE_FLOAT)
+    if (idAccVertex < 0 || idAccIndices < 0)
     {
         return false;
     }
 
-    auto bufVertex = &model.bufferViews[accVertex->bufferView];
-
-    m_vertex.resize(accVertex->count);
-
-    const unsigned char* data = model.buffers[bufVertex->buffer].data.data();
-    int sizeInBytes = tinygltf::GetComponentSizeInBytes(accVertex->componentType);
-    for (int ii = 0; ii < accVertex->count; ++ii)
+    if (!loadVectorOfVec3(m_vertex, idAccVertex, model))
     {
-        m_vertex[ii].x() = *(REAL*)(data);
-        data += sizeInBytes;
-
-        m_vertex[ii].y() = *(REAL*)(data);
-        data += sizeInBytes;
-
-        m_vertex[ii].z() = *(REAL*)(data);
-        data += sizeInBytes;
+        return false;
     }
 
+    if (idAccNormal < 0 || !loadVectorOfVec3(m_normal, idAccNormal, model))
+    {
+        return false;
+    }
+
+    if (!loadVectorOfInt(m_index, idAccIndices, model))
+    {
+        return false;
+    }
+
+    for (int ii = 0; ii < 4; ++ii)
+    {
+        if (idAccText[ii] < 0)
+        {
+            continue;
+        }
+
+        if (!loadVectorOfVec2(m_texCoord[ii], idAccText[ii], model))
+        {
+            return false;
+        }
+    }
 
     return true;
 }
