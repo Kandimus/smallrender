@@ -32,7 +32,7 @@ bool loadVectorOfVec3(std::vector<Render::Vector3>& vec3, int accIndex, const ti
         vec3[ii].y() = static_cast<REAL>(*(float*)(data));
         data += sizeInBytes;
 
-        vec3[ii].z() = static_cast<REAL>(*(float*)(data));
+        vec3[ii].z() = -static_cast<REAL>(*(float*)(data));
         data += sizeInBytes;
     }
 

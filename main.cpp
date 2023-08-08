@@ -33,13 +33,24 @@ bool loadCamera(const tinygltf::Model& model)
 
             if (node.translation.size())
             {
-                Render::camera().position() = Render::Vector3(node.translation[0], node.translation[1], node.translation[2]);
+                Render::camera().position() = Render::Vector3(node.translation[0], node.translation[1], -node.translation[2]);
             }
 
             if (node.rotation.size())
             {
-                Render::camera().rotation() = Render::Quaternion(node.rotation[0], node.rotation[1], node.rotation[2], node.rotation[3]);
+                auto q = Render::Quaternion(node.rotation[0], node.rotation[1], node.rotation[2], node.rotation[3]);
+                auto a = q.toYPR();
+
+                Render::camera().angleX() = a.x();
+                Render::camera().angleY() = a.y();
             }
+
+            Render::camera().frustum().aspect() = 4.0/3.0;//cam.perspective.aspectRatio;
+            Render::camera().frustum().fov() = cam.perspective.yfov;
+            Render::camera().frustum().farClip() = cam.perspective.zfar;
+            Render::camera().frustum().nearClip() = cam.perspective.znear;
+            Render::camera().changed();
+            Render::camera().update();
 
             return true;
         }
@@ -78,9 +89,15 @@ int main(int argc, const char** argv)
         .addOption(arg::OUTPUT, 'o', "smallrender.png");
 
     rSimpleArgs::instance().parse(argc, argv);
+    int w = std::stoi(rSimpleArgs::instance().getOption(arg::WIDTH));
+    int h = std::stoi(rSimpleArgs::instance().getOption(arg::HEIGHT));
 
-    Render::init(std::stoi(rSimpleArgs::instance().getOption(arg::WIDTH)),
-                 std::stoi(rSimpleArgs::instance().getOption(arg::HEIGHT)));
+    if (rSimpleArgs::instance().isSet(arg::WIDTH) && rSimpleArgs::instance().isSet(arg::HEIGHT))
+    {
+        Render::camera().frustum().aspect() = REAL(w) / h;
+    }
+
+    Render::init(w, h);
 
     tinygltf::TinyGLTF loader;
     std::string err;
@@ -120,15 +137,58 @@ int main(int argc, const char** argv)
         return 1;
     }
 
-//    if (model.cameras.empty())
-//    {
-//        std::cout << "No cameras found. Created standart camera" << std::endl;
-//    }
-//    else
-//    {
-//        auto cam = model.cameras[0];
-//        Render::camera().matrix().view(cam.perspective.)
-//    }
+    auto listMesh = Render::staticMesh();
+    auto v = Render::camera().direction();
+
+    for (int yy = 0; yy < Render::image_height(); ++yy)
+    {
+        for (int xx = 0; xx < Render::image_width(); ++xx)
+        {
+            auto dir = Render::camera().ray(xx, yy);
+
+            for (auto sm : listMesh)
+            {
+                auto listTri = sm->triangle();
+                for (auto& tri : listTri)
+                {
+                    if (xx == 0 && yy == 80)
+                    {
+                        volatile int a = 1;
+                        a = 2;
+                    }
+                    Render::Vector3 p;
+                    Render::Vector2 uv;
+                    //if (tri.intersect(dir, p, uv))
+                    if (tri.intersect(dir))
+                    {
+                        Render::image()[Render::image_width() * 3 * yy + 3 * xx + 0] = 0xFF;
+                        Render::image()[Render::image_width() * 3 * yy + 3 * xx + 1] = 0x40;
+                        Render::image()[Render::image_width() * 3 * yy + 3 * xx + 2] = 0xFF;
+                    }
+                }
+            }
+
+        }
+    }
+
+    auto dir = Render::camera().centralRay();//180, 120);
+    std::cout << "Camera aX " << Render::camera().angleX() << ", aY " << Render::camera().angleY() << ", dir (" << dir.direction().x() << ", " << dir.direction().y() << ", " << dir.direction().z() << ")" << std::endl;
+    for (auto sm : listMesh)
+    {
+        auto listTri = sm->triangle();
+        for (auto& tri : listTri)
+        {
+            Render::Vector3 p;
+            Render::Vector2 uv;
+            //if (tri.intersect(dir, p, uv))
+            if (tri.intersect(dir))
+            {
+                Render::image()[Render::image_width() * 3 * 120 + 3 * 160 + 0] = 0xFF;
+                Render::image()[Render::image_width() * 3 * 120 + 3 * 160 + 1] = 0xFF;
+                Render::image()[Render::image_width() * 3 * 120 + 3 * 160 + 2] = 0xFF;
+            }
+        }
+    }
 
 
     Render::image()[0] = 0xFF;
@@ -142,40 +202,40 @@ int main(int argc, const char** argv)
                    Render::image_width() * 3);
 
     // Камера смотрит строго по оси Z
-    Render::camera().position() = Render::Vector3(-1, 1.99, -100);
-    Render::camera().ray().origin() = Render::Vector3::cY;
-    Render::camera().ray().direction() = Render::Vector3::cZ;
+//    Render::camera().position() = Render::Vector3(-1, 1.99, -100);
+//    Render::camera().ray().origin() = Render::Vector3::cY;
+//    Render::camera().ray().direction() = Render::Vector3::cZ;
 
-    Render::Triangle t(Render::Vector3(-1, -1, 100), Render::Vector3(-1, 2, 100), Render::Vector3(2, -1, 100));
+//    Render::Triangle t(Render::Vector3(-1, -1, 100), Render::Vector3(-1, 2, 100), Render::Vector3(2, -1, 100));
 
-    {
-        auto t_start = GetTickCount64();
+//    {
+//        auto t_start = GetTickCount64();
 
-        bool x = true;
-        for (int ii = 0; ii < 10000000; ++ii)
-        {
-            x &= t.intersect(Render::camera());
-        }
+//        bool x = true;
+//        for (int ii = 0; ii < 10000000; ++ii)
+//        {
+//            x &= t.intersect(Render::camera());
+//        }
 
-        auto t_end = GetTickCount64();
+//        auto t_end = GetTickCount64();
 
-        std::cout << "X = " << x << "  time: " << t_end - t_start << std::endl;
-    }
+//        std::cout << "X = " << x << "  time: " << t_end - t_start << std::endl;
+//    }
 
-    {
-        auto t_start = GetTickCount64();
+//    {
+//        auto t_start = GetTickCount64();
 
-        bool x = true;
-        Render::Vector3 p;
-        for (int ii = 0; ii < 10000000; ++ii)
-        {
-            x &= t.intersect(Render::camera(), p);
-        }
+//        bool x = true;
+//        Render::Vector3 p;
+//        for (int ii = 0; ii < 10000000; ++ii)
+//        {
+//            x &= t.intersect(Render::camera(), p);
+//        }
 
-        auto t_end = GetTickCount64();
+//        auto t_end = GetTickCount64();
 
-        std::cout << "X = " << x << "  time: " << t_end - t_start << std::endl;
-    }
+//        std::cout << "X = " << x << "  time: " << t_end - t_start << std::endl;
+//    }
 
     Render::finalize();
 

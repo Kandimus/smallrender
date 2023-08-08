@@ -16,5 +16,9 @@ int image_height();
 
 
 StaticMesh* addStaticMesh();
+const std::vector<StaticMesh*>& staticMesh();
+
+void makeProjection(REAL fFOV, REAL fAspect, REAL fNear, REAL fFar, Matrix4& m/*, bool bGPU*/);
+void makeOrtho(REAL fFOV, REAL fAspect, REAL fNear, REAL fFar, Matrix4& m/*, bool bGPU*/);
 
 }

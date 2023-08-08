@@ -1,6 +1,6 @@
 #pragma once
 
-    #include "matrix4.h"
+#include "matrix4.h"
 #include "matrix3.h"
 #include "vector3.h"
 
@@ -58,7 +58,9 @@ public:
 
     Vector3 operator *(const Vector3& v) const;
 
-    void yawPitchRoll(REAL yaw, REAL pitch, REAL roll);
+    void fromYPR(REAL yaw, REAL pitch, REAL roll);
+    void fromYPR(Vector3 ypr) { fromYPR(ypr.z(), ypr.y(), ypr.x()); }
+    Vector3 toYPR() const;
 
     bool operator ==(const Quaternion& q) const { return m_x == q.x() && m_y == q.y() && m_z == q.z() && m_w == q.w(); }
 

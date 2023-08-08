@@ -85,7 +85,38 @@ bool GeomObject::loadFromTinygltf(const tinygltf::Mesh& mesh, const tinygltf::Mo
         }
     }
 
+    for (auto n : m_normal)
+    {
+        n.normalize();
+    }
+
+    if (m_vertex.size() && m_index.size())
+    {
+        createTriangles();
+    }
+
     return true;
+}
+
+void GeomObject::createTriangles()
+{
+    int size = m_index.size();
+    int size_3 = size / 3;
+
+    m_triangle.clear();
+    m_triangle.resize(size_3);
+
+    for (int ii = 0, jj  = 0; ii < size; ii += 3, ++jj)
+    {
+        int i0 = m_index[ii];
+        int i1 = m_index[ii + 1];
+        int i2 = m_index[ii + 2];
+
+        m_triangle[jj].point0() = m_vertex[i2];
+        m_triangle[jj].point1() = m_vertex[i1];
+        m_triangle[jj].point2() = m_vertex[i0];
+        m_triangle[jj].calculate();
+    }
 }
 
 //namespace Render

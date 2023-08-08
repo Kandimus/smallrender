@@ -100,6 +100,33 @@ void Matrix4::rotateZ(REAL a)
     m_11 = fCosine;
 }
 
+void Matrix4::makeReflection(const Plane& p)
+{
+    REAL fNX = p.normal().x();
+    REAL fNY = p.normal().y();
+    REAL fNZ = p.normal().z();
+    REAL fC  = p.constant();
+
+    m_00 = -2 * fNX * fNX + 1;
+    m_01 = -2 * fNX * fNY;
+    m_02 = -2 * fNX * fNZ;
+    m_03 = -2 * fNX * fC;
+
+    m_10 = -2 * fNY * fNX;
+    m_11 = -2 * fNY * fNY + 1;
+    m_12 = -2 * fNY * fNZ;
+    m_13 = -2 * fNY * fC;
+
+    m_20 = -2 * fNZ * fNX;
+    m_21 = -2 * fNZ * fNY;
+    m_22 = -2 * fNZ * fNZ + 1;
+    m_23 = -2 * fNZ * fC;
+
+    m_30 = m_31 = m_32 = 0;
+    m_33 = 1;
+}
+
+
 void Matrix4::view(const Vector3& zEye, const Vector3& zAt, const Vector3& zUp)
 {
     Vector3 zZAxis = zAt - zEye;

@@ -1,7 +1,7 @@
 #pragma once
 
-
 #include "matrix3.h"
+#include "plane.h"
 
 namespace Render
 {
@@ -56,7 +56,7 @@ public:
     void mirrorY() { *this = c1; m_11 = -1; }
     void mirrorZ() { *this = c1; m_22 = -1; }
 
-//	void MakeReflection(const Plane &zPlane);
+    void makeReflection(const Plane& p);
 
     void view(const Vector3& zEye, const Vector3& zAt, const Vector3& zUp);
     void proj(REAL, REAL, REAL, REAL);
@@ -94,33 +94,6 @@ private:
 	};
 };
 
-
-
-//ZONE_INLINE void Matrix4::MakeReflection(const Plane &zPlane)
-//{
-//	float fNX = zPlane.GetNormal().X();
-//	float fNY = zPlane.GetNormal().Y();
-//	float fNZ = zPlane.GetNormal().Z();
-//	float fC = zPlane.GetConstant();
-
-//	f_f00 = -2.0f*fNX*fNX + 1.0f;
-//	f_f01 = -2.0f*fNX*fNY;
-//	f_f02 = -2.0f*fNX*fNZ;
-//	f_f03 = -2.0f*fNX*fC;
-
-//	f_f10 = -2.0f*fNY*fNX;
-//	f_f11 = -2.0f*fNY*fNY + 1.0f;
-//	f_f12 = -2.0f*fNY*fNZ;
-//	f_f13 = -2.0f*fNY*fC;
-
-//	f_f20 = -2.0f*fNZ*fNX;
-//	f_f21 = -2.0f*fNZ*fNY;
-//	f_f22 = -2.0f*fNZ*fNZ + 1.0f;
-//	f_f23 = -2.0f*fNZ*fC;
-
-//	f_f30 = f_f31 = f_f32 = 0.0f;
-//	f_f33 = 1.0f;
-//}
 
 //ZONE_INLINE void Matrix4::ProjectToFrustum(Plane azPlane[6])
 //{

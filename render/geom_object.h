@@ -6,6 +6,7 @@
 //#include "Zone_ColorARGB.h"
 #include "Vector2.h"
 #include "Vector3.h"
+#include "triangle.h"
 
 namespace tinygltf
 {
@@ -34,12 +35,16 @@ public:
     std::vector<Vector3>& normal() { return m_normal; }
     const std::vector<Vector3>& normal() const { return m_normal; }
 
+    std::vector<Triangle>& triangle() { return m_triangle; }
+    const std::vector<Triangle>& triangle() const { return m_triangle; }
+
     //vector<ColorARGB>& Color();
     //const std::vector<ColorARGB>& Color() const;
 
     std::vector<Vector2>& texCoord(int i = 0) { return m_texCoord[i]; }
     const std::vector<Vector2>& texCoord(int i = 0) const { return m_texCoord[i]; }
 
+    void createTriangles();
     bool loadFromTinygltf(const tinygltf::Mesh& mesh, const tinygltf::Model& model);
 
 protected:
@@ -49,6 +54,8 @@ protected:
     std::vector<Vector3> m_normal;
 //    std::vector<ColorARGB> f_azColor;
     std::vector<Vector2> m_texCoord[4];
+
+    std::vector<Triangle> m_triangle;
 };
 
 //namespace Render

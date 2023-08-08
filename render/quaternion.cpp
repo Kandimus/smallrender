@@ -218,13 +218,48 @@ Vector3 Quaternion::operator *(const Vector3& v) const
 }
 
 //Snk: bug there ???
-void Quaternion::yawPitchRoll(REAL yaw, REAL pitch, REAL roll)
+// roll (x), pitch (Y), yaw (z)
+void Quaternion::fromYPR(REAL yaw, REAL pitch, REAL roll)
 {
-    Quaternion zYaw(0, SIN(yaw / 2), 0, COS(yaw / 2));
-    Quaternion zPitch(SIN(pitch / 2), 0, 0, COS(pitch / 2));
-    Quaternion zRoll(0, 0, SIN(roll / 2), COS(roll / 2));
+//    Quaternion zYaw(0, SIN(yaw / 2), 0, COS(yaw / 2));
+//    Quaternion zPitch(SIN(pitch / 2), 0, 0, COS(pitch / 2));
+//    Quaternion zRoll(0, 0, SIN(roll / 2), COS(roll / 2));
 
-    *this = zYaw * zPitch * zRoll;
+//    *this = zYaw * zPitch * zRoll;
+    REAL cr = COS(roll * REAL(0.5));
+    REAL sr = SIN(roll * REAL(0.5));
+    REAL cp = COS(pitch * REAL(0.5));
+    REAL sp = SIN(pitch * REAL(0.5));
+    REAL cy = COS(yaw * REAL(0.5));
+    REAL sy = SIN(yaw * REAL(0.5));
+
+    m_w = cr * cp * cy + sr * sp * sy;
+    m_x = sr * cp * cy - cr * sp * sy;
+    m_y = cr * sp * cy + sr * cp * sy;
+    m_z = cr * cp * sy - sr * sp * cy;
+}
+
+// roll (x), pitch (Y), yaw (z)
+Vector3 Quaternion::toYPR() const
+{
+    Vector3 a;
+
+    // roll (x-axis rotation)
+    REAL sinr_cosp = 2 * (m_w * m_x + m_y * m_z);
+    REAL cosr_cosp = 1 - 2 * (m_x * m_x + m_y * m_y);
+    a.x() = ATAN2(sinr_cosp, cosr_cosp);
+
+    // pitch (y-axis rotation)
+    REAL sinp = SQRT(1 + 2 * (m_w * m_y - m_x * m_z));
+    REAL cosp = SQRT(1 - 2 * (m_w * m_y - m_x * m_z));
+    a.y() = 2 * ATAN2(sinp, cosp) - M_PI / 2;
+
+    // yaw (z-axis rotation)
+    REAL siny_cosp = 2 * (m_w * m_z + m_x * m_y);
+    REAL cosy_cosp = 1 - 2 * (m_y * m_y + m_z * m_z);
+    a.z() = ATAN2(siny_cosp, cosy_cosp);
+
+    return a;
 }
 
 //namespace Render
