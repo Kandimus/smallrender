@@ -1,4 +1,7 @@
+
 #include "render.h"
+#include "light.h"
+#include "color_argb.h"
 
 namespace Render
 {
@@ -8,6 +11,7 @@ static int gWidth = 320;
 static int gHeight = 240;
 
 static std::vector<StaticMesh*> gStaticMesh;
+static std::vector<Light*> gLight;
 
 Camera& camera(void)
 {
@@ -75,9 +79,29 @@ StaticMesh* addStaticMesh()
     return sm;
 }
 
-const std::vector<StaticMesh*>& staticMesh()
+const std::vector<StaticMesh*>& staticMeshes()
 {
     return gStaticMesh;
+}
+
+Light* addDirectionalLight(const Vector3& direction, const Vector3& diffuse, const Vector3& specular, const ColorRGB& color)
+{
+    auto l = new Light(direction, diffuse, specular, color);
+    gLight.push_back(l);
+    return l;
+}
+
+Light* addPointLight(const Vector3& position, REAL range, const Vector3& attenuation, const Vector3& diffuse,
+                     const Vector3& specular, const ColorRGB& color)
+{
+    auto l = new Light(position, range, attenuation, diffuse, specular, color);
+    gLight.push_back(l);
+    return l;
+}
+
+const std::vector<Light*>& lights()
+{
+    return gLight;
 }
 
 void makeProjection(REAL fFOV, REAL fAspect, REAL fNear, REAL fFar, Matrix4& m/*, bool bGPU*/)

@@ -559,9 +559,9 @@ void StaticMesh::finalize()
 //ZONE_E;
 //}
 
-bool StaticMesh::loadFromTinygltf(const tinygltf::Mesh& mesh, const tinygltf::Model& model)
+bool StaticMesh::loadFromTinygltf(const tinygltf::Node& node, const tinygltf::Model& model)
 {
-    if (!GeomObject::loadFromTinygltf(mesh, model))
+    if (!GeomObject::loadFromTinygltf(node, model))
     {
         return false;
     }

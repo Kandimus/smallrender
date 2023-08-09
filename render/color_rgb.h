@@ -10,7 +10,7 @@ class ColorRGB
 {
 public:
     ColorRGB() = default;
-    ColorRGB(unsigned int c) { 	m_red = ((c >> 16) & 0xff) / 255.0; m_green = ((c >> 8) & 0xff) / 255.0; m_blue = (c & 0xff) / 255.0; }
+    ColorRGB(unsigned int c) { m_red = ((c >> 16) & 0xff) / 255.0; m_green = ((c >> 8) & 0xff) / 255.0; m_blue = (c & 0xff) / 255.0; }
     ColorRGB(REAL c) { m_red = m_green = m_blue = c; }
     ColorRGB(REAL r, REAL g, REAL b) { 	m_red = r; m_green = g; m_blue = b; }
     ColorRGB(const ColorRGB& c) { memcpy(m_color, c.data(), sizeof(REAL) * 3); }
@@ -23,6 +23,10 @@ public:
     REAL red() const { return m_red; }
     REAL green() const { return m_green; }
     REAL blue() const { return m_blue; }
+
+    unsigned char redHex() const { return m_red * 255.0 + 0.5; }
+    unsigned char greenHex() const { return m_green * 255.0 + 0.5; }
+    unsigned char blueHex() const { return m_blue * 255.0 + 0.5; }
 
     REAL operator [](const int index) { return m_color[index]; }
     const REAL& operator [](const int index) const { return m_color[index]; }
@@ -115,6 +119,7 @@ public:
     static const ColorRGB Green;
     static const ColorRGB GreenYellow;
     static const ColorRGB Grey;
+    static const ColorRGB Grey25;
     static const ColorRGB IndianRed;
     static const ColorRGB Khaki;
     static const ColorRGB LightBlue;

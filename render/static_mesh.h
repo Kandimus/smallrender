@@ -54,7 +54,7 @@ public:
 //	const OBBox& obbox() const { return m_obbox; }
 //	bool isIntersect(const OBBox& obbox) const { return m_obbox.isIntersect(obbox); }
 
-    bool loadFromTinygltf(const tinygltf::Mesh& mesh, const tinygltf::Model& model);
+    bool loadFromTinygltf(const tinygltf::Node& node, const tinygltf::Model& model);
 
 private:
     void initialize();

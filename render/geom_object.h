@@ -10,8 +10,8 @@
 
 namespace tinygltf
 {
-struct Mesh;
 class Model;
+class Node;
 }
 
 namespace Render
@@ -45,7 +45,7 @@ public:
     const std::vector<Vector2>& texCoord(int i = 0) const { return m_texCoord[i]; }
 
     void createTriangles();
-    bool loadFromTinygltf(const tinygltf::Mesh& mesh, const tinygltf::Model& model);
+    bool loadFromTinygltf(const tinygltf::Node& node, const tinygltf::Model& model);
 
 protected:
     std::string m_name;

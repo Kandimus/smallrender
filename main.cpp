@@ -9,6 +9,8 @@
 
 #include "render.h"
 #include "triangle.h"
+#include "color_rgb.h"
+#include "light.h"
 
 namespace arg
 {
@@ -67,7 +69,7 @@ bool loadMeshes(const tinygltf::Model& model)
         {
             auto sm = Render::addStaticMesh();
 
-            if(!sm->loadFromTinygltf(model.meshes[node.mesh], model))
+            if(!sm->loadFromTinygltf(node, model))
             {
                 return false;
             }
@@ -137,8 +139,11 @@ int main(int argc, const char** argv)
         return 1;
     }
 
-    auto listMesh = Render::staticMesh();
+    Render::Light::setGlobalAmbient(Render::ColorRGB::Grey25); // Такой цвет по дефаулту в блендере
+
+    auto listMesh = Render::staticMeshes();
     auto v = Render::camera().direction();
+    Render::ColorRGB color;
 
     for (int yy = 0; yy < Render::image_height(); ++yy)
     {
@@ -151,52 +156,28 @@ int main(int argc, const char** argv)
                 auto listTri = sm->triangle();
                 for (auto& tri : listTri)
                 {
-                    if (xx == 0 && yy == 80)
-                    {
-                        volatile int a = 1;
-                        a = 2;
-                    }
+                    color = Render::Light::globalAmbient();
                     Render::Vector3 p;
                     Render::Vector2 uv;
-                    //if (tri.intersect(dir, p, uv))
-                    if (tri.intersect(dir))
+
+                    if (tri.intersect(dir, p, uv))
+                    //if (tri.intersect(dir))
                     {
-                        Render::image()[Render::image_width() * 3 * yy + 3 * xx + 0] = 0xFF;
-                        Render::image()[Render::image_width() * 3 * yy + 3 * xx + 1] = 0x40;
-                        Render::image()[Render::image_width() * 3 * yy + 3 * xx + 2] = 0xFF;
+                        auto nl = (-dir.direction()) & tri.normal();
+                        color *= Render::ColorRGB::White * (nl);
                     }
+
+                    color.scaleByMax();
+
+                    Render::image()[Render::image_width() * 3 * yy + 3 * xx + 0] = color.redHex();
+                    Render::image()[Render::image_width() * 3 * yy + 3 * xx + 1] = color.greenHex();
+                    Render::image()[Render::image_width() * 3 * yy + 3 * xx + 2] = color.blueHex();
                 }
             }
 
         }
     }
 
-    auto dir = Render::camera().centralRay();//180, 120);
-    std::cout << "Camera aX " << Render::camera().angleX() << ", aY " << Render::camera().angleY() << ", dir (" << dir.direction().x() << ", " << dir.direction().y() << ", " << dir.direction().z() << ")" << std::endl;
-    for (auto sm : listMesh)
-    {
-        auto listTri = sm->triangle();
-        for (auto& tri : listTri)
-        {
-            Render::Vector3 p;
-            Render::Vector2 uv;
-            //if (tri.intersect(dir, p, uv))
-            if (tri.intersect(dir))
-            {
-                Render::image()[Render::image_width() * 3 * 120 + 3 * 160 + 0] = 0xFF;
-                Render::image()[Render::image_width() * 3 * 120 + 3 * 160 + 1] = 0xFF;
-                Render::image()[Render::image_width() * 3 * 120 + 3 * 160 + 2] = 0xFF;
-            }
-        }
-    }
-
-
-    Render::image()[0] = 0xFF;
-    Render::image()[1] = 0xFF;
-    Render::image()[2] = 0xFF;
-    Render::image()[Render::image_width() * 3 + 3] = 0xFF;
-    Render::image()[Render::image_width() * 3 + 4] = 0xFF;
-    Render::image()[Render::image_width() * 3 + 5] = 0xFF;
     stbi_write_png(rSimpleArgs::instance().getOption(arg::OUTPUT).c_str(),
                    Render::image_width(), Render::image_height(), 3, Render::image(),
                    Render::image_width() * 3);

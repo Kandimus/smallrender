@@ -6,8 +6,14 @@
 namespace Render
 {
 
-bool GeomObject::loadFromTinygltf(const tinygltf::Mesh& mesh, const tinygltf::Model& model)
+bool GeomObject::loadFromTinygltf(const tinygltf::Node& node, const tinygltf::Model& model)
 {
+    if (node.mesh < 0 || model.meshes.size() <= node.mesh)
+    {
+        return false;
+    }
+
+    auto& mesh = model.meshes[node.mesh];
     m_name = mesh.name;
 
     int idAccVertex = -1;
@@ -94,6 +100,8 @@ bool GeomObject::loadFromTinygltf(const tinygltf::Mesh& mesh, const tinygltf::Mo
     {
         createTriangles();
     }
+
+    //TODO Применить трансформацию из node
 
     return true;
 }
