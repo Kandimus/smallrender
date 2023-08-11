@@ -1,6 +1,13 @@
 
 #include "camera.h"
 #include "render.h"
+#include "tiny_gltf.h"
+
+
+namespace
+{
+std::string PERSPECTIVE = "perspective";
+}
 
 namespace Render
 {
@@ -120,6 +127,45 @@ void Camera::update()
 
     m_isChangedPosition = false;
     m_isChangedDirection = false;
+}
+
+bool Camera::loadFromTinygltf(const tinygltf::Node& node, const tinygltf::Model& model)
+{
+    if (node.camera < 0 || model.cameras.size() <= node.camera)
+    {
+        return false;
+    }
+
+    auto& camera = model.cameras[node.camera];
+    m_name = camera.name;
+
+    if (camera.type == ::PERSPECTIVE)
+    {
+        if (node.translation.size() >= 3)
+        {
+            Render::camera().position() = Render::Vector3(node.translation[0], node.translation[1], -node.translation[2]);
+        }
+
+        if (node.rotation.size() >= 4)
+        {
+            auto q = Render::Quaternion(node.rotation[0], node.rotation[1], node.rotation[2], node.rotation[3]);
+            auto a = q.toYPR();
+
+            Render::camera().angleX() = a.x();
+            Render::camera().angleY() = a.y();
+        }
+
+        Render::camera().frustum().aspect() = camera.perspective.aspectRatio;
+        Render::camera().frustum().fov() = camera.perspective.yfov;
+        Render::camera().frustum().farClip() = camera.perspective.zfar;
+        Render::camera().frustum().nearClip() = camera.perspective.znear;
+        Render::camera().changed();
+        Render::camera().update();
+
+        return true;
+    }
+
+    return false;
 }
 
 // namespace Render

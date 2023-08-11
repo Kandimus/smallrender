@@ -11,6 +11,7 @@
 #include "triangle.h"
 #include "color_rgb.h"
 #include "light.h"
+#include "static_mesh.h"
 
 namespace arg
 {
@@ -22,68 +23,63 @@ const char* OUTPUT = "output";
 
 int stbi_write_png(char const *filename, int w, int h, int comp, const void  *data, int stride_in_bytes);
 
-
-bool loadCamera(const tinygltf::Model& model)
+bool loadObjectsFromGLTF(const tinygltf::Model& model)
 {
-    for (auto& node : model.nodes)
+    for (auto& scene : model.scenes)
     {
-        if (node.camera >= 0 && model.cameras[node.camera].type == "perspective")
+        for (auto& nodeId : scene.nodes)
         {
-            auto& cam = model.cameras[node.camera];
-
-            std::cout << "Found camera '" << cam.name << "'" << std::endl;
-
-            if (node.translation.size())
+            if (nodeId < 0)
             {
-                Render::camera().position() = Render::Vector3(node.translation[0], node.translation[1], -node.translation[2]);
+                continue;
             }
 
-            if (node.rotation.size())
+            auto& node = model.nodes[nodeId];
+
+            if (node.mesh >= 0)
             {
-                auto q = Render::Quaternion(node.rotation[0], node.rotation[1], node.rotation[2], node.rotation[3]);
-                auto a = q.toYPR();
+                auto mesh = Render::addStaticMesh();
 
-                Render::camera().angleX() = a.x();
-                Render::camera().angleY() = a.y();
+                if(!mesh->loadFromTinygltf(node, model))
+                {
+                    std::cout << "Fault load mesh '" << mesh->name() << "'" << std::endl;
+                    return false;
+                }
+
+                std::cout << "Load mesh '" << mesh->name() << "'" << std::endl;
             }
-
-            Render::camera().frustum().aspect() = 4.0/3.0;//cam.perspective.aspectRatio;
-            Render::camera().frustum().fov() = cam.perspective.yfov;
-            Render::camera().frustum().farClip() = cam.perspective.zfar;
-            Render::camera().frustum().nearClip() = cam.perspective.znear;
-            Render::camera().changed();
-            Render::camera().update();
-
-            return true;
-        }
-    }
-
-    return false;
-}
-
-bool loadMeshes(const tinygltf::Model& model)
-{
-    for (auto& node : model.nodes)
-    {
-        if (node.mesh >= 0)
-        {
-            auto sm = Render::addStaticMesh();
-
-            if(!sm->loadFromTinygltf(node, model))
+            else if (node.camera >= 0)
             {
-                return false;
-            }
+                if (!Render::camera().instance().loadFromTinygltf(node, model))
+                {
+                    std::cout << "Fault load camera '" << Render::camera().instance().name() << "'" << std::endl;
+                    return false;
+                }
 
-            std::cout << "Load mesh '" << sm->name() << "'" << std::endl;
+                std::cout << "Load camera '" << Render::camera().instance().name() << "'" << std::endl;
+            }
+            if (node.light >= 0)
+            {
+                auto light = Render::addLight();
+
+                if(!light->loadFromTinygltf(node, model))
+                {
+                    std::cout << "Fault load light '" << light->name() << "'" << std::endl;
+                    return false;
+                }
+
+                std::cout << "Load light '" << light->name() << "'" << std::endl;
+            }
         }
     }
 
     return true;
 }
 
-
 int main(int argc, const char** argv)
 {
+    auto t_start = GetTickCount64();
+
     rSimpleArgs::instance()
         .addOption(arg::WIDTH, 'w', "320")
         .addOption(arg::HEIGHT, 'h', "240")
@@ -93,13 +89,12 @@ int main(int argc, const char** argv)
     rSimpleArgs::instance().parse(argc, argv);
     int w = std::stoi(rSimpleArgs::instance().getOption(arg::WIDTH));
     int h = std::stoi(rSimpleArgs::instance().getOption(arg::HEIGHT));
+    int w_3 = w * 3;
 
     if (rSimpleArgs::instance().isSet(arg::WIDTH) && rSimpleArgs::instance().isSet(arg::HEIGHT))
     {
         Render::camera().frustum().aspect() = REAL(w) / h;
     }
-
-    Render::init(w, h);
 
     tinygltf::TinyGLTF loader;
     std::string err;
@@ -126,52 +121,39 @@ int main(int argc, const char** argv)
         std::cout << "Loaded glTF: " << rSimpleArgs::instance().getOption(arg::INPUT) << std::endl;
     }
 
+    Render::camera().reset();
 
-    if (!loadCamera(model))
+    if (!loadObjectsFromGLTF(model))
     {
-        std::cout << "Error: Load the camera fault" << std::endl;
         return 1;
     }
 
-    if (!loadMeshes(model))
-    {
-        std::cout << "Error: Load meshes fault" << std::endl;
-        return 1;
-    }
+    auto ambient = Render::addLight();
+    ambient->createAmbient(Render::Vector3::c1, Render::Vector3::c1, Render::ColorRGB::Grey25); // Такой цвет по дефаулту в блендере
+    std::cout << "Create global ambient light" << std::endl;
 
-    Render::Light::setGlobalAmbient(Render::ColorRGB::Grey25); // Такой цвет по дефаулту в блендере
+    //
+    Render::init(w, h);
 
     auto listMesh = Render::staticMeshes();
-    auto v = Render::camera().direction();
     Render::ColorRGB color;
 
     for (int yy = 0; yy < Render::image_height(); ++yy)
     {
         for (int xx = 0; xx < Render::image_width(); ++xx)
         {
-            auto dir = Render::camera().ray(xx, yy);
+            auto ray = Render::camera().ray(xx, yy);
 
             for (auto sm : listMesh)
             {
                 auto listTri = sm->triangle();
                 for (auto& tri : listTri)
                 {
-                    color = Render::Light::globalAmbient();
-                    Render::Vector3 p;
-                    Render::Vector2 uv;
+                    color = calculatePoint(ray, tri);
 
-                    if (tri.intersect(dir, p, uv))
-                    //if (tri.intersect(dir))
-                    {
-                        auto nl = (-dir.direction()) & tri.normal();
-                        color *= Render::ColorRGB::White * (nl);
-                    }
-
-                    color.scaleByMax();
-
-                    Render::image()[Render::image_width() * 3 * yy + 3 * xx + 0] = color.redHex();
-                    Render::image()[Render::image_width() * 3 * yy + 3 * xx + 1] = color.greenHex();
-                    Render::image()[Render::image_width() * 3 * yy + 3 * xx + 2] = color.blueHex();
+                    Render::image()[w_3 * yy + 3 * xx + 0] = color.redHex();
+                    Render::image()[w_3 * yy + 3 * xx + 1] = color.greenHex();
+                    Render::image()[w_3 * yy + 3 * xx + 2] = color.blueHex();
                 }
             }
 
@@ -182,29 +164,13 @@ int main(int argc, const char** argv)
                    Render::image_width(), Render::image_height(), 3, Render::image(),
                    Render::image_width() * 3);
 
-    // Камера смотрит строго по оси Z
-//    Render::camera().position() = Render::Vector3(-1, 1.99, -100);
-//    Render::camera().ray().origin() = Render::Vector3::cY;
-//    Render::camera().ray().direction() = Render::Vector3::cZ;
+    auto t_end = GetTickCount64();
 
-//    Render::Triangle t(Render::Vector3(-1, -1, 100), Render::Vector3(-1, 2, 100), Render::Vector3(2, -1, 100));
+    std::cout << "Calculate time: " << t_end - t_start << " msec" << std::endl;
 
-//    {
-//        auto t_start = GetTickCount64();
+    color = Render::calculatePoint(Render::camera().centralRay(), Render::staticMeshes()[0]->triangle()[0]);
 
-//        bool x = true;
-//        for (int ii = 0; ii < 10000000; ++ii)
-//        {
-//            x &= t.intersect(Render::camera());
-//        }
-
-//        auto t_end = GetTickCount64();
-
-//        std::cout << "X = " << x << "  time: " << t_end - t_start << std::endl;
-//    }
-
-//    {
-//        auto t_start = GetTickCount64();
+//
 
 //        bool x = true;
 //        Render::Vector3 p;
@@ -213,9 +179,9 @@ int main(int argc, const char** argv)
 //            x &= t.intersect(Render::camera(), p);
 //        }
 
-//        auto t_end = GetTickCount64();
+//
 
-//        std::cout << "X = " << x << "  time: " << t_end - t_start << std::endl;
+
 //    }
 
     Render::finalize();

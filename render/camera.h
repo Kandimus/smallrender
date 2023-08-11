@@ -1,9 +1,17 @@
 #pragma once
 
+#include <string>
+
 #include "ray.h"
 #include "quaternion.h"
 #include "frustum.h"
 #include "vector2.h"
+
+namespace tinygltf
+{
+struct Node;
+class Model;
+}
 
 namespace Render
 {
@@ -34,6 +42,10 @@ public:
     REAL rotateSpeed() const { return m_rotateSpeed; }
     const Frustum& frustum() const { return m_frustum; }
 //    const Sphere& BSphere() const;
+
+    std::string& name() { return m_name; }
+    const std::string& name() const { return m_name; }
+
     const Quaternion& orientation() const { return m_orientation; }
     const Vector3& direction() const { return m_direction; }
     const Vector3& left() const { return m_left; }
@@ -60,7 +72,10 @@ public:
     void update();
     void reset();
 
+    bool loadFromTinygltf(const tinygltf::Node& node, const tinygltf::Model& model);
+
 protected:
+    std::string m_name = "camera";
     Vector3 m_position;
     REAL m_angleX;
     REAL m_angleY;

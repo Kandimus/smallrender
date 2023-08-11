@@ -3,6 +3,7 @@
 #include <string>
 
 #include "vector3.h"
+#include "ray.h"
 #include "color_rgb.h"
 
 namespace tinygltf
@@ -17,30 +18,26 @@ namespace Render
 
 class Light
 {
+public:
     enum class Type
     {
-        UNKNOW,
+        AMBIENT,
         DIRECTIONAL,
         POINT,
         SPOT,
     };
 
-public:
     Light() { }
-    Light(const Vector3& direction, const Vector3& diffuse, const Vector3& specular, const ColorRGB& color)
-    {
-        createDirectional(direction, diffuse, specular, color);
-    }
-    Light(const Vector3& position, REAL range, const Vector3& attenuation, const Vector3& diffuse, const Vector3& specular, const ColorRGB& color)
-    {
-        createPoint(position, range, attenuation, diffuse, specular, color);
-    }
-    Light(const Vector3& position, REAL range, REAL angle, const Vector3& direction, const Vector3& diffuse, const Vector3& specular, const ColorRGB& color)
-    {
-        createSpot(position, range, angle, direction, diffuse, specular, color);
-    }
     virtual ~Light() = default;
-	
+
+    void createAmbient(const ColorRGB& ambient)
+    {
+        m_type = Type::AMBIENT;
+        m_ambient = ambient;
+
+        m_enable = true;
+    }
+
     void createDirectional(const Vector3& direction, const Vector3& diffuse, const Vector3& specular, const ColorRGB& color)
     {
         m_type = Type::DIRECTIONAL;
@@ -85,8 +82,8 @@ public:
     Type type() const { return m_type; }
     Type& type() { return m_type; }
 
-    const ColorRGB& color() const { return m_color; }
-    ColorRGB& color() { return m_color; }
+    const ColorRGB& ambient() const { return m_ambient; }
+    ColorRGB& ambient() { return m_ambient; }
 
     const Vector3& position() const { return m_position; }
     Vector3& position() { return m_position; }
@@ -118,18 +115,15 @@ public:
 
     bool loadFromTinygltf(const tinygltf::Node& node, const tinygltf::Model& model);
 
-    static const ColorRGB& globalAmbient() { return m_globalColor; }
-    static void setGlobalAmbient(const ColorRGB& color) { m_globalColor = color; }
-
 private:
     std::string m_name = "";
-    Type m_type = Type::POINT;
+    Type m_type = Type::AMBIENT;
     Vector3 m_position = Vector3::c0;
     Vector3 m_direction = Vector3::c0;
     Vector3 m_diffuse = Vector3::c0; // рассеянный свет
     Vector3 m_specular = Vector3::c0; // отраженный свет
-    ColorRGB m_color = ColorRGB::White; // цвет света :) ambient
-    Vector3 m_attenuation = Vector3::c0; // затухание ks, kl, kq
+    ColorRGB m_ambient = ColorRGB::White; // цвет света :) ambient
+    Vector3 m_attenuation = Vector3::c0; // затухание x - ks, y - kl, z - kq
     REAL m_angle = MATH_PI_4;
     REAL m_range = 0;
 

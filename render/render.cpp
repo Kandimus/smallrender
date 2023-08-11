@@ -1,7 +1,9 @@
 
 #include "render.h"
-#include "light.h"
-#include "color_argb.h"
+#include "i_light.h"
+#include "static_mesh.h"
+#include "triangle.h"
+#include "color_rgb.h"
 
 namespace Render
 {
@@ -11,7 +13,10 @@ static int gWidth = 320;
 static int gHeight = 240;
 
 static std::vector<StaticMesh*> gStaticMesh;
-static std::vector<Light*> gLight;
+static std::vector<ILight*> gLight;
+
+ILight* gLightAmbient = nullptr;
+ColorRGB gLightAmbientColor;
 
 Camera& camera(void)
 {
@@ -54,8 +59,6 @@ void init(int w, int h)
     {
         gBuffer[max_ii + ii] = 0;
     }
-
-    camera().reset();
 }
 
 void finalize()
@@ -84,24 +87,14 @@ const std::vector<StaticMesh*>& staticMeshes()
     return gStaticMesh;
 }
 
-Light* addDirectionalLight(const Vector3& direction, const Vector3& diffuse, const Vector3& specular, const ColorRGB& color)
-{
-    auto l = new Light(direction, diffuse, specular, color);
-    gLight.push_back(l);
-    return l;
-}
-
-Light* addPointLight(const Vector3& position, REAL range, const Vector3& attenuation, const Vector3& diffuse,
-                     const Vector3& specular, const ColorRGB& color)
-{
-    auto l = new Light(position, range, attenuation, diffuse, specular, color);
-    gLight.push_back(l);
-    return l;
-}
-
-const std::vector<Light*>& lights()
+const std::vector<ILight*>& lights()
 {
     return gLight;
+}
+
+void setAmbient(ILight* ambient)
+{
+    gLightAmbient = ambient;
 }
 
 void makeProjection(REAL fFOV, REAL fAspect, REAL fNear, REAL fFar, Matrix4& m/*, bool bGPU*/)
@@ -185,6 +178,43 @@ void makeOrtho(REAL fFOV, REAL fAspect, REAL fNear, REAL fFar, Matrix4& m/*, boo
 //    {
 //        zM.Value(2, 2) = -zM.Value(2, 2);
 //    }
+}
+
+ColorRGB calculatePoint(const Ray& ray, const Triangle& t)
+{
+    Vector3 p;
+    Vector2 uv;
+    ColorRGB c = ColorRGB::Black;
+
+    if (!t.intersect(ray, p, uv))
+    //if (!tri.intersect(dir))
+    {
+        return gLightAmbientColor;
+    }
+
+    // ILxxx - начальная интенсивность источника
+    // CLxxx - цвет источника
+    // IMxxx - интенсивность материала
+    // CMxxx - цвет материала
+    //
+    // C = RSambient * ILambient + RSemmision + RSdiffuse * SUM(IL(i)diffuse * (ni & li)) + RSspecular * SUM(IL(i)specular * max(ri & vi, 0) * ((ni & li) > 0 ? 1 : 0))
+
+    Vector3 diffuse = Vector3::c0;
+
+    for (auto light : gLight)
+    {
+        if (!light->enable())
+        {
+            continue;
+        }
+
+        diffuse += light->intensity(p, t.normal());
+    }
+
+    c = Render::ColorRGB::White * ;
+
+    c.scaleByMax();
+    return c;
 }
 
 }

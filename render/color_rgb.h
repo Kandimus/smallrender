@@ -2,6 +2,7 @@
 
 #include <memory.h>
 #include "defines.h"
+#include "vector3.h"
 
 namespace Render
 {
@@ -42,6 +43,7 @@ public:
     ColorRGB& operator -=(const ColorRGB& c) { m_red -= c.red(); m_green -= c.green(); m_blue -= c.blue(); return *this; }
     ColorRGB& operator *=(const ColorRGB& c) { m_red *= c.red(); m_green *= c.green(); m_blue *= c.blue(); return *this; }
     ColorRGB& operator *=(REAL v) { m_red *= v; m_green *= v; m_blue *= v; return *this; }
+    ColorRGB& operator *=(const Vector3& v) { m_red *= v.x(); m_green *= v.y(); m_blue *= v.z(); return *this; } //TODO Нужно ли? или defuse и specular перевести на ColorRGB
     ColorRGB& operator /=(const ColorRGB& c)
     {
         if (c.red() == 0 || c.green() == 0 || c.blue() == 0) *this = Black;
@@ -64,6 +66,7 @@ public:
     ColorRGB operator -(const ColorRGB& c) const { return ColorRGB(m_red - c.red(), m_green - c.green(), m_blue - c.blue()); }
     ColorRGB operator *(const ColorRGB& c) const { return ColorRGB(m_red * c.red(), m_green * c.green(), m_blue * c.blue()); }
     ColorRGB operator *(REAL v) const { return ColorRGB(m_red * v, m_green * v, m_blue * v); }
+    ColorRGB operator *(const Vector3& v) const { return ColorRGB(m_red * v.x(), m_green * v.y(), m_blue * v.z()); } //TODO Нужно ли? или defuse и specular перевести на ColorRGB
     ColorRGB operator /(const ColorRGB& c) const
     {
         return (c.red() == 0 || c.green() == 0 || c.blue() == 0)
@@ -71,9 +74,6 @@ public:
                    : ColorRGB(m_red / c.red(), m_green / c.green(), m_blue / c.blue());
     }
     ColorRGB operator /(REAL v) const { return v == 0 ? Black : ColorRGB(m_red / v, m_green / v, m_blue / v) ; }
-
-    friend ColorRGB operator *(REAL scalar, const ColorRGB &zColor);
-    friend ColorRGB operator /(REAL scalar, const ColorRGB &zColor);
 
     void adjustContrast(REAL c) { for (int i = 0; i < 3; ++i) m_color[i] = 0.5 + c * (m_color[i] - 0.5); }
     void adjustSaturation(REAL s) { REAL grey = m_red * 0.2125 + m_green * 0.7154 + m_blue * 0.0721f; for(int i = 0; i < 3; ++i) m_color[i] = grey + s * (m_color[i] - grey); }
@@ -170,6 +170,11 @@ public:
 inline ColorRGB operator *(REAL v, const ColorRGB& c)
 {
     return ColorRGB(v * c.red(), v * c.green(), v * c.blue());
+}
+
+inline ColorRGB operator *(const Vector3& v, const ColorRGB& c)
+{
+    return ColorRGB(v.x() * c.red(), v.y() * c.green(), v.z() * c.blue());
 }
 
 inline ColorRGB operator /(REAL v, const ColorRGB& c)
