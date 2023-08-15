@@ -45,6 +45,7 @@ public:
     const std::vector<Vector2>& texCoord(int i = 0) const { return m_texCoord[i]; }
 
     void createTriangles();
+    void toString() const;
     bool loadFromTinygltf(const tinygltf::Node& node, const tinygltf::Model& model);
 
 protected:

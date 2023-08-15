@@ -31,7 +31,7 @@ public:
     void calculate();
 
     bool intersect(const Ray& ray, Vector3& point, Vector2& uv) const;
-    bool intersect(const Ray& ray) const;
+    bool intersect(const Ray& ray, Vector3& point) const;
 
 private:
     Vector3 m_point[3];

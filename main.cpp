@@ -1,5 +1,7 @@
 #include <windows.h>
+
 #include <iostream>
+#include <limits>
 
 #include "simpleargs.h"
 #include "tiny_gltf.h"
@@ -10,7 +12,8 @@
 #include "render.h"
 #include "triangle.h"
 #include "color_rgb.h"
-#include "light.h"
+#include "light_factory.h"
+#include "light_ambient.h"
 #include "static_mesh.h"
 
 namespace arg
@@ -38,7 +41,7 @@ bool loadObjectsFromGLTF(const tinygltf::Model& model)
 
             if (node.mesh >= 0)
             {
-                auto mesh = Render::addStaticMesh();
+                auto mesh = Render::createStaticMesh();
 
                 if(!mesh->loadFromTinygltf(node, model))
                 {
@@ -46,7 +49,7 @@ bool loadObjectsFromGLTF(const tinygltf::Model& model)
                     return false;
                 }
 
-                std::cout << "Load mesh '" << mesh->name() << "'" << std::endl;
+                std::cout << "Load mesh '" << mesh->name() << "', vertices " << mesh->vertex().size() << ", indices " << mesh->index().size() << ", tirangles " << mesh->triangle().size() <<  std::endl;
             }
             else if (node.camera >= 0)
             {
@@ -60,14 +63,15 @@ bool loadObjectsFromGLTF(const tinygltf::Model& model)
             }
             if (node.light >= 0)
             {
-                auto light = Render::addLight();
+                auto light = Render::LightFactory::loadFromTinygltf(node, model);
 
-                if(!light->loadFromTinygltf(node, model))
+                if (!light)
                 {
-                    std::cout << "Fault load light '" << light->name() << "'" << std::endl;
+                    std::cout << "Fault load light '" << node.name << "'" << std::endl;
                     return false;
                 }
 
+                Render::addLight(light);
                 std::cout << "Load light '" << light->name() << "'" << std::endl;
             }
         }
@@ -83,7 +87,10 @@ int main(int argc, const char** argv)
     rSimpleArgs::instance()
         .addOption(arg::WIDTH, 'w', "320")
         .addOption(arg::HEIGHT, 'h', "240")
-        .addOption(arg::INPUT, 'i', "triangle.gltf")
+        .addOption(arg::INPUT, 'i',
+                   "scene1.gltf"
+                   //"triangle2.gltf"
+                   )
         .addOption(arg::OUTPUT, 'o', "smallrender.png");
 
     rSimpleArgs::instance().parse(argc, argv);
@@ -128,35 +135,47 @@ int main(int argc, const char** argv)
         return 1;
     }
 
-    auto ambient = Render::addLight();
-    ambient->createAmbient(Render::Vector3::c1, Render::Vector3::c1, Render::ColorRGB::Grey25); // Такой цвет по дефаулту в блендере
+    Render::lightAmbient().ambient().x() = Render::ColorRGB::Grey25.red();
+    Render::lightAmbient().ambient().y() = Render::ColorRGB::Grey25.green();
+    Render::lightAmbient().ambient().z() = Render::ColorRGB::Grey25.blue();
     std::cout << "Create global ambient light" << std::endl;
 
     //
     Render::init(w, h);
 
     auto listMesh = Render::staticMeshes();
+    Render::Ray ray;
     Render::ColorRGB color;
+    Render::ColorRGB c;
+    REAL deep = std::numeric_limits<REAL>::infinity();
 
     for (int yy = 0; yy < Render::image_height(); ++yy)
     {
         for (int xx = 0; xx < Render::image_width(); ++xx)
         {
-            auto ray = Render::camera().ray(xx, yy);
+            ray = Render::camera().ray(xx, yy);
+            color = Render::lightAmbient().ambient();
+            deep = 1000000000;
 
+            color = Render::ColorRGB::Black;
             for (auto sm : listMesh)
             {
                 auto listTri = sm->triangle();
                 for (auto& tri : listTri)
                 {
-                    color = calculatePoint(ray, tri);
+                    REAL d = calculatePoint(ray, tri, c);
 
-                    Render::image()[w_3 * yy + 3 * xx + 0] = color.redHex();
-                    Render::image()[w_3 * yy + 3 * xx + 1] = color.greenHex();
-                    Render::image()[w_3 * yy + 3 * xx + 2] = color.blueHex();
+                    if (d < deep)
+                    {
+                        deep = d;
+                        color = c;
+                    }
                 }
             }
 
+            Render::image()[w_3 * yy + 3 * xx + 0] = color.redHex();
+            Render::image()[w_3 * yy + 3 * xx + 1] = color.greenHex();
+            Render::image()[w_3 * yy + 3 * xx + 2] = color.blueHex();
         }
     }
 
@@ -168,7 +187,7 @@ int main(int argc, const char** argv)
 
     std::cout << "Calculate time: " << t_end - t_start << " msec" << std::endl;
 
-    color = Render::calculatePoint(Render::camera().centralRay(), Render::staticMeshes()[0]->triangle()[0]);
+//    color = Render::calculatePoint(Render::camera().centralRay(), Render::staticMeshes()[0]->triangle()[0]);
 
 //
 

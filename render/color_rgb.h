@@ -15,6 +15,7 @@ public:
     ColorRGB(REAL c) { m_red = m_green = m_blue = c; }
     ColorRGB(REAL r, REAL g, REAL b) { 	m_red = r; m_green = g; m_blue = b; }
     ColorRGB(const ColorRGB& c) { memcpy(m_color, c.data(), sizeof(REAL) * 3); }
+    ColorRGB(const Vector3& v) { memcpy(m_color, v.data(), sizeof(REAL) * 3); }
     virtual~ColorRGB() = default;
 
     REAL& red() { return m_red; }

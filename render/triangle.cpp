@@ -60,14 +60,15 @@ bool Triangle::intersect(const Ray& ray, Vector3& point, Vector2& uv) const
     return fU > 0 && fV > 0 && fU + fV < 1;
 }
 
-bool Triangle::intersect(const Ray& ray) const
+// Möller–Trumbore intersection algorithm
+bool Triangle::intersect(const Ray& ray, Vector3& point) const
 {
     // Вычисление вектора нормали к плоскости
     Vector3 pvec = ray.direction() ^ m_edge2;
     float det = m_edge1 & pvec;
 
     // Луч параллелен плоскости
-    if (det < 1e-8 && det > -1e-8)
+    if (det < MATH_EPS && det > -MATH_EPS)
     {
         return false;
     }
@@ -85,10 +86,17 @@ bool Triangle::intersect(const Ray& ray) const
 
     if (v < 0 || u + v > 1)
     {
-        return 0;
+        return false;
     }
 
-    return ((m_edge2 & qvec) * inv_det) > 0;
+    REAL fT = (m_edge2 & qvec) * inv_det;
+    if (fT < MATH_EPS)
+    {
+        return false;
+    }
+
+    point = ray.point(fT);
+    return true;
 }
 
 };

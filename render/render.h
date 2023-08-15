@@ -6,6 +6,7 @@
 namespace Render
 {
 class ILight;
+class LightAmbient;
 class StaticMesh;
 class Triangle;
 
@@ -19,16 +20,17 @@ int image_width();
 int image_height();
 
 //
-StaticMesh* addStaticMesh();
+StaticMesh* createStaticMesh();
 const std::vector<StaticMesh*>& staticMeshes();
 
 //
-void setAmbient(ILight* ambient);
+LightAmbient& lightAmbient();
+void addLight(ILight* l);
 const std::vector<ILight*>& lights();
 
 //
 void makeProjection(REAL fFOV, REAL fAspect, REAL fNear, REAL fFar, Matrix4& m/*, bool bGPU*/);
 void makeOrtho(REAL fFOV, REAL fAspect, REAL fNear, REAL fFar, Matrix4& m/*, bool bGPU*/);
 
-ColorRGB calculatePoint(const Ray& ray, const Triangle& t);
+REAL calculatePoint(const Ray& ray, const Triangle& t, ColorRGB& c);
 }

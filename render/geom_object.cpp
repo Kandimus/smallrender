@@ -1,4 +1,6 @@
 
+#include <iostream>
+
 #include "geom_object.h"
 #include "helper_gltf.h"
 #include "tiny_gltf.h"
@@ -125,6 +127,33 @@ void GeomObject::createTriangles()
         m_triangle[jj].point2() = m_vertex[i0];
         m_triangle[jj].calculate();
     }
+}
+
+void GeomObject::toString() const
+{
+    std::string str = "";
+    int i = 0;
+
+    str += "--- Object '" + m_name + "' ---\n";
+    str += "vertices:\n";
+    for (auto& v : m_vertex)
+    {
+        str += "[" + std::to_string(i++) + "] V " + v.toString() + "\n";
+    }
+
+    i = 0;
+    str += "normals:\n";
+    for (auto& v : m_normal)
+    {
+        str += "[" + std::to_string(i++) + "] N " + v.toString() + "\n";
+    }
+
+    i = 0;
+    for (int jj = 0; jj < m_index.size(); jj += 3)
+    {
+        str += "[" + std::to_string(i++) + "] I " + std::to_string(m_index[jj]) + " " + std::to_string(m_index[jj + 1]) + " " + std::to_string(m_index[jj + 2]) + "\n";
+    }
+    str += "--- End ---\n";
 }
 
 //namespace Render

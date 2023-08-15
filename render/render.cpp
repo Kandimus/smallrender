@@ -1,6 +1,8 @@
 
+#include <limits>
+
 #include "render.h"
-#include "i_light.h"
+#include "light_ambient.h"
 #include "static_mesh.h"
 #include "triangle.h"
 #include "color_rgb.h"
@@ -15,8 +17,7 @@ static int gHeight = 240;
 static std::vector<StaticMesh*> gStaticMesh;
 static std::vector<ILight*> gLight;
 
-ILight* gLightAmbient = nullptr;
-ColorRGB gLightAmbientColor;
+LightAmbient gLightAmbient(Vector3(1, 1, 1));
 
 Camera& camera(void)
 {
@@ -73,7 +74,7 @@ void finalize()
     }
 }
 
-StaticMesh* addStaticMesh()
+StaticMesh* createStaticMesh()
 {
     auto sm = new StaticMesh();
 
@@ -87,14 +88,19 @@ const std::vector<StaticMesh*>& staticMeshes()
     return gStaticMesh;
 }
 
+void addLight(ILight* l)
+{
+    gLight.push_back(l);
+}
+
 const std::vector<ILight*>& lights()
 {
     return gLight;
 }
 
-void setAmbient(ILight* ambient)
+LightAmbient& lightAmbient()
 {
-    gLightAmbient = ambient;
+    return gLightAmbient;
 }
 
 void makeProjection(REAL fFOV, REAL fAspect, REAL fNear, REAL fFar, Matrix4& m/*, bool bGPU*/)
@@ -180,17 +186,22 @@ void makeOrtho(REAL fFOV, REAL fAspect, REAL fNear, REAL fFar, Matrix4& m/*, boo
 //    }
 }
 
-ColorRGB calculatePoint(const Ray& ray, const Triangle& t)
+
+
+REAL calculatePoint(const Ray& ray, const Triangle& t, ColorRGB& c)
 {
     Vector3 p;
     Vector2 uv;
-    ColorRGB c = ColorRGB::Black;
 
-    if (!t.intersect(ray, p, uv))
-    //if (!tri.intersect(dir))
+    c = ColorRGB::Black;
+
+    //if (!t.intersect(ray, p, uv))
+    if (!t.intersect(ray, p))
     {
-        return gLightAmbientColor;
+        return 1000000000;//std::numeric_limits<REAL>::infinity();
     }
+
+    //return 1;
 
     // ILxxx - начальная интенсивность источника
     // CLxxx - цвет источника
@@ -208,13 +219,13 @@ ColorRGB calculatePoint(const Ray& ray, const Triangle& t)
             continue;
         }
 
-        diffuse += light->intensity(p, t.normal());
+        diffuse += light->intensity(ray, p, t.normal());
     }
 
-    c = Render::ColorRGB::White * ;
-
+    c = Render::ColorRGB::White * gLightAmbient.ambient() + diffuse * Render::ColorRGB::White;
     c.scaleByMax();
-    return c;
+
+    return (ray.origin() - p).length();
 }
 
 }
