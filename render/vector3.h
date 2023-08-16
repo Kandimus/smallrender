@@ -2,6 +2,7 @@
 
 #include <cmath>
 #include <string>
+#include <vector>
 #include "defines.h"
 
 namespace Render
@@ -56,16 +57,25 @@ public:
     bool operator <(REAL v) const { return m_x < v && m_y < v && m_z < v; }
     bool operator >(REAL v) const { return m_x > v && m_y > v && m_z > v; }
 
-    friend Vector3 operator +(const Vector3& v1, const Vector3& v2);
-    friend Vector3 operator -(const Vector3& v1, const Vector3& v2);
-    friend Vector3 operator *(REAL val, const Vector3& v);
-    friend Vector3 operator *(const Vector3& v, REAL val);
-    friend Vector3 operator *(const Vector3& v1, const Vector3& v2);
-    friend Vector3 operator /(const Vector3& v, REAL val);
-    friend Vector3 operator /(const Vector3& v1, const Vector3& v2);
-    friend REAL operator &(const Vector3& v1, const Vector3& v2); // dot
-    friend Vector3 operator ^(const Vector3& v1, const Vector3& v2); // cross
+    Vector3 operator +(const Vector3& v) const { return Vector3(m_x + v.x(), m_y + v.y(), m_z + v.z()); }
+    Vector3 operator -(const Vector3& v) const { return Vector3(m_x - v.x(), m_y - v.y(), m_z - v.z()); }
+    Vector3 operator *(const Vector3& v) const { return Vector3(m_x * v.x(), m_y * v.y(), m_z * v.z()); }
+    Vector3 operator /(const Vector3& v) const { return (v.x() !=0 && v.y() != 0 && v.z() != 0) ? Vector3(m_x / v.x(), m_y / v.y(), m_z / v.z()) : Vector3::c0; }
+    REAL    operator &(const Vector3& v) const { return m_x * v.x() + m_y * v.y() + m_z * v.z(); } // dot
+    Vector3 operator ^(const Vector3& v) const { return Vector3(m_y * v.z() - m_z * v.y(), m_z * v.x() - m_x * v.z(), m_x * v.y() - m_y * v.x()); } // cross
 
+    Vector3 operator *(REAL val) const { return Vector3(m_x * val, m_y * val, m_z * val); }
+    Vector3 operator /(REAL val) const { REAL inv = (val != 0) ? 1 / val : 0; return Vector3(m_x * inv, m_y * inv, m_z * inv); }
+
+    friend Vector3 operator *(REAL val, const Vector3& v);
+
+    void add(std::vector<Vector3>& l) const
+    {
+        for (auto& v : l)
+        {
+            v += *this;
+        }
+    }
     //    void load(FilePtr pFile);
     //    void save(FilePtr pFile) const;
 
@@ -82,55 +92,18 @@ protected:
 	};
 };
 
-inline Vector3 operator +(const Vector3& v1, const Vector3& v2)
-{
-    return Vector3(v1.x() + v2.x(), v1.y() + v2.y(), v1.z() + v2.z());
-}
-
-inline Vector3 operator -(const Vector3& v1, const Vector3& v2)
-{
-    return Vector3(v1.x() - v2.x(), v1.y() - v2.y(), v1.z() - v2.z());
-}
-
 inline Vector3 operator *(REAL val, const Vector3& v)
 {
     return Vector3(val * v.x(), val * v.y(), val * v.z());
 }
 
-inline Vector3 operator *(const Vector3& v, REAL val)
+inline std::vector<Vector3>& operator +=(std::vector<Vector3>& vec, const Vector3& val)
 {
-    return Vector3(v.x() * val, v.y() * val, v.z() * val);
-}
-
-inline Vector3 operator *(const Vector3& v1, const Vector3& v2)
-{
-    return Vector3(v1.x() * v2.x(), v1.y() * v2.y(), v1.z() * v2.z());
-}
-
-inline Vector3 operator /(const Vector3& v, REAL val)
-{
-    REAL inv = (val != 0) ? 1 / val : 0;
-    return (val != 0) ? Vector3(v.x() * inv, v.y() * inv, v.z() * inv) : Vector3::c0;
-}
-
-inline Vector3 operator /(const Vector3& v1, const Vector3& v2)
-{
-    return (v2.x() !=0 && v2.y() != 0 && v2.z() != 0)
-               ? Vector3(v1.x() / v2.x(), v1.y() / v2.y(), v1.z() / v2.z())
-               : Vector3::c0;
-}
-
-inline REAL operator &(const Vector3& v1, const Vector3& v2)
-{
-    return v1.x() * v2.x() + v1.y() * v2.y() + v1.z() * v2.z();
-}
-
-inline Vector3 operator ^(const Vector3& v1, const Vector3& v2)
-{
-    return Vector3(
-        v1.y() * v2.z() - v1.z() * v2.y(),
-        v1.z() * v2.x() - v1.x() * v2.z(),
-        v1.x() * v2.y() - v1.y() * v2.x());
+    for (auto& item : vec)
+    {
+        item += val;
+    }
+    return vec;
 }
 
 }

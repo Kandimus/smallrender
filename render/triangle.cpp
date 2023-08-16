@@ -61,7 +61,7 @@ bool Triangle::intersect(const Ray& ray, Vector3& point, Vector2& uv) const
 }
 
 // Möller–Trumbore intersection algorithm
-bool Triangle::intersect(const Ray& ray, Vector3& point) const
+REAL Triangle::intersect(const Ray& ray, Vector3& point) const
 {
     // Вычисление вектора нормали к плоскости
     Vector3 pvec = ray.direction() ^ m_edge2;
@@ -70,7 +70,7 @@ bool Triangle::intersect(const Ray& ray, Vector3& point) const
     // Луч параллелен плоскости
     if (det < MATH_EPS && det > -MATH_EPS)
     {
-        return false;
+        return -1;
     }
 
     float inv_det = 1 / det;
@@ -78,7 +78,7 @@ bool Triangle::intersect(const Ray& ray, Vector3& point) const
     float u = (tvec & pvec) * inv_det;
     if (u < 0 || u > 1)
     {
-        return false;
+        return -1;
     }
 
     Vector3 qvec = tvec ^ m_edge1;
@@ -86,17 +86,17 @@ bool Triangle::intersect(const Ray& ray, Vector3& point) const
 
     if (v < 0 || u + v > 1)
     {
-        return false;
+        return -1;
     }
 
     REAL fT = (m_edge2 & qvec) * inv_det;
     if (fT < MATH_EPS)
     {
-        return false;
+        return -1;
     }
 
     point = ray.point(fT);
-    return true;
+    return fT;
 }
 
 };

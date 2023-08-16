@@ -196,7 +196,8 @@ REAL calculatePoint(const Ray& ray, const Triangle& t, ColorRGB& c)
     c = ColorRGB::Black;
 
     //if (!t.intersect(ray, p, uv))
-    if (!t.intersect(ray, p))
+    REAL len = t.intersect(ray, p);
+    if (len < 0)
     {
         return 1000000000;//std::numeric_limits<REAL>::infinity();
     }
@@ -225,7 +226,7 @@ REAL calculatePoint(const Ray& ray, const Triangle& t, ColorRGB& c)
     c = Render::ColorRGB::White * gLightAmbient.ambient() + diffuse * Render::ColorRGB::White;
     c.scaleByMax();
 
-    return (ray.origin() - p).length();
+    return len;
 }
 
 }

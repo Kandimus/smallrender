@@ -1,6 +1,7 @@
 
 #include "camera.h"
 #include "render.h"
+#include "helper_gltf.h"
 #include "tiny_gltf.h"
 
 
@@ -16,7 +17,9 @@ void Camera::reset()
 {
     m_position = Vector3::c0;
     m_angleX = 0;
-    m_angleY = 0;//M_PI_2;
+    //m_angleX = M_PI;
+    m_angleY = 0;
+    //m_angleY = M_PI;
 
     m_frustum.fov() = REAL(M_PI_2);
     m_frustum.nearClip() = REAL(1);
@@ -141,19 +144,13 @@ bool Camera::loadFromTinygltf(const tinygltf::Node& node, const tinygltf::Model&
 
     if (camera.type == ::PERSPECTIVE)
     {
-        if (node.translation.size() >= 3)
-        {
-            Render::camera().position() = Render::Vector3(node.translation[0], node.translation[1], -node.translation[2]);
-        }
+        Render::camera().position() = loadNodeTranslation(node);
 
-        if (node.rotation.size() >= 4)
-        {
-            auto q = Render::Quaternion(node.rotation[0], node.rotation[1], node.rotation[2], node.rotation[3]);
-            auto a = q.toYPR();
+        auto q = loadNodeRotation(node);
+        auto a = q.toYPR();
 
-            Render::camera().angleX() = a.x();
-            Render::camera().angleY() = a.y();
-        }
+        Render::camera().angleX() = a.x();
+        Render::camera().angleY() = a.z();
 
         Render::camera().frustum().aspect() = camera.perspective.aspectRatio;
         Render::camera().frustum().fov() = camera.perspective.yfov;

@@ -88,7 +88,7 @@ int main(int argc, const char** argv)
         .addOption(arg::WIDTH, 'w', "320")
         .addOption(arg::HEIGHT, 'h', "240")
         .addOption(arg::INPUT, 'i',
-                   "scene1.gltf"
+                   "scene2.gltf"
                    //"triangle2.gltf"
                    )
         .addOption(arg::OUTPUT, 'o', "smallrender.png");
@@ -148,16 +148,22 @@ int main(int argc, const char** argv)
     Render::ColorRGB color;
     Render::ColorRGB c;
     REAL deep = std::numeric_limits<REAL>::infinity();
+    volatile Render::Ray rr = Render::camera().centralRay();
 
     for (int yy = 0; yy < Render::image_height(); ++yy)
     {
         for (int xx = 0; xx < Render::image_width(); ++xx)
         {
+            if (yy == 120 && xx == 160)
+            {
+                volatile int a = 1;
+            }
+
             ray = Render::camera().ray(xx, yy);
-            color = Render::lightAmbient().ambient();
+            color = Render::lightAmbient().ambient() * 1.1;
             deep = 1000000000;
 
-            color = Render::ColorRGB::Black;
+            //color = Render::ColorRGB::Black;
             for (auto sm : listMesh)
             {
                 auto listTri = sm->triangle();

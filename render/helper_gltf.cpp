@@ -5,6 +5,16 @@
 namespace Render
 {
 
+Vector3 loadNodeTranslation(const tinygltf::Node& node)
+{
+    return 3 == node.translation.size() ? Vector3(node.translation[0], node.translation[1], -node.translation[2]) : Vector3::c0;
+}
+
+Quaternion loadNodeRotation(const tinygltf::Node& node)
+{
+    return 4 == node.rotation.size() ? Quaternion(node.rotation[0], node.rotation[1], node.rotation[2], node.rotation[3]) : Quaternion::c1;
+}
+
 bool loadVectorOfVec3(std::vector<Render::Vector3>& vec3, int accIndex, const tinygltf::Model& model)
 {
     if (accIndex < 0)

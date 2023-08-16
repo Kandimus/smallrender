@@ -27,16 +27,9 @@ ILight* loadFromTinygltf(const tinygltf::Node& node, const tinygltf::Model& mode
     auto& light = model.lights[node.light];
 
     std::string name = light.name;
-    Vector3 position = Vector3::c0;
+    Vector3 position = loadNodeTranslation(node);
     Vector3 color = Vector3::c1;
     REAL intensity = light.intensity;
-
-    if (node.translation.size())
-    {
-        position.x() = node.translation[0];
-        position.y() = node.translation[1];
-        position.z() = -node.translation[2];
-    }
 
     if (light.color.size() >= 3)
     {

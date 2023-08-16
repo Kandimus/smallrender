@@ -2,6 +2,7 @@
 #include <iostream>
 
 #include "geom_object.h"
+#include "quaternion.h"
 #include "helper_gltf.h"
 #include "tiny_gltf.h"
 
@@ -15,7 +16,10 @@ bool GeomObject::loadFromTinygltf(const tinygltf::Node& node, const tinygltf::Mo
         return false;
     }
 
+    auto pos = loadNodeTranslation(node);
+    auto rot = loadNodeRotation(node);
     auto& mesh = model.meshes[node.mesh];
+
     m_name = mesh.name;
 
     int idAccVertex = -1;
@@ -98,12 +102,13 @@ bool GeomObject::loadFromTinygltf(const tinygltf::Node& node, const tinygltf::Mo
         n.normalize();
     }
 
+    m_vertex += pos;
+    // apply rotation to vertices and normals
+
     if (m_vertex.size() && m_index.size())
     {
         createTriangles();
     }
-
-    //TODO Применить трансформацию из node
 
     return true;
 }
