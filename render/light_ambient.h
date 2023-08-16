@@ -1,7 +1,7 @@
 #pragma once
 
 #include "light_base.h"
-#include "vector3.h"
+#include "ray.h"
 
 namespace Render
 {
@@ -16,7 +16,9 @@ public:
     Vector3& ambient() { return m_ambient; }
 
     virtual LightType type() const override { return LightType::AMBIENT; }
+    virtual Ray ray(const Vector3& p) const override { return Ray(p, Vector3::c0); }
     virtual Vector3 intensity(const Ray& ray, const Vector3& p, const Vector3& n) const override { return Vector3::c0; }
+
 
 private:
     Vector3 m_ambient = Vector3::c0;

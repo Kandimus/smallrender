@@ -16,7 +16,6 @@ bool GeomObject::loadFromTinygltf(const tinygltf::Node& node, const tinygltf::Mo
         return false;
     }
 
-    auto pos = loadNodeTranslation(node);
     auto rot = loadNodeRotation(node);
     auto& mesh = model.meshes[node.mesh];
 
@@ -102,13 +101,13 @@ bool GeomObject::loadFromTinygltf(const tinygltf::Node& node, const tinygltf::Mo
         n.normalize();
     }
 
-    m_vertex += pos;
-    // apply rotation to vertices and normals
-
     if (m_vertex.size() && m_index.size())
     {
         createTriangles();
     }
+
+    move(loadNodeTranslation(node));
+    //TODO apply rotation to vertices and normals
 
     return true;
 }
@@ -127,11 +126,20 @@ void GeomObject::createTriangles()
         int i1 = m_index[ii + 1];
         int i2 = m_index[ii + 2];
 
-        m_triangle[jj].point0() = m_vertex[i2];
-        m_triangle[jj].point1() = m_vertex[i1];
-        m_triangle[jj].point2() = m_vertex[i0];
-        m_triangle[jj].calculate();
+        m_triangle[jj].calculate(m_vertex[i2], m_vertex[i1], m_vertex[i0]);
     }
+}
+
+void GeomObject::move(const Vector3& v)
+{
+    m_vertex += v;
+
+    for (auto& t : m_triangle)
+    {
+        t.move(v);
+    }
+
+    //TODO Move ObBox (ObSphere) also
 }
 
 void GeomObject::toString() const

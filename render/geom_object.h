@@ -44,6 +44,9 @@ public:
     std::vector<Vector2>& texCoord(int i = 0) { return m_texCoord[i]; }
     const std::vector<Vector2>& texCoord(int i = 0) const { return m_texCoord[i]; }
 
+    void move(const Vector3& v);
+    void rotate(const Vector3& v);
+
     void createTriangles();
     void toString() const;
     bool loadFromTinygltf(const tinygltf::Node& node, const tinygltf::Model& model);

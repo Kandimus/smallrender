@@ -17,6 +17,8 @@ static int gHeight = 240;
 static std::vector<StaticMesh*> gStaticMesh;
 static std::vector<ILight*> gLight;
 
+static std::vector<const Triangle*> gTriangle;
+
 LightAmbient gLightAmbient(Vector3(1, 1, 1));
 
 Camera& camera(void)
@@ -60,6 +62,16 @@ void init(int w, int h)
     {
         gBuffer[max_ii + ii] = 0;
     }
+
+    // Creating the full list of triangles
+    gTriangle.clear();
+    for (auto sm : gStaticMesh)
+    {
+        for (auto& t : sm->triangle())
+        {
+            gTriangle.push_back(&t);
+        }
+    }
 }
 
 void finalize()
@@ -101,6 +113,11 @@ const std::vector<ILight*>& lights()
 LightAmbient& lightAmbient()
 {
     return gLightAmbient;
+}
+
+const std::vector<const Triangle*>& triangles()
+{
+    return gTriangle;
 }
 
 void makeProjection(REAL fFOV, REAL fAspect, REAL fNear, REAL fFar, Matrix4& m/*, bool bGPU*/)
@@ -188,7 +205,7 @@ void makeOrtho(REAL fFOV, REAL fAspect, REAL fNear, REAL fFar, Matrix4& m/*, boo
 
 
 
-REAL calculatePoint(const Ray& ray, const Triangle& t, ColorRGB& c)
+REAL calculatePoint(const Ray& ray, const Triangle& triangle, ColorRGB& c)
 {
     Vector3 p;
     Vector2 uv;
@@ -196,7 +213,7 @@ REAL calculatePoint(const Ray& ray, const Triangle& t, ColorRGB& c)
     c = ColorRGB::Black;
 
     //if (!t.intersect(ray, p, uv))
-    REAL len = t.intersect(ray, p);
+    REAL len = triangle.intersect(ray, p);
     if (len < 0)
     {
         return 1000000000;//std::numeric_limits<REAL>::infinity();
@@ -220,7 +237,27 @@ REAL calculatePoint(const Ray& ray, const Triangle& t, ColorRGB& c)
             continue;
         }
 
-        diffuse += light->intensity(ray, p, t.normal());
+        // проверка наличие препятствия между точкой и истоником света
+        bool intersected = false;
+        Ray ray_to_light = light->ray(p);
+
+        ray_to_light.origin() = ray_to_light.point(10 * MATH_EPS);
+
+        for (auto t : triangles())
+        {
+            if (t == &triangle) continue;
+
+            if (t->intersect(ray_to_light, p) > MATH_EPS)
+            {
+                intersected = true;
+                break;
+            }
+        }
+
+        if (!intersected)
+        {
+            diffuse += light->intensity(ray, p, triangle.normal());
+        }
     }
 
     c = Render::ColorRGB::White * gLightAmbient.ambient() + diffuse * Render::ColorRGB::White;

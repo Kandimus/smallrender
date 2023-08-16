@@ -43,6 +43,7 @@ public:
     void setAttenuation(REAL Kc, REAL Kl, REAL Kq) { m_attenuation.x() = Kc; m_attenuation.y() = Kl; m_attenuation.z() = Kq; recalcRange(); }
 
     virtual LightType type() const override { return LightType::POINT; }
+    virtual Ray ray(const Vector3& p) const override { Vector3 dir = m_position - p; dir.normalize(); return Ray(p, dir); }
     virtual Vector3 intensity(const Ray& ray, const Vector3& p, const Vector3& n) const override
     {
         //                 Ipoint * (p & n)

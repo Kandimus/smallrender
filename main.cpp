@@ -85,8 +85,8 @@ int main(int argc, const char** argv)
     auto t_start = GetTickCount64();
 
     rSimpleArgs::instance()
-        .addOption(arg::WIDTH, 'w', "320")
-        .addOption(arg::HEIGHT, 'h', "240")
+        .addOption(arg::WIDTH, 'w', "640")
+        .addOption(arg::HEIGHT, 'h', "480")
         .addOption(arg::INPUT, 'i',
                    "scene2.gltf"
                    //"triangle2.gltf"
@@ -147,7 +147,10 @@ int main(int argc, const char** argv)
     Render::Ray ray;
     Render::ColorRGB color;
     Render::ColorRGB c;
+    Render::ColorRGB bg = Render::MultiplierBackgroundAmbient * Render::lightAmbient().ambient(); //NOTE trick so that the background does not merge with the shadows
     REAL deep = std::numeric_limits<REAL>::infinity();
+
+
     volatile Render::Ray rr = Render::camera().centralRay();
 
     for (int yy = 0; yy < Render::image_height(); ++yy)
@@ -160,22 +163,17 @@ int main(int argc, const char** argv)
             }
 
             ray = Render::camera().ray(xx, yy);
-            color = Render::lightAmbient().ambient() * 1.1;
+            color = bg;
             deep = 1000000000;
 
-            //color = Render::ColorRGB::Black;
-            for (auto sm : listMesh)
+            for (auto tri : Render::triangles())
             {
-                auto listTri = sm->triangle();
-                for (auto& tri : listTri)
-                {
-                    REAL d = calculatePoint(ray, tri, c);
+                REAL d = calculatePoint(ray, *tri, c);
 
-                    if (d < deep)
-                    {
-                        deep = d;
-                        color = c;
-                    }
+                if (d < deep)
+                {
+                    deep = d;
+                    color = c;
                 }
             }
 

@@ -6,17 +6,14 @@ namespace Render
 
 Triangle::Triangle(const Vector3& p0, const Vector3& p1, const Vector3& p2)
 {
-    m_point[0] = p0;
-    m_point[1] = p1;
-    m_point[2] = p2;
-
-    calculate();
+    calculate(p0, p1, p2);
 }
 
-void Triangle::calculate()
+void Triangle::calculate(const Vector3& p0, const Vector3& p1, const Vector3& p2)
 {
-    m_edge1 = m_point[1] - m_point[0];
-    m_edge2 = m_point[2] - m_point[0];
+    m_origin = p0;
+    m_edge1 = p1 - m_origin;
+    m_edge2 = p2 - m_origin;
 
     m_normal = m_edge1 ^ m_edge2;
     //m_normal = m_edge2 ^ m_edge1;
@@ -32,7 +29,7 @@ bool Triangle::intersect(const Ray& ray, Vector3& point, Vector2& uv) const
         return false;
     }
 
-    REAL fT = ((m_point[0] - ray.origin()) & m_normal) / fVD;
+    REAL fT = ((m_origin - ray.origin()) & m_normal) / fVD;
     if(fT <= MATH_EPS)
     {
         return false;
@@ -48,8 +45,8 @@ bool Triangle::intersect(const Ray& ray, Vector3& point, Vector2& uv) const
     Vector3 zKU = (m_edge1 * fS22 - m_edge2 * fS12) / fDet;
     Vector3 zKV = (m_edge2 * fS11 - m_edge1 * fS12) / fDet;
 
-    REAL fU0 = -(m_point[0] & zKU);
-    REAL fV0 = -(m_point[0] & zKV);
+    REAL fU0 = -(m_origin & zKU);
+    REAL fV0 = -(m_origin & zKV);
 
     REAL fU = fU0 + (point & zKU);
     REAL fV = fV0 + (point & zKV);
@@ -74,7 +71,7 @@ REAL Triangle::intersect(const Ray& ray, Vector3& point) const
     }
 
     float inv_det = 1 / det;
-    Vector3 tvec = ray.origin() - m_point[0]; // Вектор из точки камеры до нулевой точки треугольника
+    Vector3 tvec = ray.origin() - m_origin; // Вектор из точки камеры до нулевой точки треугольника
     float u = (tvec & pvec) * inv_det;
     if (u < 0 || u > 1)
     {
