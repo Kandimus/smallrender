@@ -18,6 +18,13 @@ void Triangle::calculate(const Vector3& p0, const Vector3& p1, const Vector3& p2
     m_normal = m_edge1 ^ m_edge2;
     //m_normal = m_edge2 ^ m_edge1;
     m_normal.normalize();
+
+    std::vector<Vector3> lv;
+    lv.push_back(p0);
+    lv.push_back(p1);
+    lv.push_back(p2);
+
+    m_obs.compute(lv);
 }
 
 bool Triangle::intersect(const Ray& ray, Vector3& point, Vector2& uv) const
@@ -60,6 +67,11 @@ bool Triangle::intersect(const Ray& ray, Vector3& point, Vector2& uv) const
 // Möller–Trumbore intersection algorithm
 REAL Triangle::intersect(const Ray& ray, Vector3& point) const
 {
+    if (!m_obs.intersect(ray))
+    {
+        return -1;
+    }
+
     // Вычисление вектора нормали к плоскости
     Vector3 pvec = ray.direction() ^ m_edge2;
     float det = m_edge1 & pvec;

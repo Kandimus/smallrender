@@ -16,6 +16,8 @@
 #include "light_ambient.h"
 #include "static_mesh.h"
 
+#include "ob_sphere.h"
+
 namespace arg
 {
 const char* WIDTH = "width";
@@ -80,6 +82,42 @@ bool loadObjectsFromGLTF(const tinygltf::Model& model)
     return true;
 }
 
+
+int tests()
+{
+    Render::ObSphere obs(Render::Vector3(1, 1, 1), 3);
+    Render::Ray ray(Render::Vector3(0, 1, -1), Render::Vector3::c0);
+
+    // Луч внутри сферы
+    ray.direction() = Render::Vector3(1, 1, 1);
+    ray.direction().normalize();
+    if (true != obs.intersect(ray))
+    {
+        return 10;
+    }
+
+    // Сфера позади луча
+    ray.origin() = Render::Vector3(0, 0, -10);
+    ray.direction() = Render::Vector3(0, 0, -1);
+    ray.direction().normalize();
+    if (false != obs.intersect(ray))
+    {
+        return 11;
+    }
+
+    // Сфера перед лучом
+    ray.origin() = Render::Vector3(0, 0, -10);
+    ray.direction() = Render::Vector3(0, 0, 1);
+    ray.direction().normalize();
+    if (true != obs.intersect(ray))
+    {
+        return 12;
+    }
+
+    return 0;
+}
+
+
 int main(int argc, const char** argv)
 {
     auto t_start = GetTickCount64();
@@ -102,6 +140,14 @@ int main(int argc, const char** argv)
     {
         Render::camera().frustum().aspect() = REAL(w) / h;
     }
+
+    auto t = tests();
+    if (t)
+    {
+        std::cout << "Fault test: " << t << std::endl;
+        return t;
+    }
+
 
     tinygltf::TinyGLTF loader;
     std::string err;

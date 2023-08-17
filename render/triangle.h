@@ -2,6 +2,7 @@
 
 #include "vector2.h"
 #include "vector3.h"
+#include "ob_sphere.h"
 
 namespace Render
 {
@@ -25,13 +26,15 @@ public:
     bool intersect(const Ray& ray, Vector3& point, Vector2& uv) const;
     REAL intersect(const Ray& ray, Vector3& point) const;
 
-    void move(const Vector3& v) { m_origin += v; }
+    void move(const Vector3& v) { m_origin += v; m_obs.center() += v; }
 
 private:
     Vector3 m_origin;
     Vector3 m_edge1;
     Vector3 m_edge2;
     Vector3 m_normal;
+
+    ObSphere m_obs;
 };
 
 }
