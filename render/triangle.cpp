@@ -67,10 +67,12 @@ bool Triangle::intersect(const Ray& ray, Vector3& point, Vector2& uv) const
 // Möller–Trumbore intersection algorithm
 REAL Triangle::intersect(const Ray& ray, Vector3& point) const
 {
+#ifdef RENDER_USING_OBSHPERE
     if (!m_obs.intersect(ray))
     {
         return -1;
     }
+#endif
 
     // Вычисление вектора нормали к плоскости
     Vector3 pvec = ray.direction() ^ m_edge2;

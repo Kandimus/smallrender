@@ -7,6 +7,13 @@ project(smallrender LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+option(USING_OBSHPERE "Using ObSphere for fast check on intersection" ON)
+
+
+if (USING_OBSHPERE)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DRENDER_USING_OBSHPERE=1")
+endif()
+
 
 file(GLOB files_simpleargs_cpp "simpleargs/simpleargs/src/*.cpp")
 file(GLOB files_simpleargs_h "simpleargs/simpleargs/include/*.h")
@@ -18,7 +25,6 @@ file(GLOB files_stb_cpp "")
 file(GLOB files_stb_h "stb/*.h")
 
 file(GLOB files_cpp "main.cpp")
-
 
 
 add_executable(${PROJECT_NAME} ${files_cpp}
