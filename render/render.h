@@ -12,6 +12,9 @@ class Triangle;
 
 static const REAL MultiplierBackgroundAmbient = 1.05;
 
+extern int gDebugIntX;
+extern int gDebugIntY;
+
 
 void init(int w, int h);
 void finalize();

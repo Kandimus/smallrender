@@ -28,6 +28,15 @@ public:
 
     void move(const Vector3& v) { m_origin += v; m_obs.center() += v; }
 
+    std::string toString() const
+    {
+        return   "{p0: " + m_origin.toString() +
+               ", p1: " + (m_origin + m_edge1).toString() +
+               ", p2: " + (m_origin + m_edge2).toString() +
+               //", ObSphere " + .toString() +
+               "}";
+    }
+
 private:
     Vector3 m_origin;
     Vector3 m_edge1;

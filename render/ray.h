@@ -19,6 +19,8 @@ public:
     const Vector3& direction() const { return m_dir; }
     const Vector3& origin() const { return m_org; }
 
+    std::string toString() const { return "{pos: " + m_org.toString() + ", dir: " + m_dir.toString() + "}"; }
+
 protected:
     Vector3 m_org;
     Vector3 m_dir;

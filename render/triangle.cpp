@@ -65,6 +65,8 @@ bool Triangle::intersect(const Ray& ray, Vector3& point, Vector2& uv) const
 }
 
 // Möller–Trumbore intersection algorithm
+/// @result: distance from ray origin to point of intersection
+///
 REAL Triangle::intersect(const Ray& ray, Vector3& point) const
 {
 #ifdef RENDER_USING_OBSHPERE

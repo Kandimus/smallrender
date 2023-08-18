@@ -126,7 +126,7 @@ int main(int argc, const char** argv)
         .addOption(arg::WIDTH, 'w', "640")
         .addOption(arg::HEIGHT, 'h', "480")
         .addOption(arg::INPUT, 'i',
-                   "scene3.gltf"
+                   "scene4.gltf"
                    //"triangle2.gltf"
                    )
         .addOption(arg::OUTPUT, 'o', "smallrender.png");
@@ -202,7 +202,9 @@ int main(int argc, const char** argv)
     {
         for (int xx = 0; xx < Render::image_width(); ++xx)
         {
-            if (yy == 120 && xx == 160)
+            Render::gDebugIntX = xx;
+            Render::gDebugIntY = yy;
+            if (xx == 419 && yy == 272)
             {
                 volatile int a = 1;
             }

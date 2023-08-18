@@ -1,5 +1,6 @@
 
 #include <limits>
+#include <iostream>
 
 #include "render.h"
 #include "light_ambient.h"
@@ -19,7 +20,10 @@ static std::vector<ILight*> gLight;
 
 static std::vector<const Triangle*> gTriangle;
 
-LightAmbient gLightAmbient(Vector3(1, 1, 1));
+static LightAmbient gLightAmbient(Vector3(1, 1, 1));
+
+int gDebugIntX = 0;
+int gDebugIntY = 0;
 
 Camera& camera(void)
 {
@@ -207,13 +211,11 @@ void makeOrtho(REAL fFOV, REAL fAspect, REAL fNear, REAL fFar, Matrix4& m/*, boo
 
 REAL calculatePoint(const Ray& ray, const Triangle& triangle, ColorRGB& c)
 {
-    Vector3 p;
-    Vector2 uv;
+    Vector3 point;
 
     c = ColorRGB::Black;
 
-    //if (!t.intersect(ray, p, uv))
-    REAL len = triangle.intersect(ray, p);
+    REAL len = triangle.intersect(ray, point);
     if (len < 0)
     {
         return 1000000000;//std::numeric_limits<REAL>::infinity();
@@ -239,15 +241,14 @@ REAL calculatePoint(const Ray& ray, const Triangle& triangle, ColorRGB& c)
 
         // проверка наличие препятствия между точкой и истоником света
         bool intersected = false;
-        Ray ray_to_light = light->ray(p);
+        Ray ray_to_light = light->ray(point);
+        Vector3 p;
 
-        ray_to_light.origin() = ray_to_light.point(10 * MATH_EPS);
-
-        for (auto t : triangles())
+        for (auto t : gTriangle)
         {
             if (t == &triangle) continue;
 
-            if (t->intersect(ray_to_light, p) > MATH_EPS)
+            if (t->intersect(ray_to_light, p) >= MATH_EPS)
             {
                 intersected = true;
                 break;
@@ -256,7 +257,7 @@ REAL calculatePoint(const Ray& ray, const Triangle& triangle, ColorRGB& c)
 
         if (!intersected)
         {
-            diffuse += light->intensity(ray, p, triangle.normal());
+            diffuse += light->intensity(ray, point, triangle.normal());
         }
     }
 
