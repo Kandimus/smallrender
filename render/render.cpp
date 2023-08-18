@@ -80,6 +80,10 @@ void init(int w, int h)
 
 void finalize()
 {
+    delete[] gBuffer;
+
+    gTriangle.clear();
+
     if (gStaticMesh.size())
     {
         for (auto sm : gStaticMesh)
@@ -87,6 +91,15 @@ void finalize()
             delete sm;
         }
         gStaticMesh.clear();
+    }
+
+    if (gLight.size())
+    {
+        for (auto l : gLight)
+        {
+            delete l;
+        }
+        gLight.clear();
     }
 }
 

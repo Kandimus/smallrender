@@ -238,22 +238,6 @@ int main(int argc, const char** argv)
 
     std::cout << "Calculate time: " << t_end - t_start << " msec" << std::endl;
 
-//    color = Render::calculatePoint(Render::camera().centralRay(), Render::staticMeshes()[0]->triangle()[0]);
-
-//
-
-//        bool x = true;
-//        Render::Vector3 p;
-//        for (int ii = 0; ii < 10000000; ++ii)
-//        {
-//            x &= t.intersect(Render::camera(), p);
-//        }
-
-//
-
-
-//    }
-
     Render::finalize();
 
     return 0;
