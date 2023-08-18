@@ -1,4 +1,6 @@
 
+#include <algorithm>
+
 #include "quaternion.h"
 
 namespace Render
@@ -239,11 +241,26 @@ void Quaternion::fromYPR(REAL yaw, REAL pitch, REAL roll)
     m_z = cr * cp * sy - sr * sp * cy;
 }
 
+
 // roll (x), pitch (Y), yaw (z)
 Vector3 Quaternion::toYPR() const
 {
     Vector3 a;
 
+    // Ver 1. GLM code
+
+    REAL y = 2.0 * (m_y * m_z + m_w * m_x);
+    REAL x = m_w * m_w - m_x * m_x - m_y * m_y + m_z * m_z;
+    a.x() = (x == 0 && y == 0) ? 2 * ATAN2(m_x, m_w) : ATAN2(y, x); // PITCH - X
+
+    a.y() = ASIN(std::clamp(-2 * (m_x * m_z - m_w * m_y), -1.0, 1.0)); // YAW - Y
+
+    y = 2.0 * (m_x * m_y + m_w * m_z);
+    x = m_w * m_w + m_x * m_x - m_y * m_y - m_z * m_z;
+    a.z() = (x == 0 && y == 0) ? 0 : ATAN2(y, x); // ROLL - Z
+
+    // Ver 2. from some site
+    /*
     // roll (x-axis rotation)
     REAL sinr_cosp = 2 * (m_w * m_x + m_y * m_z);
     REAL cosr_cosp = 1 - 2 * (m_x * m_x + m_y * m_y);
@@ -258,6 +275,7 @@ Vector3 Quaternion::toYPR() const
     REAL siny_cosp = 2 * (m_w * m_z + m_x * m_y);
     REAL cosy_cosp = 1 - 2 * (m_y * m_y + m_z * m_z);
     a.z() = ATAN2(siny_cosp, cosy_cosp);
+    */
 
     return a;
 }

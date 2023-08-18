@@ -1,8 +1,6 @@
 #pragma once
 
 #include "matrix4.h"
-#include "matrix3.h"
-#include "vector3.h"
 
 namespace Render
 {
@@ -42,6 +40,9 @@ public:
 
     void normalize() { 	REAL f = 1 / SQRT(m_x * m_x + m_y * m_y + m_z * m_z + m_w * m_w); *this *= f; }
 
+    Quaternion conjugate() const { return Quaternion(m_w, -m_x, -m_y, -m_z); }
+    Quaternion inverse() const { return conjugate() / (*this & *this); }
+
     REAL& x() {  return m_x; }
     REAL& y() {  return m_y; }
     REAL& z() {  return m_z; }
@@ -64,16 +65,23 @@ public:
 
     bool operator ==(const Quaternion& q) const { return m_x == q.x() && m_y == q.y() && m_z == q.z() && m_w == q.w(); }
 
-	friend Quaternion operator +(const Quaternion&, const Quaternion&);
-	friend Quaternion operator -(const Quaternion&, const Quaternion&);
-    friend Quaternion operator *(REAL, const Quaternion&);
-    friend Quaternion operator *(const Quaternion&, REAL);
-	friend Quaternion operator *(const Quaternion&, const Quaternion&);
-    friend Quaternion operator /(const Quaternion&, REAL);
-    friend REAL       operator &(const Quaternion&, const Quaternion&);
+    Quaternion operator +(const Quaternion& q) const { return Quaternion(m_x + q.x(), m_y + q.y(), m_z + q.z(), m_w + q.w()); }
+    Quaternion operator -(const Quaternion& q) const { return Quaternion(m_x - q.x(), m_y - q.y(), m_z - q.z(), m_w - q.w()); }
+    REAL       operator &(const Quaternion& q) const { return m_x * q.x() + m_y * q.y() + m_z * q.z() + m_w * q.w(); } // dot
+    Quaternion operator *(const Quaternion& q) const
+    {
+        return Quaternion(
+            m_w * q.x() + m_x * q.w() + m_y * q.z() - m_z * q.y(),
+            m_w * q.y() + m_y * q.w() + m_z * q.x() - m_x * q.z(),
+            m_w * q.z() + m_z * q.w() + m_x * q.y() - m_y * q.x(),
+            m_w * q.w() - m_x * q.x() - m_y * q.y() - m_z * q.z());
+    }
+    Quaternion operator *(REAL v) const { return Quaternion(m_x * v, m_y * v, m_z * v, m_w * v); }
+    Quaternion operator /(REAL v) const { if (v == 0) return Quaternion::c0; REAL iv = 1 / v; return Quaternion(m_x * iv, m_y * iv, m_z * iv, m_w * iv); }
 
-//	void LoadFromFile(FilePtr pFile);
-//	void SaveToFile(FilePtr pFile) const;
+    std::string toString() const { return "(" + std::to_string(m_x) + ", " + std::to_string(m_y) + ", " + std::to_string(m_z) + "; " + std::to_string(m_w) + ")"; }
+
+    friend Quaternion operator *(REAL, const Quaternion&);
 
 private:
 	union
@@ -89,50 +97,11 @@ private:
 	};
 };
 
-inline Quaternion operator +(const Quaternion& q1, const Quaternion& q2)
-{
-    return Quaternion(q1.x() + q2.x(), q1.y() + q2.y(), q1.z() + q2.z(), q1.w() + q2.w());
-}
-
-inline Quaternion operator -(const Quaternion& q1, const Quaternion& q2)
-{
-    return Quaternion(q1.x() - q2.x(), q1.y() - q2.y(), q1.z() - q2.z(), q1.w() - q2.w());
-}
-
 inline Quaternion operator *(REAL v, const Quaternion& q)
 {
     return Quaternion(v * q.x(), v * q.y(), v * q.z(), v * q.w());
 }
 
-inline Quaternion operator *(const Quaternion& q, REAL v)
-{
-    return Quaternion(q.x() * v, q.y() * v, q.z() * v, q.w() * v);
-}
-
-inline Quaternion operator *(const Quaternion& q1, const Quaternion& q2)
-{
-    return Quaternion(
-        q1.w() * q2.x() + q1.x() * q2.w() + q1.y() * q2.z() - q1.z() * q2.y(),
-        q1.w() * q2.y() + q1.y() * q2.w() + q1.z() * q2.x() - q1.x() * q2.z(),
-        q1.w() * q2.z() + q1.z() * q2.w() + q1.x() * q2.y() - q1.y() * q2.x(),
-        q1.w() * q2.w() - q1.x() * q2.x() - q1.y() * q2.y() - q1.z() * q2.z());
-}
-
-inline Quaternion operator /(const Quaternion& q, REAL v)
-{
-    if (v == 0)
-    {
-        return Quaternion::c0;
-    }
-
-    REAL iv = 1 / v;
-    return Quaternion(q.x() * iv, q.y() * iv, q.z() * iv, q.w() * iv);
-}
-
-inline REAL operator &(const Quaternion& q1, const Quaternion& q2)
-{
-    return q1.x() * q2.x() + q1.y() * q2.y() + q1.z() * q2.z() + q1.w() * q2.w();
-}
 
 //namespace Render
 }

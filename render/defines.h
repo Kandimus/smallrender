@@ -10,6 +10,7 @@
 #define SIN sin
 #define COS cos
 #define TAN tan
+#define ATAN atan
 #define ATAN2 atan2
 #define ASIN asin
 #define ACOS acos

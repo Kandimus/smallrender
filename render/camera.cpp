@@ -1,4 +1,6 @@
 
+#include <iostream>
+
 #include "camera.h"
 #include "render.h"
 #include "helper_gltf.h"
@@ -144,20 +146,35 @@ bool Camera::loadFromTinygltf(const tinygltf::Node& node, const tinygltf::Model&
 
     if (camera.type == ::PERSPECTIVE)
     {
-        Render::camera().position() = loadNodeTranslation(node);
+        m_position = loadNodeTranslation(node);
 
         auto q = loadNodeRotation(node);
-        auto a = q.toYPR();
 
-        Render::camera().angleX() = a.x();
-        Render::camera().angleY() = a.z();
+        Quaternion qa;
+        qa.x() = -q.z();
+        qa.y() = -q.x();
+        qa.z() = q.y();
+        qa.w() = q.w();
 
-        Render::camera().frustum().aspect() = camera.perspective.aspectRatio;
-        Render::camera().frustum().fov() = camera.perspective.yfov;
-        Render::camera().frustum().farClip() = camera.perspective.zfar;
-        Render::camera().frustum().nearClip() = camera.perspective.znear;
-        Render::camera().changed();
-        Render::camera().update();
+        auto a = qa.toYPR();
+
+        Render::camera().angleX() = -a.z();
+        Render::camera().angleY() = a.y();
+
+//        m_angleX = -35 * MATH_PI / 180;
+//        m_angleY = (90 - 70) * MATH_PI / 180;
+
+//        Quaternion ypr;
+
+//        ypr.fromYPR(-m_angleX, m_angleY, 0);
+//        std::cout << "camera ypr " << ypr.toString() << ", AngleX " << m_angleX << ", AngleY " << m_angleY << std::endl;
+
+        m_frustum.aspect() = camera.perspective.aspectRatio;
+        m_frustum.fov() = camera.perspective.yfov;
+        m_frustum.farClip() = camera.perspective.zfar;
+        m_frustum.nearClip() = camera.perspective.znear;
+        changed();
+        update();
 
         return true;
     }

@@ -126,7 +126,7 @@ int main(int argc, const char** argv)
         .addOption(arg::WIDTH, 'w', "640")
         .addOption(arg::HEIGHT, 'h', "480")
         .addOption(arg::INPUT, 'i',
-                   "scene2.gltf"
+                   "scene3.gltf"
                    //"triangle2.gltf"
                    )
         .addOption(arg::OUTPUT, 'o', "smallrender.png");
@@ -195,7 +195,6 @@ int main(int argc, const char** argv)
     Render::ColorRGB c;
     Render::ColorRGB bg = Render::MultiplierBackgroundAmbient * Render::lightAmbient().ambient(); //NOTE trick so that the background does not merge with the shadows
     REAL deep = std::numeric_limits<REAL>::infinity();
-
 
     volatile Render::Ray rr = Render::camera().centralRay();
 
