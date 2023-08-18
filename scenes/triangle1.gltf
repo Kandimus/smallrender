@@ -49,10 +49,10 @@
 			},
 			"name":"Light",
 			"rotation":[
-				0.7071068286895752,
-				0,
-				0,
-				0.7071068286895752
+				-0.28416627645492554,
+				0.7269423007965088,
+				0.34203392267227173,
+				0.5232754945755005
 			],
 			"translation":[
 				0,
@@ -75,7 +75,7 @@
 			"name":"Camera",
 			"perspective":{
 				"aspectRatio":1.3333333333333333,
-				"yfov":0.7175413370132446,
+				"yfov":0.7175413323019796,
 				"zfar":100,
 				"znear":0.10000000149011612
 			},
@@ -85,7 +85,7 @@
 	"materials":[
 		{
 			"doubleSided":true,
-			"name":"Material.001",
+			"name":"Material",
 			"pbrMetallicRoughness":{
 				"baseColorFactor":[
 					0.800000011920929,
@@ -121,13 +121,13 @@
 			"count":3,
 			"max":[
 				1.3333333730697632,
-				2.8830604553222656,
-				3.6465184688568115
+				1.3333333730697632,
+				0
 			],
 			"min":[
 				-0.6666666269302368,
 				-0.6666666269302368,
-				-3.886920213699341
+				0
 			],
 			"type":"VEC3"
 		},
@@ -179,7 +179,7 @@
 	"buffers":[
 		{
 			"byteLength":104,
-			"uri":"data:application/octet-stream;base64,q6qqPxCUkD1Nw3jAkMGVPhCEOEBIEbM/qqoqv6qqKr+PYGlAv7N2P6/U1r0/fXs+v7N2P6/U1r0/fXs+v7N2P6/U1r0/fXs+AADAPgAAgD4AACA/AAAAAAAAwD4AAAAAAAABAAIAAAA="
+			"uri":"data:application/octet-stream;base64,q6qqP6qqKr8AAACAqqoqv6uqqj8AAACAqqoqv6qqKr8AAACAAAAAAAAAAAAAAIA/AAAAAAAAAAAAAIA/AAAAAAAAAAAAAIA/AADAPgAAgD4AACA/AAAAAAAAwD4AAAAAAAABAAIAAAA="
 		}
 	]
 }
