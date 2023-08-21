@@ -126,7 +126,7 @@ int main(int argc, const char** argv)
         .addOption(arg::WIDTH, 'w', "640")
         .addOption(arg::HEIGHT, 'h', "480")
         .addOption(arg::INPUT, 'i',
-                   "scene4.gltf"
+                   "scene5.gltf"
                    //"triangle2.gltf"
                    )
         .addOption(arg::OUTPUT, 'o', "smallrender.png");

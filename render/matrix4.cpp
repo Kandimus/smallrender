@@ -186,17 +186,6 @@ REAL Matrix4::minor(int iR0, int iR1, int iR2, int iC0, int iC1, int iC2) const
     return f00 * (f11 * f22 - f21 * f12) - f01 * (f10 * f22 - f20 * f12) + f02 * (f10 * f21 - f20 * f11);
 }
 
-Vector3 Matrix4::operator *(const Vector3& v) const
-{
-    REAL fInvW = 1 / (m_30 * v.x() + m_31 * v.y() + m_32 * v.z() + m_33);
-
-    return Vector3(
-        (m_00 * v.x() + m_01 * v.y() + m_02 * v.z() + m_03) * fInvW,
-        (m_10 * v.x() + m_11 * v.y() + m_12 * v.z() + m_13) * fInvW,
-        (m_20 * v.x() + m_21 * v.y() + m_22 * v.z() + m_23) * fInvW
-        );
-}
-
 
 Matrix4 Matrix4::adjoint() const
 {

@@ -16,7 +16,7 @@ class Model;
 namespace Render
 {
 
-class Camera
+class Camera //TODO Переделать или на UVN вектора (как в Vers) или на кватернионы
 {
 public:
     virtual ~Camera() = default;

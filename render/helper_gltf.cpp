@@ -5,6 +5,27 @@
 namespace Render
 {
 
+
+Matrix4 loadTransformationMatrix(const tinygltf::Node& node)
+{
+    Matrix4 m_t;
+    Matrix4 m_s;
+    Matrix4 m_r_x;
+    Matrix4 m_r_y;
+    Matrix4 m_r_z;
+    auto rot = loadNodeRotation(node);
+    auto angle = rot.toYPR();
+
+    m_t.translate(loadNodeTranslation(node));
+    m_s.scale(loadNodeScale(node));
+
+    m_r_x.rotateX(-angle.x());
+    m_r_y.rotateY(angle.y());
+    m_r_z.rotateZ(angle.z());
+
+    return m_s * m_r_x * m_r_y * m_r_z * m_t;
+}
+
 Vector3 loadNodeTranslation(const tinygltf::Node& node)
 {
     return 3 == node.translation.size() ? Vector3(node.translation[0], node.translation[1], -node.translation[2]) : Vector3::c0;
@@ -13,6 +34,11 @@ Vector3 loadNodeTranslation(const tinygltf::Node& node)
 Quaternion loadNodeRotation(const tinygltf::Node& node)
 {
     return 4 == node.rotation.size() ? Quaternion(node.rotation[0], node.rotation[1], node.rotation[2], node.rotation[3]) : Quaternion::c1;
+}
+
+Vector3 loadNodeScale(const tinygltf::Node& node)
+{
+    return 3 == node.scale.size() ? Vector3(node.scale[0], node.scale[1], node.scale[2]) : Vector3::c1;
 }
 
 bool loadVectorOfVec3(std::vector<Render::Vector3>& vec3, int accIndex, const tinygltf::Model& model)

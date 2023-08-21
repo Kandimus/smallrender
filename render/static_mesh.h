@@ -10,6 +10,8 @@
 namespace Render
 {
 
+class Matrix4;
+
 class StaticMesh: public GeomObject
 {
 public:

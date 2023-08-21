@@ -1,4 +1,6 @@
 #include "triangle.h"
+
+#include "matrix4.h"
 #include "ray.h"
 
 namespace Render
@@ -6,27 +8,36 @@ namespace Render
 
 Triangle::Triangle(const Vector3& p0, const Vector3& p1, const Vector3& p2)
 {
-    calculate(p0, p1, p2);
+    set(p0, p1, p2);
 }
 
-void Triangle::calculate(const Vector3& p0, const Vector3& p1, const Vector3& p2)
+void Triangle::calculate()
 {
-    m_origin = p0;
-    m_edge1 = p1 - m_origin;
-    m_edge2 = p2 - m_origin;
+    m_edge1 = m_p1 - m_origin;
+    m_edge2 = m_p2 - m_origin;
 
     m_normal = m_edge1 ^ m_edge2;
     //m_normal = m_edge2 ^ m_edge1;
     m_normal.normalize();
 
     std::vector<Vector3> lv;
-    lv.push_back(p0);
-    lv.push_back(p1);
-    lv.push_back(p2);
-
+    lv.push_back(m_origin);
+    lv.push_back(m_p1);
+    lv.push_back(m_p2);
     m_obs.compute(lv);
+
 }
 
+void Triangle::set(const Vector3& p0, const Vector3& p1, const Vector3& p2)
+{
+    m_origin = p0;
+    m_p1 = p1;
+    m_p2 = p2;
+
+    calculate();
+}
+
+// Dmiry "Snake" Maydanov
 bool Triangle::intersect(const Ray& ray, Vector3& point, Vector2& uv) const
 {
     REAL fVD = m_normal & ray.direction();
@@ -111,5 +122,22 @@ REAL Triangle::intersect(const Ray& ray, Vector3& point) const
     point = ray.point(fT);
     return fT;
 }
+
+// IObject
+bool Triangle::intersect(const Ray& ray) const
+{
+    Vector3 point;
+    return intersect(ray, point) > MATH_EPS;
+}
+
+void Triangle::tranformation(const Matrix4& m4)
+{
+    m_origin = m_origin * m4;
+    m_p1     = m_p1 * m4;
+    m_p2     = m_p2 * m4;
+
+    calculate();
+}
+
 
 };

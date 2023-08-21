@@ -16,7 +16,6 @@ bool GeomObject::loadFromTinygltf(const tinygltf::Node& node, const tinygltf::Mo
         return false;
     }
 
-    auto rot = loadNodeRotation(node);
     auto& mesh = model.meshes[node.mesh];
 
     m_name = mesh.name;
@@ -101,13 +100,17 @@ bool GeomObject::loadFromTinygltf(const tinygltf::Node& node, const tinygltf::Mo
         n.normalize();
     }
 
+    //TODO Create ObBox or ObSphere
+//    auto m4 = loadTransformationMatrix(node);
+//    tranformation(m4);
+
     if (m_vertex.size() && m_index.size())
     {
         createTriangles();
     }
 
-    move(loadNodeTranslation(node));
-    //TODO apply rotation to vertices and normals
+    auto m4 = loadTransformationMatrix(node);
+    tranformation(m4);
 
     return true;
 }
@@ -126,20 +129,8 @@ void GeomObject::createTriangles()
         int i1 = m_index[ii + 1];
         int i2 = m_index[ii + 2];
 
-        m_triangle[jj].calculate(m_vertex[i2], m_vertex[i1], m_vertex[i0]);
+        m_triangle[jj].set(m_vertex[i2], m_vertex[i1], m_vertex[i0]);
     }
-}
-
-void GeomObject::move(const Vector3& v)
-{
-    m_vertex += v;
-
-    for (auto& t : m_triangle)
-    {
-        t.move(v);
-    }
-
-    //TODO Move ObBox (ObSphere) also
 }
 
 void GeomObject::toString() const
@@ -168,6 +159,35 @@ void GeomObject::toString() const
     }
     str += "--- End ---\n";
 }
+
+// IObject
+
+bool GeomObject::intersect(const Ray& ray) const
+{
+    return false; //TODO доработать
+}
+
+void GeomObject::tranformation(const Matrix4& m4)
+{
+    for (auto& v : m_vertex)
+    {
+        v = v * m4;
+    }
+
+    for (auto& n : m_normal)
+    {
+        n = n * m4;
+        n.normalize();
+    }
+
+    for (auto& t : m_triangle)
+    {
+        t.tranformation(m4);
+    }
+
+    //TODO Move ObBox (ObSphere) also
+}
+
 
 //namespace Render
 }
