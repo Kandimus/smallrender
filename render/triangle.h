@@ -25,7 +25,6 @@ public:
 
     void set(const Vector3& p0, const Vector3& p1, const Vector3& p2);
 
-    bool intersect(const Ray& ray, Vector3& point, Vector2& uv) const;
     REAL intersect(const Ray& ray, Vector3& point) const;
 
     // IObject
