@@ -46,6 +46,12 @@ public:
     virtual Ray ray(const Vector3& p) const override { Vector3 dir = m_position - p; dir.normalize(); return Ray(p, dir); }
     virtual Vector3 intensity(const Ray& ray, const Vector3& p, const Vector3& n) const override
     {
+        auto rn = ray.direction() & n;
+        if (rn > 0)
+        {
+            return Vector3::c0;
+        }
+
         //                 Ipoint * (p & n)
         // Idiffuse = --------------------------
         //             kc + kl * d + kq * d * d
@@ -54,6 +60,7 @@ public:
         auto d = pl.length();
         pl.normalize();
         auto dp = pl & n;
+
 
         if (dp > 0)
         {
