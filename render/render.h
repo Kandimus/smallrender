@@ -42,14 +42,3 @@ void makeOrtho(REAL fFOV, REAL fAspect, REAL fNear, REAL fFar, Matrix4& m/*, boo
 
 REAL calculatePoint(const Ray& ray, const Triangle& t, ColorRGB& c);
 }
-
-
-#ifdef RENDER_USING_CHECK_INTERSECT_MESH
-    #define FOREARCH_TRIANGLE       { auto& list = Render::staticMeshes(); for (auto mesh : list) { if (mesh->intersect(ray)) { for (auto tmp_trianle_item : mesh->triangle())
-    #define END_FOREARCH_TRIANGLE   }}}
-    #define POINTER_TRIANGLE        (&tmp_trianle_item)
-#else
-    #define FOREARCH_TRIANGLE       { for (auto tmp_trianle_item : Render::triangles())
-    #define END_FOREARCH_TRIANGLE   }
-    #define POINTER_TRIANGLE        (tmp_trianle_item)
-#endif

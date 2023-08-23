@@ -42,13 +42,13 @@ bool Triangle::intersect(const Ray& ray, Vector3& point, Vector2& uv) const
 {
     REAL fVD = m_normal & ray.direction();
 
-    if(ABSR(fVD) <= MATH_EPS)
+    if (ABSR(fVD) <= MATH_EPS)
     {
         return false;
     }
 
     REAL fT = ((m_origin - ray.origin()) & m_normal) / fVD;
-    if(fT <= MATH_EPS)
+    if (fT <= MATH_EPS)
     {
         return false;
     }

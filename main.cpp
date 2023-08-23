@@ -10,6 +10,7 @@
 #include "stb_image_write.h"
 
 #include "render.h"
+#include "render_defines.h"
 #include "triangle.h"
 #include "color_rgb.h"
 #include "light_factory.h"
@@ -51,7 +52,9 @@ bool loadObjectsFromGLTF(const tinygltf::Model& model)
                     return false;
                 }
 
-                std::cout << "Load mesh '" << mesh->name() << "', vertices " << mesh->vertex().size() << ", indices " << mesh->index().size() << ", tirangles " << mesh->triangle().size() <<  std::endl;
+                std::cout << "Load mesh '" << mesh->name() << "', vertices: " << mesh->vertex().size()
+                          << ", indices: " << mesh->index().size() << ", tirangles: " << mesh->triangle().size()
+                          << ",  obv: " << mesh->obVolume().type() << std::endl;
             }
             else if (node.camera >= 0)
             {
@@ -213,7 +216,7 @@ int main(int argc, const char** argv)
             color = bg;
             deep = REAL_MAXIMUM;
 
-            FOREARCH_TRIANGLE
+            FOR_EACH_TRIANGLE
             {
                 const Render::Triangle* t = POINTER_TRIANGLE;
                 REAL d = calculatePoint(ray, *t, c);
@@ -224,7 +227,7 @@ int main(int argc, const char** argv)
                     color = c;
                 }
             }
-            END_FOREARCH_TRIANGLE
+            END_FOR_EACH_TRIANGLE
 
             Render::image()[w_3 * yy + 3 * xx + 0] = color.redHex();
             Render::image()[w_3 * yy + 3 * xx + 1] = color.greenHex();

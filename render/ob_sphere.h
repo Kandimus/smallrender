@@ -28,6 +28,7 @@ public:
     ObSphere& operator =(const ObSphere& obs) { m_center = obs.center(); setRadius(obs.radius()); return *this; }
 
     // IObVolume
+    virtual std::string type() const override { return "obSphere"; }
     virtual bool in(const Vector3& point) const override;
     virtual void create(const std::vector<Vector3>& data) override;
 

@@ -3,6 +3,7 @@
 #include <iostream>
 
 #include "render.h"
+#include "render_defines.h"
 #include "light_ambient.h"
 #include "static_mesh.h"
 #include "triangle.h"
@@ -231,7 +232,7 @@ REAL calculatePoint(const Ray& ray, const Triangle& triangle, ColorRGB& c)
     REAL len = triangle.intersect(ray, point);
     if (len < 0)
     {
-        return 1000000000;//std::numeric_limits<REAL>::infinity();
+        return REAL_MAXIMUM;
     }
 
     //return 1;
@@ -257,7 +258,7 @@ REAL calculatePoint(const Ray& ray, const Triangle& triangle, ColorRGB& c)
         Ray ray_to_light = light->ray(point);
         Vector3 p;
 
-        FOREARCH_TRIANGLE
+        FOR_EACH_TRIANGLE
         {
             const Triangle* t = POINTER_TRIANGLE;
             if (t == &triangle) continue;
@@ -268,7 +269,7 @@ REAL calculatePoint(const Ray& ray, const Triangle& triangle, ColorRGB& c)
                 break;
             }
         }
-        END_FOREARCH_TRIANGLE
+        END_FOR_EACH_TRIANGLE
 
         if (!intersected)
         {

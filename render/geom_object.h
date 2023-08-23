@@ -40,6 +40,8 @@ public:
     std::vector<Triangle>& triangle() { return m_triangle; }
     const std::vector<Triangle>& triangle() const { return m_triangle; }
 
+    IObVolume& obVolume() { return *m_obv; }
+
     //vector<ColorARGB>& Color();
     //const std::vector<ColorARGB>& Color() const;
 

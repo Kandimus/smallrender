@@ -29,6 +29,7 @@ public:
     bool intersect(const Ray& ray, REAL& t0, REAL& t1) const;
 
     // IObVolume
+    virtual std::string type() const override { return "obBox"; }
     virtual bool in(const Vector3& point) const override;
     virtual void create(const std::vector<Vector3>& data) override;
 

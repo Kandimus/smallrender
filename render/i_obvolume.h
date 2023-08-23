@@ -1,6 +1,7 @@
 #pragma once
 
 #include <vector>
+#include <string>
 
 #include "i_object.h"
 
@@ -15,6 +16,7 @@ public:
     IObVolume() = default;
     virtual ~IObVolume() = default;
 
+    virtual std::string type() const = 0;
     virtual bool in(const Vector3& point) const = 0;
     virtual void create(const std::vector<Vector3>& data) = 0;
 };

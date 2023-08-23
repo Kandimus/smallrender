@@ -178,12 +178,12 @@ void GeomObject::tranformation(const Matrix4& m4)
         n.normalize();
     }
 
+    m_obv->tranformation(m4);
+
     for (auto& t : m_triangle)
     {
         t.tranformation(m4);
     }
-
-    //TODO Move ObBox (ObSphere) also
 }
 
 
