@@ -17,6 +17,8 @@ class Node;
 namespace Render
 {
 
+class IObVolume;
+
 class GeomObject : public IObject
 {
 public:
@@ -62,6 +64,8 @@ protected:
     std::vector<Vector2> m_texCoord[4];
 
     std::vector<Triangle> m_triangle;
+
+    IObVolume* m_obv;
 };
 
 //namespace Render

@@ -33,10 +33,9 @@ public:
 
     inline Vector3 operator -() const { return Vector3(-m_x, -m_y, -m_z); }
 
-    inline Vector3 reflect(const Vector3 &v) const { return (*this) - REAL(2.0) * ((*this) & v) * v; }
+    inline Vector3 reflect(const Vector3 &v) const { return (*this) - REAL(2.0) * ((*this) & v) * v; } //NOTE отражение?
 
     const REAL* data() const { return m_value; }
-    std::string toString() const { return "[" + std::to_string(m_x) + ", " + std::to_string(m_y) + ", " + std::to_string(m_z) + "]"; }
     REAL length() const {return SQRT(squaredLength()); }
     inline REAL squaredLength() const { return m_x * m_x + m_y * m_y + m_z * m_z; }
     inline void normalize() { REAL l = length(); if(l != 0) (*this) *= 1 / l; else (*this) = 0; }
@@ -69,15 +68,7 @@ public:
 
     friend Vector3 operator *(REAL val, const Vector3& v);
 
-    void add(std::vector<Vector3>& l) const
-    {
-        for (auto& v : l)
-        {
-            v += *this;
-        }
-    }
-    //    void load(FilePtr pFile);
-    //    void save(FilePtr pFile) const;
+    std::string toString() const { return "[" + std::to_string(m_x) + ", " + std::to_string(m_y) + ", " + std::to_string(m_z) + "]"; }
 
 protected:
 	union

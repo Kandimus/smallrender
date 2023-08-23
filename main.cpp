@@ -211,11 +211,12 @@ int main(int argc, const char** argv)
 
             ray = Render::camera().ray(xx, yy);
             color = bg;
-            deep = 1000000000;
+            deep = REAL_MAXIMUM;
 
-            for (auto tri : Render::triangles())
+            FOREARCH_TRIANGLE
             {
-                REAL d = calculatePoint(ray, *tri, c);
+                const Render::Triangle* t = POINTER_TRIANGLE;
+                REAL d = calculatePoint(ray, *t, c);
 
                 if (d < deep)
                 {
@@ -223,6 +224,7 @@ int main(int argc, const char** argv)
                     color = c;
                 }
             }
+            END_FOREARCH_TRIANGLE
 
             Render::image()[w_3 * yy + 3 * xx + 0] = color.redHex();
             Render::image()[w_3 * yy + 3 * xx + 1] = color.greenHex();

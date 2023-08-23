@@ -1,15 +1,22 @@
 #include "ob_sphere.h"
-#include "triangle.h"
+#include "matrix4.h"
 
 namespace Render
 {
 
-void ObSphere::compute(const std::vector<Vector3>& v)
+// IObVolume
+
+bool ObSphere::in(const Vector3& point) const
+{
+    return (point - m_center).squaredLength() <= m_radius_2;
+}
+
+void ObSphere::create(const std::vector<Vector3>& v)
 {
     if(v.empty())
     {
         m_center = Vector3::c0;
-        m_radius = 0;
+        setRadius(0);
         return;
     }
 
@@ -41,7 +48,11 @@ void ObSphere::compute(const std::vector<Vector3>& v)
         }
     }
     m_radius = SQRT(m_radius_2);
+
+    m_source = &v;
 }
+
+// IObject
 
 bool ObSphere::intersect(const Ray& r) const
 {
@@ -62,6 +73,14 @@ bool ObSphere::intersect(const Ray& r) const
     }
 
     return fA1 * fA1 >= fA0;
+}
+
+void ObSphere::tranformation(const Matrix4& m4)
+{
+    if (m_source)
+    {
+        create(*m_source);
+    }
 }
 
 

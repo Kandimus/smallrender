@@ -21,37 +21,37 @@ Frustum::Frustum()
     m_isReflect = false;
 }
 
-bool Frustum::isVisible(const Box3& b, FrustumPlane *fp) const
-{
-    //updateView();
-    std::vector<Vector3> azCorner(8);
-    b.compute(azCorner);
+//bool Frustum::isVisible(const Box3& b, FrustumPlane *fp) const
+//{
+//    //updateView();
+//    std::vector<Vector3> azCorner(8);
+//    b.compute(azCorner);
 
-    for (int iPlane = 0; iPlane <= 6; ++iPlane)
-    {
-        if (0 == m_far && Frustum_Far == iPlane)
-        {
-            continue;
-        }
+//    for (int iPlane = 0; iPlane <= 6; ++iPlane)
+//    {
+//        if (0 == m_far && Frustum_Far == iPlane)
+//        {
+//            continue;
+//        }
 
-        if (Plane::Side_Negative == m_plane[iPlane].side(azCorner[0]) &&
-            Plane::Side_Negative == m_plane[iPlane].side(azCorner[1]) &&
-            Plane::Side_Negative == m_plane[iPlane].side(azCorner[2]) &&
-            Plane::Side_Negative == m_plane[iPlane].side(azCorner[3]) &&
-            Plane::Side_Negative == m_plane[iPlane].side(azCorner[4]) &&
-            Plane::Side_Negative == m_plane[iPlane].side(azCorner[5]) &&
-            Plane::Side_Negative == m_plane[iPlane].side(azCorner[6]) &&
-            Plane::Side_Negative == m_plane[iPlane].side(azCorner[7]))
-        {
-            if(fp)
-            {
-                *fp = static_cast<FrustumPlane>(iPlane);
-            }
-            return false;
-        }
-    }
-    return true;
-}
+//        if (Plane::Side_Negative == m_plane[iPlane].side(azCorner[0]) &&
+//            Plane::Side_Negative == m_plane[iPlane].side(azCorner[1]) &&
+//            Plane::Side_Negative == m_plane[iPlane].side(azCorner[2]) &&
+//            Plane::Side_Negative == m_plane[iPlane].side(azCorner[3]) &&
+//            Plane::Side_Negative == m_plane[iPlane].side(azCorner[4]) &&
+//            Plane::Side_Negative == m_plane[iPlane].side(azCorner[5]) &&
+//            Plane::Side_Negative == m_plane[iPlane].side(azCorner[6]) &&
+//            Plane::Side_Negative == m_plane[iPlane].side(azCorner[7]))
+//        {
+//            if(fp)
+//            {
+//                *fp = static_cast<FrustumPlane>(iPlane);
+//            }
+//            return false;
+//        }
+//    }
+//    return true;
+//}
 
 //bool Frustum::IsVisible(const Sphere &zBound, FrustumPlane *pzCulledBy) const
 //{

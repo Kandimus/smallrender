@@ -1,10 +1,13 @@
 #pragma one
 
 #include <cmath>
+#include <limits>
 
 #define REAL double
-#define SQRT std::sqrt
+
 #define MATH_EPS 0.0000001
+
+#define SQRT std::sqrt
 #define ABSR std::abs
 
 #define SIN sin
@@ -19,6 +22,8 @@
 #define MATH_PI_2 (MATH_PI / REAL(2.0))
 #define MATH_PI_4 (MATH_PI / REAL(4.0))
 
+#define REAL_INFINITY (std::numeric_limits<REAL>::infinity())
+#define REAL_MAXIMUM (std::numeric_limits<REAL>::max())
 #define REAL_EPSILON 2.2204460492503131e-16
 
 //FLT_EPSILON 1.19209290E-07F

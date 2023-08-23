@@ -24,7 +24,7 @@ void Triangle::calculate()
     lv.push_back(m_origin);
     lv.push_back(m_p1);
     lv.push_back(m_p2);
-    m_obs.compute(lv);
+    m_obs.create(lv);
 
 }
 

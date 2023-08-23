@@ -257,8 +257,9 @@ REAL calculatePoint(const Ray& ray, const Triangle& triangle, ColorRGB& c)
         Ray ray_to_light = light->ray(point);
         Vector3 p;
 
-        for (auto t : gTriangle)
+        FOREARCH_TRIANGLE
         {
+            const Triangle* t = POINTER_TRIANGLE;
             if (t == &triangle) continue;
 
             if (t->intersect(ray_to_light, p) >= MATH_EPS)
@@ -267,6 +268,7 @@ REAL calculatePoint(const Ray& ray, const Triangle& triangle, ColorRGB& c)
                 break;
             }
         }
+        END_FOREARCH_TRIANGLE
 
         if (!intersected)
         {

@@ -8,12 +8,16 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 option(USING_OBSHPERE "Using ObSphere for fast check on intersection" ON)
+option(USING_CHECK_INTERSECT_MESH "Using loop for mesh and after loop for meshes triangles" ON)
 
 
 if (USING_OBSHPERE)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DRENDER_USING_OBSHPERE=1")
 endif()
 
+if (USING_CHECK_INTERSECT_MESH)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DRENDER_USING_CHECK_INTERSECT_MESH=1")
+endif()
 
 file(GLOB files_simpleargs_cpp "simpleargs/simpleargs/src/*.cpp")
 file(GLOB files_simpleargs_h "simpleargs/simpleargs/include/*.h")

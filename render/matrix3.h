@@ -43,9 +43,6 @@ public:
 
     Matrix3 transpose() const;
 
-//	void LoadFromFile(FilePtr pFile);
-//	void SaveToFile(FilePtr pFile);
-
 private:
 	union
 	{

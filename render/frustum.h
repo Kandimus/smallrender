@@ -1,10 +1,8 @@
 #pragma once
 
 #include "plane.h"
-#include "box3.h"
 #include "matrix4.h"
-#include "quaternion.h"
-//#include "Zone_Sphere.h"
+//#include "quaternion.h"
 
 namespace Render
 {
@@ -56,8 +54,8 @@ public:
 
     const Plane& plane(int i) const { return m_plane[i]; }
 
-    bool isVisible(const Box3& b, FrustumPlane *fp = 0) const;
     bool isVisible(const Vector3 &zVertex, FrustumPlane* fp = 0) const;
+    //bool isVisible(const Box3& b, FrustumPlane *fp = 0) const;
     //bool isVisible(const Sphere &zBound, FrustumPlane *pzCulledBy = 0) const;
 
     const Vector3* worldSpace() const { return m_worldCorner; }

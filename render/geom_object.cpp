@@ -2,7 +2,7 @@
 #include <iostream>
 
 #include "geom_object.h"
-#include "quaternion.h"
+#include "obvalue_factory.h"
 #include "helper_gltf.h"
 #include "tiny_gltf.h"
 
@@ -100,17 +100,15 @@ bool GeomObject::loadFromTinygltf(const tinygltf::Node& node, const tinygltf::Mo
         n.normalize();
     }
 
-    //TODO Create ObBox or ObSphere
-//    auto m4 = loadTransformationMatrix(node);
-//    tranformation(m4);
+    m_obv = ObVolumeFactory::create(m_vertex);
+
+    auto m4 = loadTransformationMatrix(node);
+    tranformation(m4);
 
     if (m_vertex.size() && m_index.size())
     {
         createTriangles();
     }
-
-    auto m4 = loadTransformationMatrix(node);
-    tranformation(m4);
 
     return true;
 }
@@ -164,7 +162,7 @@ void GeomObject::toString() const
 
 bool GeomObject::intersect(const Ray& ray) const
 {
-    return false; //TODO доработать
+    return m_obv->intersect(ray);
 }
 
 void GeomObject::tranformation(const Matrix4& m4)
