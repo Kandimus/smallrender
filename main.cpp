@@ -17,8 +17,6 @@
 #include "light_ambient.h"
 #include "static_mesh.h"
 
-#include "ob_sphere.h"
-
 namespace arg
 {
 const char* WIDTH = "width";
@@ -27,6 +25,7 @@ const char* INPUT = "input";
 const char* OUTPUT = "output";
 }
 
+int tests(); //TODO ifndef DEBUG
 int stbi_write_png(char const *filename, int w, int h, int comp, const void  *data, int stride_in_bytes);
 
 bool loadObjectsFromGLTF(const tinygltf::Model& model)
@@ -85,42 +84,6 @@ bool loadObjectsFromGLTF(const tinygltf::Model& model)
     return true;
 }
 
-
-int tests()
-{
-    Render::ObSphere obs(Render::Vector3(1, 1, 1), 3);
-    Render::Ray ray(Render::Vector3(0, 1, -1), Render::Vector3::c0);
-
-    // Луч внутри сферы
-    ray.direction() = Render::Vector3(1, 1, 1);
-    ray.direction().normalize();
-    if (true != obs.intersect(ray))
-    {
-        return 10;
-    }
-
-    // Сфера позади луча
-    ray.origin() = Render::Vector3(0, 0, -10);
-    ray.direction() = Render::Vector3(0, 0, -1);
-    ray.direction().normalize();
-    if (false != obs.intersect(ray))
-    {
-        return 11;
-    }
-
-    // Сфера перед лучом
-    ray.origin() = Render::Vector3(0, 0, -10);
-    ray.direction() = Render::Vector3(0, 0, 1);
-    ray.direction().normalize();
-    if (true != obs.intersect(ray))
-    {
-        return 12;
-    }
-
-    return 0;
-}
-
-
 int main(int argc, const char** argv)
 {
     auto t_start = GetTickCount64();
@@ -129,8 +92,8 @@ int main(int argc, const char** argv)
         .addOption(arg::WIDTH, 'w', "640")
         .addOption(arg::HEIGHT, 'h', "480")
         .addOption(arg::INPUT, 'i',
-                   "scene5.gltf"
-                   //"triangle2.gltf"
+                   //"scene6.gltf"
+                   "test_obvolume.gltf"
                    )
         .addOption(arg::OUTPUT, 'o', "smallrender.png");
 
@@ -228,6 +191,8 @@ int main(int argc, const char** argv)
                 }
             }
             END_FOR_EACH_TRIANGLE
+
+//            auto& list = Render::staticMeshes(); for (auto mesh : list) { if (mesh->intersect(ray)) { color = Render::ColorRGB::White; break; } }
 
             Render::image()[w_3 * yy + 3 * xx + 0] = color.redHex();
             Render::image()[w_3 * yy + 3 * xx + 1] = color.greenHex();

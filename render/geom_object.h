@@ -42,9 +42,6 @@ public:
 
     IObVolume& obVolume() { return *m_obv; }
 
-    //vector<ColorARGB>& Color();
-    //const std::vector<ColorARGB>& Color() const;
-
     std::vector<Vector2>& texCoord(int i = 0) { return m_texCoord[i]; }
     const std::vector<Vector2>& texCoord(int i = 0) const { return m_texCoord[i]; }
 
@@ -67,7 +64,7 @@ protected:
 
     std::vector<Triangle> m_triangle;
 
-    IObVolume* m_obv;
+    IObVolume* m_obv = nullptr;
 };
 
 //namespace Render

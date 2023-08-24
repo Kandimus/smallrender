@@ -69,8 +69,8 @@ void Matrix4::rotateX(REAL a)
     REAL fSine   = SIN(a);
 
     m_11 = fCosine;
-    m_21 = -fSine;
     m_12 = fSine;
+    m_21 = -fSine;
     m_22 = fCosine;
 }
 
@@ -82,8 +82,8 @@ void Matrix4::rotateY(REAL a)
     REAL fSine   = SIN(a);
 
     m_00 = fCosine;
-    m_20 = -fSine;
-    m_02 = fSine;
+    m_02 = -fSine;
+    m_20 = fSine;
     m_22 = fCosine;
 }
 
@@ -95,8 +95,8 @@ void Matrix4::rotateZ(REAL a)
     REAL fSine   = SIN(a);
 
     m_00 = fCosine;
-    m_10 = -fSine;
-    m_01 = fSine;
+    m_01 = -fSine;
+    m_10 = fSine;
     m_11 = fCosine;
 }
 

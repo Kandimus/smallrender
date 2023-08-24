@@ -1,4 +1,3 @@
-
 #include "ob_box.h"
 #include "ob_sphere.h"
 
@@ -29,7 +28,7 @@ IObVolume* create(const std::vector<Vector3>& data)
     REAL maxDelta = 1 + delta;
     REAL dy = ABSR(size.x() / size.y());
     REAL dz = ABSR(size.x() / size.z());
-    bool isSphere = (dy >= minDelta && dy <= maxDelta) && (dz >= minDelta && dz <= maxDelta);
+    bool isSphere = (minDelta <= dy && dy <= maxDelta) && (minDelta <= dz && dz <= maxDelta);
 
     IObVolume* obv = nullptr;
 

@@ -27,8 +27,9 @@ public:
 
     inline Vector3& operator +=(const Vector3& v) { m_x += v.x(); m_y += v.y(); m_z += v.z(); return *this; }
     inline Vector3& operator -=(const Vector3& v) { m_x -= v.x(); m_y -= v.y(); m_z -= v.z(); return *this; }
-    inline Vector3& operator *=(REAL v) { m_x *= v; m_y *= v; m_z *= v; return *this; }
     inline Vector3& operator *=(const Vector3& v) { m_x *= v.x(); m_y *= v.y(); m_z *= v.z(); return *this; }
+    inline Vector3& operator /=(const Vector3& v) { m_x = v.x() != 0 ? m_x / v.x() : 0; m_y = v.y() != 0 ? m_y / v.y() : 0; m_z = v.z() != 0 ? m_z / v.z() : 0; return *this; }
+    inline Vector3& operator *=(REAL v) { m_x *= v; m_y *= v; m_z *= v; return *this; }
     inline Vector3& operator /=(REAL v) { if (v == 0) { m_x = 0; m_y = 0; m_z = 0; } else {REAL iv = 1 / v; m_x *= iv; m_y *= iv; m_z *= iv; } return *this; }
 
     inline Vector3 operator -() const { return Vector3(-m_x, -m_y, -m_z); }
@@ -40,6 +41,9 @@ public:
     inline REAL squaredLength() const { return m_x * m_x + m_y * m_y + m_z * m_z; }
     inline void normalize() { REAL l = length(); if(l != 0) (*this) *= 1 / l; else (*this) = 0; }
     inline void clip() { for(int i = 0; i < 3; ++i) if(m_value[i] <= 0) m_value[i] = 0; else if(m_value[i] >= 1) m_value[i] = 1; }
+
+    inline Vector3 min(const Vector3& v) { return Vector3(std::min(m_x, v.x()), std::min(m_y, v.y()), std::min(m_z, v.z())); }
+    inline Vector3 max(const Vector3& v) { return Vector3(std::max(m_x, v.x()), std::max(m_y, v.y()), std::max(m_z, v.z())); }
 
     REAL& x() { return m_x; }
     REAL& y() { return m_y; }

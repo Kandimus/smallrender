@@ -100,10 +100,10 @@ bool GeomObject::loadFromTinygltf(const tinygltf::Node& node, const tinygltf::Mo
         n.normalize();
     }
 
-    m_obv = ObVolumeFactory::create(m_vertex);
-
+    // Do the begin transformation first and calulate a ObVolume after
     auto m4 = loadTransformationMatrix(node);
     tranformation(m4);
+    m_obv = ObVolumeFactory::create(m_vertex);
 
     if (m_vertex.size() && m_index.size())
     {
@@ -178,14 +178,16 @@ void GeomObject::tranformation(const Matrix4& m4)
         n.normalize();
     }
 
-    m_obv->tranformation(m4);
+    if (m_obv)
+    {
+        m_obv->tranformation(m4);
+    }
 
     for (auto& t : m_triangle)
     {
         t.tranformation(m4);
     }
 }
-
 
 //namespace Render
 }

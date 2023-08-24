@@ -27,7 +27,7 @@ file(GLOB files_tinygltf_h "tinygltf/tiny_gltf.h")
 file(GLOB files_stb_cpp "")
 file(GLOB files_stb_h "stb/*.h")
 
-file(GLOB files_cpp "main.cpp")
+file(GLOB files_cpp "./*.cpp")
 
 
 add_executable(${PROJECT_NAME} ${files_cpp}

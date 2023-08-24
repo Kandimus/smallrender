@@ -25,13 +25,8 @@ void ObSphere::create(const std::vector<Vector3>& v)
 
     for (auto& p : v)
     {
-        pointMin.x() = std::min(pointMin.x(), p.x());
-        pointMin.y() = std::min(pointMin.y(), p.y());
-        pointMin.z() = std::min(pointMin.z(), p.z());
-
-        pointMax.x() = std::max(pointMax.x(), p.x());
-        pointMax.y() = std::max(pointMax.y(), p.y());
-        pointMax.z() = std::max(pointMax.z(), p.z());
+        pointMin = pointMin.min(p);
+        pointMax = pointMax.max(p);
     }
     m_center = 0.5 * (pointMin + pointMax);
 

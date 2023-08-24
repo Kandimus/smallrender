@@ -1,4 +1,3 @@
-
 #include "ob_box.h"
 #include "ray.h"
 #include "matrix4.h"
@@ -111,13 +110,8 @@ void ObBox::create(const std::vector<Vector3>& data)
 
     for (auto& p : data)
     {
-        m_minPoint.x() = std::min(m_minPoint.x(), p.x());
-        m_minPoint.y() = std::min(m_minPoint.y(), p.y());
-        m_minPoint.z() = std::min(m_minPoint.z(), p.z());
-
-        m_maxPoint.x() = std::max(m_maxPoint.x(), p.x());
-        m_maxPoint.y() = std::max(m_maxPoint.y(), p.y());
-        m_maxPoint.z() = std::max(m_maxPoint.z(), p.z());
+        m_minPoint = m_minPoint.min(p);
+        m_maxPoint = m_maxPoint.max(p);
     }
     m_center = 0.5 * (m_maxPoint + m_minPoint);
     m_extent = 0.5 * (m_maxPoint - m_minPoint);
@@ -188,18 +182,26 @@ bool ObBox::intersect(const Ray& r) const
 
 void ObBox::tranformation(const Matrix4& m4)
 {
+    Vector3 pZ = Vector3(m_minPoint.x(), m_minPoint.y(), m_maxPoint.z()) * m4;
+    Vector3 pX = Vector3(m_maxPoint.x(), m_minPoint.y(), m_minPoint.z()) * m4;
+    Vector3 pY = Vector3(m_minPoint.x(), m_maxPoint.y(), m_minPoint.z()) * m4;
+
     m_minPoint = m_minPoint * m4;
     m_maxPoint = m_maxPoint * m4;
-    m_axis[0] = m_axis[0] * m4;
-    m_axis[1] = m_axis[1] * m4;
-    m_axis[2] = m_axis[2] * m4;
+
+    m_axis[0] = pX - m_minPoint;
+    m_axis[1] = pY - m_minPoint;
+    m_axis[2] = pZ - m_minPoint;
+
+    m_extent.x() = m_axis[0].length();
+    m_extent.y() = m_axis[1].length();
+    m_extent.z() = m_axis[2].length();
 
     m_axis[0].normalize();
     m_axis[1].normalize();
     m_axis[2].normalize();
 
     m_center = 0.5 * (m_maxPoint + m_minPoint);
-    m_extent = 0.5 * (m_maxPoint - m_minPoint);
 }
 
 
