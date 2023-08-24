@@ -193,9 +193,9 @@ void ObBox::tranformation(const Matrix4& m4)
     m_axis[1] = pY - m_minPoint;
     m_axis[2] = pZ - m_minPoint;
 
-    m_extent.x() = m_axis[0].length();
-    m_extent.y() = m_axis[1].length();
-    m_extent.z() = m_axis[2].length();
+    m_extent.x() = m_axis[0].length() * 0.5;
+    m_extent.y() = m_axis[1].length() * 0.5;
+    m_extent.z() = m_axis[2].length() * 0.5;
 
     m_axis[0].normalize();
     m_axis[1].normalize();
