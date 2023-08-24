@@ -92,8 +92,8 @@ int main(int argc, const char** argv)
         .addOption(arg::WIDTH, 'w', "640")
         .addOption(arg::HEIGHT, 'h', "480")
         .addOption(arg::INPUT, 'i',
-                   //"scene6.gltf"
-                   "test_obvolume.gltf"
+                   "scene6.gltf"
+                   //"test_obvolume.gltf"
                    )
         .addOption(arg::OUTPUT, 'o', "smallrender.png");
 

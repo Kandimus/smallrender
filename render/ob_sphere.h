@@ -27,6 +27,11 @@ public:
 
     ObSphere& operator =(const ObSphere& obs) { m_center = obs.center(); setRadius(obs.radius()); return *this; }
 
+    std::string toString() const
+    {
+        return "{center: " + m_center.toString() + ", R: " + std::to_string(m_radius) + "}";
+    }
+
     // IObVolume
     virtual std::string type() const override { return "obSphere"; }
     virtual bool in(const Vector3& point) const override;

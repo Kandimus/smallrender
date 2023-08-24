@@ -2,7 +2,6 @@
 #include <iostream>
 
 #include "geom_object.h"
-#include "obvalue_factory.h"
 #include "helper_gltf.h"
 #include "tiny_gltf.h"
 
@@ -103,32 +102,8 @@ bool GeomObject::loadFromTinygltf(const tinygltf::Node& node, const tinygltf::Mo
     // Do the begin transformation first and calulate a ObVolume after
     auto m4 = loadTransformationMatrix(node);
     tranformation(m4);
-    m_obv = ObVolumeFactory::create(m_vertex);
-
-    if (m_vertex.size() && m_index.size())
-    {
-        createTriangles();
-    }
 
     return true;
-}
-
-void GeomObject::createTriangles()
-{
-    int size = m_index.size();
-    int size_3 = size / 3;
-
-    m_triangle.clear();
-    m_triangle.resize(size_3);
-
-    for (int ii = 0, jj  = 0; ii < size; ii += 3, ++jj)
-    {
-        int i0 = m_index[ii];
-        int i1 = m_index[ii + 1];
-        int i2 = m_index[ii + 2];
-
-        m_triangle[jj].set(m_vertex[i2], m_vertex[i1], m_vertex[i0]);
-    }
 }
 
 void GeomObject::toString() const
@@ -160,11 +135,6 @@ void GeomObject::toString() const
 
 // IObject
 
-bool GeomObject::intersect(const Ray& ray) const
-{
-    return m_obv->intersect(ray);
-}
-
 void GeomObject::tranformation(const Matrix4& m4)
 {
     for (auto& v : m_vertex)
@@ -176,16 +146,6 @@ void GeomObject::tranformation(const Matrix4& m4)
     {
         n = n * m4;
         n.normalize();
-    }
-
-    if (m_obv)
-    {
-        m_obv->tranformation(m4);
-    }
-
-    for (auto& t : m_triangle)
-    {
-        t.tranformation(m4);
     }
 }
 
