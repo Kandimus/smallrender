@@ -40,7 +40,7 @@ void Triangle::set(const Vector3& p0, const Vector3& p1, const Vector3& p2)
 // Möller–Trumbore intersection algorithm
 /// @result: distance from ray origin to point of intersection
 ///
-REAL Triangle::intersect(const Ray& ray, Vector3& point) const
+REAL Triangle::intersect(const Ray& ray, Intersection& i) const
 {
 #ifdef RENDER_USING_OBSHPERE
     if (!m_obs.intersect(ray))
@@ -51,15 +51,15 @@ REAL Triangle::intersect(const Ray& ray, Vector3& point) const
 
     // Вычисление вектора нормали к плоскости
     Vector3 pvec = ray.direction() ^ m_edge2;
-    float det = m_edge1 & pvec;
+    i.det = m_edge1 & pvec;
 
     // Луч параллелен плоскости
-    if (det < MATH_EPS && det > -MATH_EPS)
+    if (i.det < MATH_EPS && i.det > -MATH_EPS)
     {
         return -1;
     }
 
-    float inv_det = 1 / det;
+    float inv_det = 1 / i.det;
     Vector3 tvec = ray.origin() - (*m_origin); // Вектор из точки камеры до нулевой точки треугольника
     float u = (tvec & pvec) * inv_det;
     if (u < 0 || u > 1)
@@ -81,7 +81,7 @@ REAL Triangle::intersect(const Ray& ray, Vector3& point) const
         return -1;
     }
 
-    point = ray.point(fT);
+    i.point = ray.point(fT); //NOTE может это вынести из функции, как часто нам нужна точка?
     return fT;
 }
 
@@ -89,8 +89,8 @@ REAL Triangle::intersect(const Ray& ray, Vector3& point) const
 
 bool Triangle::intersect(const Ray& ray) const
 {
-    Vector3 point;
-    return intersect(ray, point) > MATH_EPS;
+    Intersection i;
+    return intersect(ray, i) > MATH_EPS;
 }
 
 void Triangle::tranformation(const Matrix4& m4)

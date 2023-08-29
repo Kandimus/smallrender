@@ -26,6 +26,7 @@ Quaternion& Quaternion::operator *=(const Quaternion& q)
     return *this;
 }
 
+//NOTE not tested
 void Quaternion::fromRotationMatrix(const Matrix4& m)
 {
     REAL iNext[3] = {1, 2, 0};
@@ -69,44 +70,38 @@ void Quaternion::fromRotationMatrix(const Matrix4& m)
 
 Matrix4 Quaternion::toRotationMatrix() const
 {
-    Matrix4 r(1);
+    Matrix4 r = Matrix4::c0;
 
-    REAL fTX = 2 * m_x;
-    REAL fTY = 2 * m_y;
-    REAL fTZ = 2 * m_z;
+    REAL t2X = 2 * m_x;
+    REAL t2Y = 2 * m_y;
+    REAL t2Z = 2 * m_z;
 
-    REAL fTWX = fTX * m_w;
-    REAL fTWY = fTY * m_w;
-    REAL fTWZ = fTZ * m_w;
-    REAL fTXX = fTX * m_x;
-    REAL fTXY = fTY * m_x;
-    REAL fTXZ = fTZ * m_x;
-    REAL fTYY = fTY * m_y;
-    REAL fTYZ = fTZ * m_y;
-    REAL fTZZ = fTZ * m_z;
+    REAL t2WX = t2X * m_w;
+    REAL t2WY = t2Y * m_w;
+    REAL t2WZ = t2Z * m_w;
+    REAL t2XX = t2X * m_x;
+    REAL t2XY = t2Y * m_x;
+    REAL t2XZ = t2Z * m_x;
+    REAL t2YY = t2Y * m_y;
+    REAL t2YZ = t2Z * m_y;
+    REAL t2ZZ = t2Z * m_z;
 
-    r.value(0, 0) = 1 - fTYY - fTZZ;
-    r.value(0, 1) = fTXY - fTWZ;
-    r.value(0, 2) = fTXZ + fTWY;
-    r.value(1, 0) = fTXY + fTWZ;
-    r.value(1, 1) = 1 - fTXX - fTZZ;
-    r.value(1, 2) = fTXZ - fTWX;
-    r.value(2, 0) = fTXZ - fTWY;
-    r.value(2, 1) = fTYZ + fTWX;
-    r.value(2, 2) = 1 - fTXX - fTYY;
+    r.value(0, 0) = 1 - t2YY - t2ZZ;
+    r.value(1, 0) = t2XY - t2WZ;
+    r.value(2, 0) = t2XZ + t2WY;
+    r.value(0, 1) = t2XY + t2WZ;
+    r.value(1, 1) = 1 - t2XX - t2ZZ;
+    r.value(2, 1) = t2XZ - t2WX;
+    r.value(0, 2) = t2XZ - t2WY;
+    r.value(1, 2) = t2YZ + t2WX;
+    r.value(2, 2) = 1 - t2XX - t2YY;
 
-    r.value(0, 3) = 0;
-    r.value(1, 3) = 0;
-    r.value(2, 3) = 0;
-    r.value(3, 0) = 0;
-    r.value(3, 1) = 0;
-    r.value(3, 2) = 0;
     r.value(3, 3) = 1;
 
     return r;
 }
 
-
+//NOTE not tested
 void Quaternion::fromRotationMatrix3(const Matrix3& m)
 {
     REAL iNext[3] = {1, 2, 0};
@@ -147,8 +142,7 @@ void Quaternion::fromRotationMatrix3(const Matrix3& m)
     }
 }
 
-//-------------------------------------------------------------------------------------------------
-
+//NOTE not tested
 Matrix3 Quaternion::toRotationMatrix3() const
 {
     Matrix3 r;

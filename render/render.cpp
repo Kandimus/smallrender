@@ -225,17 +225,29 @@ void makeOrtho(REAL fFOV, REAL fAspect, REAL fNear, REAL fFar, Matrix4& m/*, boo
 
 REAL calculatePoint(const Ray& ray, const Triangle& triangle, ColorRGB& c)
 {
-    Vector3 point;
+    Intersection ti;
+    Vector3 t_normal = triangle.normal();
 
     c = ColorRGB::Black;
 
-    REAL len = triangle.intersect(ray, point);
+    REAL len = triangle.intersect(ray, ti);
     if (len < 0)
     {
         return REAL_MAXIMUM;
     }
 
     //return 1;
+
+    // Проверка на попадание с обратной стороны треугольника
+    //TODO тут нужно будет сделать зависимость от материала, или рисуем вторую сторону
+    //     или делаем вид, что мы не пересекали этот треугольник. Если рисуем, то
+    //     нужно обратить нормаль
+    auto rn = ray.direction() & t_normal;
+    if (rn > MATH_EPS)
+    {
+        t_normal = -t_normal;
+        //return len;
+    }
 
     // ILxxx - начальная интенсивность источника
     // CLxxx - цвет источника
@@ -246,6 +258,11 @@ REAL calculatePoint(const Ray& ray, const Triangle& triangle, ColorRGB& c)
 
     Vector3 diffuse = Vector3::c0;
 
+    if (Render::gDebugIntX == 273 && Render::gDebugIntY == (480 - 142))
+    {
+        volatile int a = 1;
+    }
+
     for (auto light : gLight)
     {
         if (!light->enable())
@@ -255,15 +272,15 @@ REAL calculatePoint(const Ray& ray, const Triangle& triangle, ColorRGB& c)
 
         // проверка наличие препятствия между точкой и истоником света
         bool intersected = false;
-        Ray ray_to_light = light->ray(point);
-        Vector3 p;
+        Ray ray_to_light = light->ray(ti.point);
+        Intersection li;
 
         FOR_EACH_TRIANGLE
         {
             const Triangle* t = POINTER_TRIANGLE;
             if (t == &triangle) continue;
 
-            if (t->intersect(ray_to_light, p) >= MATH_EPS)
+            if (t->intersect(ray_to_light, li) >= MATH_EPS)
             {
                 intersected = true;
                 break;
@@ -273,7 +290,7 @@ REAL calculatePoint(const Ray& ray, const Triangle& triangle, ColorRGB& c)
 
         if (!intersected)
         {
-            diffuse += light->intensity(ray, point, triangle.normal());
+            diffuse += light->intensity(ray, ti.point, t_normal); //TODO вот тут нужно решит что делать с backside
         }
     }
 

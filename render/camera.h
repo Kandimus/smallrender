@@ -112,8 +112,6 @@ protected:
         {
             return;
         }
-
-        //f_zBSphere.Center() = f_zPosition;
     }
 
     void updateDirection()
@@ -138,11 +136,11 @@ protected:
         // orientation
         m_orientation.fromYPR(-m_angleX, m_angleY, 0);
 
-        // left
-        m_left = direction() ^ up();
-
         // up
         m_up = Vector3(cosRoll * sinPitch * sinYaw + (-sinRoll) * sinYaw, cosRoll * cosPitch, cosRoll * sinPitch * cosYaw + (-sinRoll) * (-sinYaw));
+
+        // left
+        m_left = m_direction ^ m_up;
     }
 
 };

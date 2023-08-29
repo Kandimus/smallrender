@@ -10,20 +10,16 @@ Matrix4 loadTransformationMatrix(const tinygltf::Node& node)
 {
     Matrix4 m_t;
     Matrix4 m_s;
-    Matrix4 m_r_x;
-    Matrix4 m_r_y;
-    Matrix4 m_r_z;
+    Matrix4 m_r;
     auto rot = loadNodeRotation(node);
     auto angle = rot.toYPR();
 
     m_t.translate(loadNodeTranslation(node));
     m_s.scale(loadNodeScale(node));
 
-    m_r_x.rotateX(-angle.x());
-    m_r_y.rotateY(angle.y());
-    m_r_z.rotateZ(angle.z());
+    m_r = rot.toRotationMatrix();
 
-    return m_s * m_r_x * m_r_y * m_r_z * m_t;
+    return m_s * m_r * m_t;
 }
 
 Vector3 loadNodeTranslation(const tinygltf::Node& node)
@@ -33,7 +29,7 @@ Vector3 loadNodeTranslation(const tinygltf::Node& node)
 
 Quaternion loadNodeRotation(const tinygltf::Node& node)
 {
-    return 4 == node.rotation.size() ? Quaternion(node.rotation[0], node.rotation[1], node.rotation[2], node.rotation[3]) : Quaternion::c1;
+    return 4 == node.rotation.size() ? Quaternion(-node.rotation[0], -node.rotation[1], node.rotation[2], node.rotation[3]) : Quaternion::c1;
 }
 
 Vector3 loadNodeScale(const tinygltf::Node& node)

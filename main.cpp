@@ -92,8 +92,8 @@ int main(int argc, const char** argv)
         .addOption(arg::WIDTH, 'w', "640")
         .addOption(arg::HEIGHT, 'h', "480")
         .addOption(arg::INPUT, 'i',
-                   "scene6.gltf"
-                   //"test_obvolume.gltf"
+                   //"scene6.gltf"
+                   "duck_light_camera.glb"
                    )
         .addOption(arg::OUTPUT, 'o', "smallrender.png");
 
@@ -120,7 +120,8 @@ int main(int argc, const char** argv)
     std::string warn;
     tinygltf::Model model;
 
-    bool res = loader.LoadASCIIFromFile(&model, &err, &warn, rSimpleArgs::instance().getOption(arg::INPUT));
+    //bool res = loader.LoadASCIIFromFile(&model, &err, &warn, rSimpleArgs::instance().getOption(arg::INPUT));
+    bool res = loader.LoadBinaryFromFile(&model, &err, &warn, rSimpleArgs::instance().getOption(arg::INPUT));
 
     if (!warn.empty()) {
         std::cout << "WARN: " << warn << std::endl;
@@ -170,10 +171,6 @@ int main(int argc, const char** argv)
         {
             Render::gDebugIntX = xx;
             Render::gDebugIntY = yy;
-            if (xx == 419 && yy == 272)
-            {
-                volatile int a = 1;
-            }
 
             ray = Render::camera().ray(xx, yy);
             color = bg;

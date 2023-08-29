@@ -10,6 +10,12 @@ namespace Render
 class Matrix4;
 class Ray;
 
+struct Intersection
+{
+    Vector3 point;
+    REAL det;
+};
+
 class Triangle : public IObject
 {
 public:
@@ -24,7 +30,7 @@ public:
 
     void set(const Vector3& p0, const Vector3& p1, const Vector3& p2);
 
-    REAL intersect(const Ray& ray, Vector3& point) const;
+    REAL intersect(const Ray& ray, Intersection& i) const;
 
     std::string toString() const
     {

@@ -128,11 +128,6 @@ void Frustum::updateView()
 
     updateFrustum();
 
-//	Vector3& zLeft = Camera::GetPointer()->GetLeft();
-//	Vector3& zUp = Camera::GetPointer()->GetUp();
-//	Vector3& zPosition = Camera::GetPointer()->Position();
-
-	//Vector zCamDirection = Camera::GetPointer()->GetDirection();
     Quaternion q;
     q.fromYPR(-Camera::instance().angleX(), -Camera::instance().angleY(), 0);
     auto q_dir = q.direction();

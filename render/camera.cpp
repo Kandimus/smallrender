@@ -19,22 +19,15 @@ void Camera::reset()
 {
     m_position = Vector3::c0;
     m_angleX = 0;
-    //m_angleX = M_PI;
     m_angleY = 0;
-    //m_angleY = M_PI;
 
     m_frustum.fov() = REAL(M_PI_2);
     m_frustum.nearClip() = REAL(1);
     m_frustum.farClip() = REAL(52);
     m_frustum.aspect() = REAL(1);
-    //	SetFrustum(1, 48, -1.0f, 1.0f, 1.0f, -1.0f);
 
     m_portLeft = m_portBottom = 0;
     m_portRight = m_portTop = 1;
-
-    //    f_fMoveSpeed = f_fRotateSpeed = 0.01f;
-
-    //    f_zBSphere.Radius() = 3.0f;
 
     m_isChangedPosition = true;
     m_isChangedDirection = true;
@@ -51,38 +44,6 @@ void Camera::setViewport()
     m_viewY = m_portBottom * h;
     m_viewW = (m_portRight - m_portLeft) * w;
     m_viewH = (m_portTop - m_portBottom) * h;
-
-//    if(Renderer::c_ModeD3D == Renderer::GetPointer()->GetMode())
-//    {
-//        D3DVIEWPORT9 zViewport;
-//        zViewport.X = (DWORD)fX;
-//        zViewport.Y = (DWORD)fY;
-//        zViewport.Width = (DWORD)fWidth;
-//        zViewport.Height = (DWORD)fHeight;
-//        zViewport.MinZ = 0.0f;
-//        zViewport.MaxZ = 1.0f;
-
-//        Renderer::GetPointer()->GetDevice()->SetViewport(&zViewport);
-//    }
-//    else
-//    {
-//        GLint   iX      = (GLint)(fX);
-//        GLint   iY      = (GLint)(fY);
-//        GLsizei iWidth  = (GLsizei)(fWidth);
-//        GLsizei iHeight = (GLsizei)(fHeight);
-
-//        glViewport(iX, iY, iWidth, iHeight);
-//        if(GLenum iError = glGetError())
-//        {
-//            ZONE_THROW_E("glViewport, code: " + ToStringGL(iError));
-//        }
-
-//        glDepthRange(0.0f, 1.0f);
-//        if(GLenum iError = glGetError())
-//        {
-//            ZONE_THROW_E("glDepthRange, code: " + ToStringGL(iError));
-//        }
-//    }
 }
 
 Ray Camera::ray(int screen_x, int screen_y) const
@@ -149,25 +110,15 @@ bool Camera::loadFromTinygltf(const tinygltf::Node& node, const tinygltf::Model&
         m_position = loadNodeTranslation(node);
 
         auto q = loadNodeRotation(node);
+        auto a = q.toYPR();
 
-        Quaternion qa;
-        qa.x() = -q.z();
-        qa.y() = -q.x();
-        qa.z() = q.y();
-        qa.w() = q.w();
+        Render::camera().angleX() = a.y();
+        Render::camera().angleY() = a.x();
 
-        auto a = qa.toYPR();
+//        m_angleX = 0 * MATH_PI / 180;
+//        m_angleY = 0 * MATH_PI / 180;
 
-        Render::camera().angleX() = -a.z();
-        Render::camera().angleY() = a.y();
-
-//        m_angleX = -35 * MATH_PI / 180;
-//        m_angleY = (90 - 70) * MATH_PI / 180;
-
-//        Quaternion ypr;
-
-//        ypr.fromYPR(-m_angleX, m_angleY, 0);
-//        std::cout << "camera ypr " << ypr.toString() << ", AngleX " << m_angleX << ", AngleY " << m_angleY << std::endl;
+        std::cout << "camera blender: aX " << 180 * Render::camera().angleX() / MATH_PI << ", aY " << 180 * Render::camera().angleY() / MATH_PI << std::endl;
 
         m_frustum.aspect() = camera.perspective.aspectRatio;
         m_frustum.fov() = camera.perspective.yfov;
