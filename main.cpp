@@ -1,6 +1,7 @@
 #include <windows.h>
 
 #include <iostream>
+#include <filesystem>
 #include <limits>
 
 #include "simpleargs.h"
@@ -114,14 +115,27 @@ int main(int argc, const char** argv)
         return t;
     }
 
-
     tinygltf::TinyGLTF loader;
     std::string err;
     std::string warn;
     tinygltf::Model model;
+    std::string filename = rSimpleArgs::instance().getOption(arg::INPUT);
+    std::string fileext = std::filesystem::path(filename).extension().string();
+    bool res = false;
 
-    //bool res = loader.LoadASCIIFromFile(&model, &err, &warn, rSimpleArgs::instance().getOption(arg::INPUT));
-    bool res = loader.LoadBinaryFromFile(&model, &err, &warn, rSimpleArgs::instance().getOption(arg::INPUT));
+    if (fileext == "gltf")
+    {
+        res = loader.LoadASCIIFromFile(&model, &err, &warn, rSimpleArgs::instance().getOption(arg::INPUT));
+    }
+    else if (fileext == "glb")
+    {
+        res = loader.LoadBinaryFromFile(&model, &err, &warn, filename);
+    }
+    else
+    {
+        std::cout << "ERR: Unknow file extenstion!" << std::endl;
+        return 1;
+    }
 
     if (!warn.empty()) {
         std::cout << "WARN: " << warn << std::endl;
