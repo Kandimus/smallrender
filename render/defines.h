@@ -26,4 +26,7 @@
 #define REAL_MAXIMUM (std::numeric_limits<REAL>::max())
 #define REAL_EPSILON 2.2204460492503131e-16
 
+#define RADIAN2DEGREE(x) (REAL(180) * (x) / MATH_PI)
+#define DEGREE2RADIAN(x) ((x) * MATH_PI / REAL(180))
+
 //FLT_EPSILON 1.19209290E-07F

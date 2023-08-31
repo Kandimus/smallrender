@@ -17,69 +17,104 @@
 #include "light_factory.h"
 #include "light_ambient.h"
 #include "static_mesh.h"
+#include "helper_gltf.h"
 
 namespace arg
 {
 const char* WIDTH = "width";
 const char* HEIGHT = "height";
-const char* INPUT = "input";
-const char* OUTPUT = "output";
+const char* INPUT = "in";
+const char* OUTPUT = "out";
 }
 
 int tests(); //TODO ifndef DEBUG
 int stbi_write_png(char const *filename, int w, int h, int comp, const void  *data, int stride_in_bytes);
 
+bool loadNodes(const tinygltf::Model& model, const std::vector<int>& nodes, const Render::Matrix4& parent_m4, std::string shift = "")
+{
+    for (auto& nodeId : nodes)
+    {
+        if (nodeId < 0)
+        {
+            continue;
+        }
+
+        auto& node = model.nodes[nodeId];
+
+        std::cout << shift;
+
+        if (node.mesh >= 0)
+        {
+            auto mesh = Render::createStaticMesh();
+
+            if(!mesh->loadFromTinygltf(node, model))
+            {
+                std::cout << "Fault load mesh '" << mesh->name() << "'" << std::endl;
+                return false;
+            }
+
+            //mesh->tranformation(parent_m4);
+
+            std::cout << "Load mesh '" << mesh->name() << "', vertices: " << mesh->vertex().size()
+                      << ", indices: " << mesh->index().size()
+                      << ", tirangles: " << mesh->triangle().size()
+                      << ",  obv: " << mesh->obVolume().type()
+                      << ",  min: " << mesh->obVolume().minPoint().toString()
+                      << ",  max: " << mesh->obVolume().maxPoint().toString()
+                      << std::endl;
+        }
+        else if (node.camera >= 0)
+        {
+            if (!Render::camera().loadFromTinygltf(node, model))
+            {
+                std::cout << "Fault load camera '" << Render::camera().name() << "'" << std::endl;
+                return false;
+            }
+
+            std::cout << "Load camera '" << Render::camera().name()
+                      << "', pos: " << Render::camera().position().toString()
+                      << ", dir " << Render::camera().direction().toString()
+                      << ", up " << Render::camera().up().toString()
+                      << ", right " << Render::camera().right().toString()
+                      << std::endl;
+        }
+        else if (node.light >= 0)
+        {
+            auto light = Render::LightFactory::loadFromTinygltf(node, model);
+
+            if (!light)
+            {
+                std::cout << "Fault load light '" << node.name << "'" << std::endl;
+                return false;
+            }
+
+            Render::addLight(light);
+            std::cout << "Load light '" << light->name() << "'" << std::endl;
+        }
+        else if (node.children.size())
+        {
+            std::cout << "Container '" << node.name << "' open" << std::endl;
+            Render::Matrix4 m4 = Render::loadNodeTransformationMatrix(node);
+            if (!loadNodes(model, node.children, m4, shift + "   "))
+            {
+                return false;
+            }
+            std::cout << "Container '" << node.name << "' closed" << std::endl;
+        }
+        else
+        {
+            std::cout << "Unknow element '" << node.name << "'" << std::endl;
+        }
+    }
+
+    return true;
+}
+
 bool loadObjectsFromGLTF(const tinygltf::Model& model)
 {
     for (auto& scene : model.scenes)
     {
-        for (auto& nodeId : scene.nodes)
-        {
-            if (nodeId < 0)
-            {
-                continue;
-            }
-
-            auto& node = model.nodes[nodeId];
-
-            if (node.mesh >= 0)
-            {
-                auto mesh = Render::createStaticMesh();
-
-                if(!mesh->loadFromTinygltf(node, model))
-                {
-                    std::cout << "Fault load mesh '" << mesh->name() << "'" << std::endl;
-                    return false;
-                }
-
-                std::cout << "Load mesh '" << mesh->name() << "', vertices: " << mesh->vertex().size()
-                          << ", indices: " << mesh->index().size() << ", tirangles: " << mesh->triangle().size()
-                          << ",  obv: " << mesh->obVolume().type() << std::endl;
-            }
-            else if (node.camera >= 0)
-            {
-                if (!Render::camera().instance().loadFromTinygltf(node, model))
-                {
-                    std::cout << "Fault load camera '" << Render::camera().instance().name() << "'" << std::endl;
-                    return false;
-                }
-
-                std::cout << "Load camera '" << Render::camera().instance().name() << "'" << std::endl;
-            }
-            if (node.light >= 0)
-            {
-                auto light = Render::LightFactory::loadFromTinygltf(node, model);
-
-                if (!light)
-                {
-                    std::cout << "Fault load light '" << node.name << "'" << std::endl;
-                    return false;
-                }
-
-                Render::addLight(light);
-                std::cout << "Load light '" << light->name() << "'" << std::endl;
-            }
-        }
+        loadNodes(model, scene.nodes, Render::Matrix4::c1);
     }
 
     return true;
@@ -90,23 +125,18 @@ int main(int argc, const char** argv)
     auto t_start = GetTickCount64();
 
     rSimpleArgs::instance()
-        .addOption(arg::WIDTH, 'w', "640")
+        .addOption(arg::WIDTH, 'w', "0")
         .addOption(arg::HEIGHT, 'h', "480")
         .addOption(arg::INPUT, 'i',
                    //"scene6.gltf"
-                   "duck_light_camera.glb"
+                   //"scene6.glb"
+                   //"duck_light_camera.glb"
+                   "duck.glb"
+                   //"duck.gltf"
                    )
         .addOption(arg::OUTPUT, 'o', "smallrender.png");
 
     rSimpleArgs::instance().parse(argc, argv);
-    int w = std::stoi(rSimpleArgs::instance().getOption(arg::WIDTH));
-    int h = std::stoi(rSimpleArgs::instance().getOption(arg::HEIGHT));
-    int w_3 = w * 3;
-
-    if (rSimpleArgs::instance().isSet(arg::WIDTH) && rSimpleArgs::instance().isSet(arg::HEIGHT))
-    {
-        Render::camera().frustum().aspect() = REAL(w) / h;
-    }
 
     auto t = tests();
     if (t)
@@ -123,11 +153,11 @@ int main(int argc, const char** argv)
     std::string fileext = std::filesystem::path(filename).extension().string();
     bool res = false;
 
-    if (fileext == "gltf")
+    if (fileext == ".gltf")
     {
         res = loader.LoadASCIIFromFile(&model, &err, &warn, rSimpleArgs::instance().getOption(arg::INPUT));
     }
-    else if (fileext == "glb")
+    else if (fileext == ".glb")
     {
         res = loader.LoadBinaryFromFile(&model, &err, &warn, filename);
     }
@@ -167,9 +197,13 @@ int main(int argc, const char** argv)
     Render::lightAmbient().ambient().z() = Render::ColorRGB::Grey25.blue();
     std::cout << "Create global ambient light" << std::endl;
 
-    //
+    // Render init
+    int w = std::stoi(rSimpleArgs::instance().getOption(arg::WIDTH));
+    int h = std::stoi(rSimpleArgs::instance().getOption(arg::HEIGHT));
     Render::init(w, h);
+    int w_3 = Render::image_width() * 3;
 
+    // Render
     auto listMesh = Render::staticMeshes();
     Render::Ray ray;
     Render::ColorRGB color;

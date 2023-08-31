@@ -1,6 +1,7 @@
 #pragma once
 
 #include "matrix4.h"
+#include "vector3.h"
 
 namespace Render
 {
@@ -17,31 +18,36 @@ public:
     Quaternion(const Matrix4& m) { fromRotationMatrix(m); }
     Quaternion(const Quaternion& q) { *this = q; }
 
-    Quaternion& operator =(REAL v) { m_x = m_y = m_z = m_w = v; return *this; }
-    Quaternion& operator =(const Quaternion& q) { memcpy(m_value, q.data(), sizeof(REAL) * 4); return *this; }
-
+    Quaternion& operator  =(const Quaternion& q) { memcpy(m_value, q.data(), sizeof(REAL) * 4); return *this; }
     Quaternion& operator +=(const Quaternion& q) { m_x += q.x(); m_y += q.y(); m_z += q.z(); m_w += q.w(); return *this; }
     Quaternion& operator -=(const Quaternion& q) { m_x -= q.x(); m_y -= q.y(); m_z -= q.z(); m_w -= q.w(); return *this; }
+    Quaternion& operator *=(const Quaternion& q) { auto tmp = *this * q; *this = tmp; return *this; }
+
+    Quaternion& operator  =(REAL v) { m_x = m_y = m_z = m_w = v; return *this; }
     Quaternion& operator *=(REAL v) { m_x *= v; m_y *= v; m_z *= v; m_w *= v; return *this; }
-    Quaternion& operator *=(const Quaternion& q);
-    Quaternion& operator /=(REAL v) { 	if(v == 0) *this = c0; REAL invValue = 1 / v; m_x *= invValue; m_y *= invValue; m_z *= invValue; m_w *= invValue; return *this; }
+    Quaternion& operator /=(REAL v) { if(v == 0) *this = c0; REAL invValue = 1 / v; m_x *= invValue; m_y *= invValue; m_z *= invValue; m_w *= invValue; return *this; }
 
     const REAL* data() const { return m_value; }
 
+    [[deprecated("it's bkroken")]]
     void fromRotationMatrix(const Matrix4& m);
     Matrix4 toRotationMatrix() const;
 
+    [[deprecated("it's bkroken")]]
     void fromRotationMatrix3(const Matrix3& m);
     Matrix3 toRotationMatrix3() const;
 
+    Vector3 rotationVector3(const Vector3& v) const;
+
+    [[deprecated("not tested")]]
     Vector3 direction() const { return Vector3(2 * (m_x * m_z - m_w * m_y), 2 * (m_y * m_z + m_w * m_x), 1 - 2 * (m_x * m_x + m_y * m_y)); }
 
     void slerp(REAL t, const Quaternion& q1, const Quaternion& q2);
 
-    void normalize() { 	REAL f = 1 / SQRT(m_x * m_x + m_y * m_y + m_z * m_z + m_w * m_w); *this *= f; }
+    inline REAL squaredLength() const { return m_x * m_x + m_y * m_y + m_z * m_z + m_w * m_w; }
+    void normalize() { REAL sl = squaredLength(); if (sl == 0) { *this = c0; return; }  REAL isl = 1 / SQRT(sl); *this *= isl; }
 
-    Quaternion conjugate() const { return Quaternion(m_w, -m_x, -m_y, -m_z); }
-    Quaternion inverse() const { return conjugate() / (*this & *this); }
+    Quaternion inverse() const { Quaternion q(-m_x, -m_y, -m_z, m_w); q.normalize(); return q; }
 
     REAL& x() {  return m_x; }
     REAL& y() {  return m_y; }
@@ -57,10 +63,13 @@ public:
 
     Quaternion operator -() const { return Quaternion(-m_x, -m_y, -m_z, -m_w); }
 
-    Vector3 operator *(const Vector3& v) const;
+    //Vector3 operator *(const Vector3& v) const;
 
+    [[deprecated("it's bkroken")]]
     void fromYPR(REAL yaw, REAL pitch, REAL roll);
+    [[deprecated("it's bkroken")]]
     void fromYPR(Vector3 ypr) { fromYPR(ypr.z(), ypr.y(), ypr.x()); }
+    [[deprecated("it's bkroken")]]
     Vector3 toYPR() const;
 
     bool operator ==(const Quaternion& q) const { return m_x == q.x() && m_y == q.y() && m_z == q.z() && m_w == q.w(); }
@@ -76,6 +85,16 @@ public:
             m_w * q.z() + m_z * q.w() + m_x * q.y() - m_y * q.x(),
             m_w * q.w() - m_x * q.x() - m_y * q.y() - m_z * q.z());
     }
+
+    Quaternion operator *(const Vector3& v) const
+    {
+        return Quaternion(
+            m_w * v.x() + m_y * v.z() - m_z * v.y(),
+            m_w * v.y() - m_x * v.z() + m_z * v.x(),
+            m_w * v.z() + m_x * v.y() - m_y * v.x(),
+            -m_x * v.x() - m_y * v.y() - m_z * v.z());
+    }
+
     Quaternion operator *(REAL v) const { return Quaternion(m_x * v, m_y * v, m_z * v, m_w * v); }
     Quaternion operator /(REAL v) const { if (v == 0) return Quaternion::c0; REAL iv = 1 / v; return Quaternion(m_x * iv, m_y * iv, m_z * iv, m_w * iv); }
 

@@ -2,6 +2,7 @@
 
 #include <string>
 
+#include "i_object.h"
 #include "ray.h"
 #include "quaternion.h"
 #include "frustum.h"
@@ -16,7 +17,7 @@ class Model;
 namespace Render
 {
 
-class Camera //TODO Переделать или на UVN вектора (как в Vers) или на кватернионы
+class Camera  : public IObject //TODO Переделать или на UVN вектора (как в Vers) или на кватернионы
 {
 public:
     virtual ~Camera() = default;
@@ -29,26 +30,25 @@ private:
 
 public:
     Vector3& position() { m_isChangedPosition = true; return m_position; }
-    REAL& angleX() { m_isChangedDirection = true; return m_angleX; }
-    REAL& angleY() { m_isChangedDirection = true; return m_angleY; }
-    REAL& moveSpeed() { return m_moveSpeed; }
-    REAL& rotateSpeed() { return m_rotateSpeed; }
+//    REAL& angleX() { m_isChangedDirection = true; return m_angleX; }
+//    REAL& angleY() { m_isChangedDirection = true; return m_angleY; }
+//    REAL& moveSpeed() { return m_moveSpeed; }
+//    REAL& rotateSpeed() { return m_rotateSpeed; }
     Frustum& frustum() { return m_frustum; }
 
-    const Vector3& position() const { return m_position; }
-    REAL angleX() const { return m_angleX; }
-    REAL angleY() const { return m_angleY; }
-    REAL moveSpeed() const { return m_moveSpeed; }
-    REAL rotateSpeed() const { return m_rotateSpeed; }
+//    REAL angleX() const { return m_angleX; }
+//    REAL angleY() const { return m_angleY; }
+//    REAL moveSpeed() const { return m_moveSpeed; }
+//    REAL rotateSpeed() const { return m_rotateSpeed; }
     const Frustum& frustum() const { return m_frustum; }
-//    const Sphere& BSphere() const;
 
     std::string& name() { return m_name; }
     const std::string& name() const { return m_name; }
 
-    const Quaternion& orientation() const { return m_orientation; }
+    //const Quaternion& orientation() const { return m_orientation; }
+    const Vector3& position() const { return m_position; }
     const Vector3& direction() const { return m_direction; }
-    const Vector3& left() const { return m_left; }
+    const Vector3& right() const { return m_right; }
     const Vector3& up() const { return m_up; }
 
     void setViewport(REAL left, REAL right, REAL top, REAL bottom) { m_portLeft = left; m_portRight = right; m_portTop = top; m_portBottom = bottom; }
@@ -74,11 +74,48 @@ public:
 
     bool loadFromTinygltf(const tinygltf::Node& node, const tinygltf::Model& model);
 
+    // IObject
+    virtual bool intersect(const Ray& ray) const override { return false; }
+    virtual void tranformation(const Matrix4& m4) override
+    {
+        m_position = m_position * m4;
+
+        Matrix4 mr = m4.clearTranslate();
+        m_direction = m_direction * mr;
+        m_up = m_up * mr;
+        m_right = m_right * mr;
+
+        m_direction.normalize();
+        m_up.normalize();
+        m_right.normalize();
+
+        //m_direction = -m_direction;
+    }
+
+private:
+    void updatePosition()
+    {
+        if (!m_isChangedPosition)
+        {
+            return;
+        }
+    }
+
+    void updateDirection()
+    {
+        if (!m_isChangedDirection)
+        {
+            return;
+        }
+    }
+
 protected:
     std::string m_name = "camera";
+
     Vector3 m_position;
-    REAL m_angleX;
-    REAL m_angleY;
+    Vector3 m_direction;
+    Vector3 m_up;
+    Vector3 m_right;
 
     REAL m_moveSpeed;
     REAL m_rotateSpeed;
@@ -98,51 +135,8 @@ protected:
 
     Frustum m_frustum;
 
-//    Sphere f_zBSphere;
-
     //precalculated
-    Vector3 m_direction;
-    Vector3 m_up;
-    Vector3 m_left;
     Quaternion m_orientation;
-
-    void updatePosition()
-    {
-        if (!m_isChangedPosition)
-        {
-            return;
-        }
-    }
-
-    void updateDirection()
-    {
-        if (!m_isChangedDirection)
-        {
-            return;
-        }
-
-        REAL sinPitch = SIN(m_angleY);
-        REAL cosPitch = COS(m_angleY);
-
-        REAL sinYaw = SIN(m_angleX);
-        REAL cosYaw = COS(m_angleX);
-
-        REAL sinRoll = SIN(0);
-        REAL cosRoll = COS(0);
-
-        // direction
-        m_direction = Vector3(cosPitch * sinYaw, -sinPitch, cosPitch * cosYaw);
-
-        // orientation
-        m_orientation.fromYPR(-m_angleX, m_angleY, 0);
-
-        // up
-        m_up = Vector3(cosRoll * sinPitch * sinYaw + (-sinRoll) * sinYaw, cosRoll * cosPitch, cosRoll * sinPitch * cosYaw + (-sinRoll) * (-sinYaw));
-
-        // left
-        m_left = m_direction ^ m_up;
-    }
-
 };
 
 }

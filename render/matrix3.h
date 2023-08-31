@@ -31,10 +31,11 @@ public:
 
     REAL& value(int i) { return m_value[i]; }
     REAL value(int i) const { return m_value[i]; }
-    REAL& value(int row, int col) { return m_matrix[row][col]; }
-    REAL value(int row, int col) const { return m_matrix[row][col]; }
+    REAL& value(int y, int x) { return m_matrix[y][x]; }
+    REAL value(int y, int x) const { return m_matrix[y][x]; }
 
     Vector3 column(int col) const { return Vector3(m_matrix[0][col], m_matrix[1][col], m_matrix[2][col]); }
+    Vector3 row(int row) const { return Vector3(m_matrix[row][0], m_matrix[row][1], m_matrix[row][2]); }
 
     Matrix3 operator -() const { Matrix3 r; for(int ii = 0; ii < 9; ++ii) r.value(ii) = -value(ii); return r; }
 

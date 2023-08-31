@@ -32,6 +32,8 @@ public:
     virtual std::string type() const override { return "obBox"; }
     virtual bool in(const Vector3& point) const override;
     virtual void create(const std::vector<Vector3>& data) override;
+    virtual Vector3 minPoint() const override { return m_minPoint; }
+    virtual Vector3 maxPoint() const override { return m_maxPoint; }
 
     // IObject
     virtual bool intersect(const Ray& ray) const override;

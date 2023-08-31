@@ -128,11 +128,8 @@ void Frustum::updateView()
 
     updateFrustum();
 
-    Quaternion q;
-    q.fromYPR(-Camera::instance().angleX(), -Camera::instance().angleY(), 0);
-    auto q_dir = q.direction();
+    auto q_dir = Camera::instance().direction();
     REAL fDdE = q_dir & cam_p;
-
 
     Vector3 zNormal(m_coeffL[0] * q_dir + m_coeffL[1] * q_dir);
     m_plane[Frustum_Left].normal() = zNormal;

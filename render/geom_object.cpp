@@ -21,7 +21,7 @@ bool GeomObject::loadFromTinygltf(const tinygltf::Node& node, const tinygltf::Mo
 
     int idAccVertex = -1;
     int idAccNormal = -1;
-    int idAccText[4] = {-1};
+    int idAccText[4] = {-1, -1, -1, -1};
     int idAccIndices = -1;
     int idAccMaterial = -1;
 
@@ -100,7 +100,7 @@ bool GeomObject::loadFromTinygltf(const tinygltf::Node& node, const tinygltf::Mo
     }
 
     // Do the begin transformation first and calulate a ObVolume after
-    auto m4 = loadTransformationMatrix(node);
+    auto m4 = loadNodeTransformationMatrix(node);
     tranformation(m4);
 
     return true;
@@ -140,6 +140,7 @@ void GeomObject::tranformation(const Matrix4& m4)
     for (auto& v : m_vertex)
     {
         v = v * m4;
+
     }
 
     for (auto& n : m_normal)

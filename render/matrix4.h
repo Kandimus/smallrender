@@ -19,6 +19,7 @@ public:
         { m_00 = f00; m_01 = f01; m_02 = f02; m_03 = f03; m_10 = f10; m_11 = f11; m_12 = f12; m_13 = f13;
           m_20 = f20; m_21 = f21; m_22 = f22; m_23 = f23; m_30 = f30; m_31 = f31; m_32 = f32; m_33 = f33; }
     Matrix4(const Matrix4& m) { *this = m; }
+    Matrix4(const Matrix3& m) { *this = m; }
 
     Matrix4& operator =(REAL v) { m_00 = m_11 = m_22 = v; m_01 = m_02 = m_03 = m_10 = m_12 = m_13 = m_20 = m_21 = m_23 = m_30 = m_31 = m_32 = 0; m_33 = 1; return *this; }
     Matrix4& operator =(const Matrix4& m) { memcpy(m_value, m.data(), sizeof(REAL) * 16); return *this; }
@@ -26,8 +27,9 @@ public:
     {
         reset();
         m_00 = m.value(0, 0); m_01 = m.value(0, 1); m_02 = m.value(0, 2);
-        m_10 = m.value(1, 0); m_01 = m.value(1, 1); m_02 = m.value(1, 2);
-        m_20 = m.value(2, 0); m_01 = m.value(2, 1); m_02 = m.value(2, 2);
+        m_10 = m.value(1, 0); m_11 = m.value(1, 1); m_12 = m.value(1, 2);
+        m_20 = m.value(2, 0); m_21 = m.value(2, 1); m_22 = m.value(2, 2);
+        m_33 = 1.0;
         return *this;
     }
 
@@ -47,6 +49,7 @@ public:
 
     void translate(REAL x, REAL y, REAL z) { translate(Vector3(x, y, z)); }
     void translate(const Vector3& v) { *this = c1; m_30 = v.x(); m_31 = v.y(); m_32 = v.z(); }
+    Matrix4 clearTranslate() const { Matrix4 m4 = *this; m4.m_30 = m4.m_31 = m4.m_32 = 0.0; return m4; }
     void scale(REAL x, REAL y, REAL z) { scale(Vector3(x, y, z)); }
     void scale(const Vector3& v) { *this = c1; m_00 = v.x(); m_11 = v.y(); m_22 = v.z(); }
     void rotateX(REAL);

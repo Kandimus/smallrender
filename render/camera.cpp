@@ -17,9 +17,10 @@ namespace Render
 
 void Camera::reset()
 {
-    m_position = Vector3::c0;
-    m_angleX = 0;
-    m_angleY = 0;
+    m_position  = Vector3::c0;
+    m_direction = -Vector3::cZ;
+    m_right     = Vector3::cX;
+    m_up        = Vector3::cY;
 
     m_frustum.fov() = REAL(M_PI_2);
     m_frustum.nearClip() = REAL(1);
@@ -48,32 +49,25 @@ void Camera::setViewport()
 
 Ray Camera::ray(int screen_x, int screen_y) const
 {
-    REAL iWidth = Render::image_width();
-    REAL iHeight = Render::image_height();
-
-    REAL fPortX = (iWidth - 1 - screen_x) / iWidth;
-    REAL fPortY = (iHeight - 1 - screen_y) / iHeight;
-
-    if (fPortX < m_portLeft || fPortX > m_portRight)
+    if (screen_x < 0 || screen_x >= Render::image_width() ||
+        screen_y < 0 || screen_y >= Render::image_height())
     {
         return Ray(Vector3::c0, Vector3::c0);
     }
 
-    if (fPortY < m_portBottom || fPortY > m_portTop)
-    {
-        return Ray(Vector3::c0, Vector3::c0);
-    }
+    REAL w = Render::image_width();
+    REAL h = Render::image_height();
+    REAL fPortX = (w - 1.0 - screen_x) / w;
+    REAL fPortY = (h - 1.0 - screen_y) / h;
 
     //TODO оптимизировать, много статичных вычислений
     REAL fVPTop = m_frustum.tanThetaY() * m_frustum.nearClip();
     REAL fVPRight = m_frustum.tanThetaX() * m_frustum.nearClip();
-    REAL fVPBottom = -fVPTop;
-    REAL fVPLeft = -fVPRight;
 
-    REAL fViewX = (1 - fPortX) * fVPLeft + fPortX * fVPRight;
-    REAL fViewY = (1 - fPortY) * fVPBottom + fPortY * fVPTop;
+    REAL fViewX = (1 - fPortX) * -fVPRight + fPortX * fVPRight;
+    REAL fViewY = (1 - fPortY) * -fVPTop + fPortY * fVPTop;
 
-    Vector3 d = m_frustum.nearClip() * direction() + fViewX * left() + fViewY * up();
+    Vector3 d = m_frustum.nearClip() * direction() - fViewX * right() + fViewY * up();
     d.normalize();
 
     return Ray(m_position, d);
@@ -102,28 +96,21 @@ bool Camera::loadFromTinygltf(const tinygltf::Node& node, const tinygltf::Model&
         return false;
     }
 
+    reset();
+
     auto& camera = model.cameras[node.camera];
     m_name = camera.name;
 
     if (camera.type == ::PERSPECTIVE)
     {
-        m_position = loadNodeTranslation(node);
-
-        auto q = loadNodeRotation(node);
-        auto a = q.toYPR();
-
-        Render::camera().angleX() = a.y();
-        Render::camera().angleY() = a.x();
-
-//        m_angleX = 0 * MATH_PI / 180;
-//        m_angleY = 0 * MATH_PI / 180;
-
-        std::cout << "camera blender: aX " << 180 * Render::camera().angleX() / MATH_PI << ", aY " << 180 * Render::camera().angleY() / MATH_PI << std::endl;
+        Matrix4 m4 = loadNodeTransformationMatrix(node);
+        tranformation(m4);
 
         m_frustum.aspect() = camera.perspective.aspectRatio;
         m_frustum.fov() = camera.perspective.yfov;
         m_frustum.farClip() = camera.perspective.zfar;
         m_frustum.nearClip() = camera.perspective.znear;
+
         changed();
         update();
 

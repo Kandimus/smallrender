@@ -19,6 +19,8 @@ public:
     virtual std::string type() const = 0;
     virtual bool in(const Vector3& point) const = 0;
     virtual void create(const std::vector<Vector3>& data) = 0;
+    virtual Vector3 minPoint() const = 0;
+    virtual Vector3 maxPoint() const = 0;
 };
 
 }

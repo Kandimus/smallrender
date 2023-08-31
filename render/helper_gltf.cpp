@@ -6,20 +6,31 @@ namespace Render
 {
 
 
-Matrix4 loadTransformationMatrix(const tinygltf::Node& node)
+Matrix4 loadNodeTransformationMatrix(const tinygltf::Node& node)
 {
-    Matrix4 m_t;
-    Matrix4 m_s;
-    Matrix4 m_r;
-    auto rot = loadNodeRotation(node);
-    auto angle = rot.toYPR();
+    if (node.matrix.empty())
+    {
+        Matrix4 m_t;
+        Matrix4 m_s;
+        Matrix4 m_r;
+        auto rot = loadNodeRotation(node);
+        Matrix4 m_X;
 
-    m_t.translate(loadNodeTranslation(node));
-    m_s.scale(loadNodeScale(node));
+        m_X.rotateX(MATH_PI);
 
-    m_r = rot.toRotationMatrix();
+        m_t.translate(loadNodeTranslation(node));
+        m_s.scale(loadNodeScale(node));
+        m_r = rot.toRotationMatrix();
 
-    return m_s * m_r * m_t;
+        return m_r * m_s * m_t;
+    }
+
+    return (node.matrix.size() == 16)
+        ? Matrix4(node.matrix[ 0], node.matrix[ 1], -node.matrix[ 2], node.matrix[ 3],
+                  node.matrix[ 4], node.matrix[ 5], -node.matrix[ 6], node.matrix[ 7],
+                  node.matrix[ 8], node.matrix[ 9], -node.matrix[10], node.matrix[11],
+                  node.matrix[12], node.matrix[13], -node.matrix[14], node.matrix[15])
+        : Matrix4::c1;
 }
 
 Vector3 loadNodeTranslation(const tinygltf::Node& node)
@@ -29,7 +40,7 @@ Vector3 loadNodeTranslation(const tinygltf::Node& node)
 
 Quaternion loadNodeRotation(const tinygltf::Node& node)
 {
-    return 4 == node.rotation.size() ? Quaternion(-node.rotation[0], -node.rotation[1], node.rotation[2], node.rotation[3]) : Quaternion::c1;
+    return 4 == node.rotation.size() ? Quaternion(node.rotation[0], node.rotation[1], -node.rotation[2], node.rotation[3]) : Quaternion::c1;
 }
 
 Vector3 loadNodeScale(const tinygltf::Node& node)
@@ -51,7 +62,7 @@ bool loadVectorOfVec3(std::vector<Render::Vector3>& vec3, int accIndex, const ti
     }
 
     auto buf = &model.bufferViews[acc->bufferView];
-    const unsigned char* data = model.buffers[buf->buffer].data.data() + buf->byteOffset;
+    const unsigned char* data = model.buffers[buf->buffer].data.data() + /*buf->byteOffset*/acc->byteOffset;
     int sizeInBytes = tinygltf::GetComponentSizeInBytes(acc->componentType);
 
     vec3.clear();
@@ -66,6 +77,8 @@ bool loadVectorOfVec3(std::vector<Render::Vector3>& vec3, int accIndex, const ti
 
         vec3[ii].z() = -static_cast<REAL>(*(float*)(data)); // У gltf ось Z "на нас", а у меня "от нас"
         data += sizeInBytes;
+
+        data += buf->byteStride - sizeInBytes * 3; // Прыгаем на новый блок элементов
     }
 
     return true;

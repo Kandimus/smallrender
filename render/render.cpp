@@ -8,6 +8,7 @@
 #include "static_mesh.h"
 #include "triangle.h"
 #include "color_rgb.h"
+#include "frustum.h"
 
 namespace Render
 {
@@ -53,7 +54,7 @@ void init(int w, int h)
         delete[] gBuffer;
     }
 
-    gWidth = w;
+    gWidth = w ? w : h * camera().frustum().aspect();
     gHeight = h;
     gBuffer = new unsigned char[gWidth * gHeight * 3];
 
@@ -76,6 +77,12 @@ void init(int w, int h)
         {
             gTriangle.push_back(&t);
         }
+    }
+
+    if (w)
+    {
+        camera().frustum().aspect() = w / REAL(h);
+        camera().frustum().update();
     }
 }
 

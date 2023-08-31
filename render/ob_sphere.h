@@ -36,6 +36,8 @@ public:
     virtual std::string type() const override { return "obSphere"; }
     virtual bool in(const Vector3& point) const override;
     virtual void create(const std::vector<Vector3>& data) override;
+    virtual Vector3 minPoint() const override { return m_center - m_radius; }
+    virtual Vector3 maxPoint() const override { return m_center + m_radius; }
 
     // IObject
     virtual bool intersect(const Ray& ray) const override;
