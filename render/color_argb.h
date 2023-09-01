@@ -1,6 +1,7 @@
 #pragma once
 
 #include "color_rgb.h"
+#include "vector3.h"
 
 namespace Render
 {
@@ -24,16 +25,16 @@ public:
     REAL& blue() { return m_rgb.blue(); }
     ColorRGB& color() { return m_rgb; }
 
-    REAL alpha() const { return m_alpha; }
-    REAL red() const { return m_rgb.red(); }
-    REAL green() const { return m_rgb.green(); }
-    REAL blue() const { return m_rgb.blue(); }
-    const ColorRGB& color() const  { return m_rgb; }
+    inline REAL alpha() const { return m_alpha; }
+    inline REAL red  () const { return m_rgb.red(); }
+    inline REAL green() const { return m_rgb.green(); }
+    inline REAL blue () const { return m_rgb.blue(); }
+    inline const ColorRGB& color() const { return m_rgb; }
 
     REAL operator [](const int index) { return index == 0 ? m_alpha: m_rgb[index - 1]; }
     const REAL& operator [](const int index) const { return index == 0 ? m_alpha: m_rgb[index - 1]; }
 
-    operator ColorRGB() const { return m_rgb; }
+    inline operator ColorRGB() const { return m_rgb; }
 
     void from4444(unsigned short c);
     void from1555(unsigned short c);
@@ -77,19 +78,22 @@ public:
     ColorARGB operator +(const ColorARGB& c) const { return ColorARGB(m_alpha + c.alpha(), m_rgb + c.color()); }
     ColorARGB operator -(const ColorARGB& c) const { return ColorARGB(m_alpha - c.alpha(), m_rgb - c.color()); }
     ColorARGB operator *(const ColorARGB& c) const { return ColorARGB(m_alpha * c.alpha(), m_rgb * c.color()); }
-    ColorARGB operator *(REAL v) const  { return ColorARGB(m_alpha + v, m_rgb + v); }
     ColorARGB operator /(const ColorARGB& c) const
     {
         return (c.alpha() == 0 || c.red() == 0 || c.green() == 0 || c.blue() == 0)
             ? ColorARGB(REAL(0))
             : ColorARGB(m_alpha / c.alpha(), m_rgb / c);
     }
+
+    ColorARGB operator *(REAL v) const  { return ColorARGB(m_alpha + v, m_rgb + v); }
     ColorARGB operator /(REAL v) const
     {
         return (v == 0)
             ? ColorARGB(REAL(0))
             : ColorARGB(m_alpha / v, m_rgb / v);
     }
+
+    ColorRGB operator *(const Vector3& v) const { return (color() * v) * m_alpha; }
 
 	friend ColorARGB operator *(const float fScalar, const ColorARGB &zColor);
 	friend ColorARGB operator /(const float fScalar, const ColorARGB &zColor);

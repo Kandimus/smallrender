@@ -66,20 +66,30 @@ public:
     ColorRGB operator +(const ColorRGB& c) const { return ColorRGB(m_red + c.red(), m_green + c.green(), m_blue + c.blue()); }
     ColorRGB operator -(const ColorRGB& c) const { return ColorRGB(m_red - c.red(), m_green - c.green(), m_blue - c.blue()); }
     ColorRGB operator *(const ColorRGB& c) const { return ColorRGB(m_red * c.red(), m_green * c.green(), m_blue * c.blue()); }
-    ColorRGB operator *(REAL v) const { return ColorRGB(m_red * v, m_green * v, m_blue * v); }
-    ColorRGB operator *(const Vector3& v) const { return ColorRGB(m_red * v.x(), m_green * v.y(), m_blue * v.z()); } //TODO Нужно ли? или defuse и specular перевести на ColorRGB
     ColorRGB operator /(const ColorRGB& c) const
     {
         return (c.red() == 0 || c.green() == 0 || c.blue() == 0)
                    ? Black
                    : ColorRGB(m_red / c.red(), m_green / c.green(), m_blue / c.blue());
     }
+    ColorRGB operator *(REAL v) const { return ColorRGB(m_red * v, m_green * v, m_blue * v); }
     ColorRGB operator /(REAL v) const { return v == 0 ? Black : ColorRGB(m_red / v, m_green / v, m_blue / v) ; }
 
-    void adjustContrast(REAL c) { for (int i = 0; i < 3; ++i) m_color[i] = 0.5 + c * (m_color[i] - 0.5); }
-    void adjustSaturation(REAL s) { REAL grey = m_red * 0.2125 + m_green * 0.7154 + m_blue * 0.0721f; for(int i = 0; i < 3; ++i) m_color[i] = grey + s * (m_color[i] - grey); }
+    ColorRGB operator *(const Vector3& v) const { return ColorRGB(m_red * v.x(), m_green * v.y(), m_blue * v.z()); } //TODO Нужно ли? или defuse и specular перевести на ColorRGB
 
-    void lerp(REAL t, const ColorRGB& c1, const ColorRGB& c2) { for(int i = 0; i < 3; ++i) m_color[i] = c1[i] + t * (c2[i] - c1[i]); }
+    void adjustContrast(REAL c) { for (int i = 0; i < 3; ++i) m_color[i] = 0.5 + c * (m_color[i] - 0.5); }
+    void adjustSaturation(REAL s)
+    {
+        REAL grey = m_red * 0.2125 + m_green * 0.7154 + m_blue * 0.0721f;
+        for(int i = 0; i < 3; ++i)
+        {
+            m_color[i] = grey + s * (m_color[i] - grey);
+        }
+    }
+    void lerp(REAL t, const ColorRGB& c1, const ColorRGB& c2)
+    {
+        for(int i = 0; i < 3; ++i) m_color[i] = c1[i] + t * (c2[i] - c1[i]);
+    }
 
 private:
 	union

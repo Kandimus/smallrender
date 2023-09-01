@@ -19,7 +19,7 @@ bool GeomObject::loadFromTinygltf(const tinygltf::Node& node, const tinygltf::Mo
 
     m_name = mesh.name;
 
-    int idAccVertex = -1;
+    int idAccPoint = -1;
     int idAccNormal = -1;
     int idAccText[4] = {-1, -1, -1, -1};
     int idAccIndices = -1;
@@ -31,7 +31,7 @@ bool GeomObject::loadFromTinygltf(const tinygltf::Node& node, const tinygltf::Mo
         {
             if (a.first == "POSITION")
             {
-                idAccVertex = a.second;
+                idAccPoint = a.second;
             }
             else if (a.first == "NORMAL")
             {
@@ -61,12 +61,12 @@ bool GeomObject::loadFromTinygltf(const tinygltf::Node& node, const tinygltf::Mo
         }
     }
 
-    if (idAccVertex < 0 || idAccIndices < 0)
+    if (idAccPoint < 0 || idAccIndices < 0)
     {
         return false;
     }
 
-    if (!loadVectorOfVec3(m_vertex, idAccVertex, model))
+    if (!loadVectorOfVec3(m_point, idAccPoint, model))
     {
         return false;
     }
@@ -112,17 +112,17 @@ void GeomObject::toString() const
     int i = 0;
 
     str += "--- Object '" + m_name + "' ---\n";
-    str += "vertices:\n";
-    for (auto& v : m_vertex)
+    str += "points:\n";
+    for (auto& p : m_point)
     {
-        str += "[" + std::to_string(i++) + "] V " + v.toString() + "\n";
+        str += "[" + std::to_string(i++) + "] P " + p.toString() + "\n";
     }
 
     i = 0;
     str += "normals:\n";
-    for (auto& v : m_normal)
+    for (auto& n : m_normal)
     {
-        str += "[" + std::to_string(i++) + "] N " + v.toString() + "\n";
+        str += "[" + std::to_string(i++) + "] N " + n.toString() + "\n";
     }
 
     i = 0;
@@ -137,9 +137,9 @@ void GeomObject::toString() const
 
 void GeomObject::tranformation(const Matrix4& m4)
 {
-    for (auto& v : m_vertex)
+    for (auto& p : m_point)
     {
-        v = v * m4;
+        p = p * m4;
 
     }
 
@@ -150,5 +150,4 @@ void GeomObject::tranformation(const Matrix4& m4)
     }
 }
 
-//namespace Render
-}
+} // namespace Render

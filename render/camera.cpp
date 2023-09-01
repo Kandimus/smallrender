@@ -18,7 +18,7 @@ namespace Render
 void Camera::reset()
 {
     m_position  = Vector3::c0;
-    m_direction = -Vector3::cZ;
+    m_direction = Vector3::cZ;
     m_right     = Vector3::cX;
     m_up        = Vector3::cY;
 

@@ -1,5 +1,10 @@
 #include "static_mesh.h"
+
+#include "tiny_gltf.h"
+
+#include "render.h"
 #include "obvalue_factory.h"
+#include "vertex.h"
 
 namespace Render
 {
@@ -18,8 +23,38 @@ void StaticMesh::createTriangles()
         int i1 = m_index[ii + 1];
         int i2 = m_index[ii + 2];
 
-        m_triangle[jj].set(m_vertex[i2], m_vertex[i1], m_vertex[i0]);
+        m_triangle[jj].set(*m_vertex[i2], *m_vertex[i1], *m_vertex[i0]);
     }
+}
+
+void StaticMesh::createVertices()
+{
+    std::vector<const Vector2*> tc;
+
+    m_vertex.reserve(m_point.size());
+    for (int ii = 0; ii < m_point.size(); ++ii)
+    {
+        tc.clear();
+        if (m_texCoord[0].size())
+        {
+            tc.push_back(&m_texCoord[0][ii]);
+        }
+        if (m_texCoord[1].size())
+        {
+            tc.push_back(&m_texCoord[1][ii]);
+        }
+        if (m_texCoord[2].size())
+        {
+            tc.push_back(&m_texCoord[2][ii]);
+        }
+        if (m_texCoord[3].size())
+        {
+            tc.push_back(&m_texCoord[3][ii]);
+        }
+
+        m_vertex[ii] = new Vertex(m_point[ii], m_normal[ii], tc, *m_material);
+    }
+
 }
 
 bool StaticMesh::loadFromTinygltf(const tinygltf::Node& node, const tinygltf::Model& model)
@@ -29,12 +64,28 @@ bool StaticMesh::loadFromTinygltf(const tinygltf::Node& node, const tinygltf::Mo
         return false;
     }
 
-    if (m_vertex.size() && m_index.size())
+    if (m_point.empty())
     {
-        m_obv = ObVolumeFactory::create(m_vertex);
-
-        createTriangles();
+        return false;
     }
+
+    m_obv = ObVolumeFactory::create(m_point);
+
+    int idMaterial = -1;
+    auto& mesh = model.meshes[node.mesh];
+    for (auto& p : mesh.primitives)
+    {
+        if (p.indices >= 0)
+        {
+            idMaterial = p.material;
+            break;
+        }
+    }
+
+    m_material = getMaterial(idMaterial);
+
+    createVertices();
+    createTriangles();
 
     return true;
 }

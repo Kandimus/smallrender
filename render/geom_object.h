@@ -27,8 +27,8 @@ public:
     std::string& name() { return m_name; }
     const std::string& name() const { return m_name; }
 
-    std::vector<Vector3>& vertex() { return m_vertex; }
-    const std::vector<Vector3>& vertex() const { return m_vertex; }
+    std::vector<Vector3>& point() { return m_point; }
+    const std::vector<Vector3>& point() const { return m_point; }
 
     std::vector<int>& index() { return m_index; }
     const std::vector<int>& index() const { return m_index; }
@@ -48,11 +48,10 @@ public:
 
 protected:
     std::string m_name;
-    std::vector<Vector3> m_vertex;
+    std::vector<Vector3> m_point;
     std::vector<int> m_index;
     std::vector<Vector3> m_normal;
     std::vector<Vector2> m_texCoord[4];
 };
 
-//namespace Render
-}
+} // namespace Render

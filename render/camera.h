@@ -72,6 +72,8 @@ public:
     void update();
     void reset();
 
+    void setDirection_Z() { m_direction = -Vector3::cZ; } // TODO убрать, и разобраться почему камера в бинарнике и в тексте ведет себя по разному
+
     bool loadFromTinygltf(const tinygltf::Node& node, const tinygltf::Model& model);
 
     // IObject

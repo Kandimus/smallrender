@@ -48,6 +48,11 @@ Vector3 loadNodeScale(const tinygltf::Node& node)
     return 3 == node.scale.size() ? Vector3(node.scale[0], node.scale[1], node.scale[2]) : Vector3::c1;
 }
 
+ColorARGB loadColorARGB(const std::vector<double>& color)
+{
+    return 4 == color.size() ? ColorARGB(color[3], color[0], color[1], color[2]) : ColorARGB::Black;
+}
+
 bool loadVectorOfVec3(std::vector<Render::Vector3>& vec3, int accIndex, const tinygltf::Model& model)
 {
     if (accIndex < 0)
@@ -62,7 +67,7 @@ bool loadVectorOfVec3(std::vector<Render::Vector3>& vec3, int accIndex, const ti
     }
 
     auto buf = &model.bufferViews[acc->bufferView];
-    const unsigned char* data = model.buffers[buf->buffer].data.data() + /*buf->byteOffset*/acc->byteOffset;
+    const unsigned char* data = model.buffers[buf->buffer].data.data() + (buf->byteOffset ? buf->byteOffset : acc->byteOffset);
     int sizeInBytes = tinygltf::GetComponentSizeInBytes(acc->componentType);
 
     vec3.clear();
@@ -78,7 +83,10 @@ bool loadVectorOfVec3(std::vector<Render::Vector3>& vec3, int accIndex, const ti
         vec3[ii].z() = -static_cast<REAL>(*(float*)(data)); // У gltf ось Z "на нас", а у меня "от нас"
         data += sizeInBytes;
 
-        data += buf->byteStride - sizeInBytes * 3; // Прыгаем на новый блок элементов
+        if (buf->byteStride)
+        {
+            data += buf->byteStride - sizeInBytes * 3; // Прыгаем на новый блок элементов
+        }
     }
 
     return true;
@@ -98,7 +106,7 @@ bool loadVectorOfVec2(std::vector<Render::Vector2>& vec2, int accIndex, const ti
     }
 
     auto buf = &model.bufferViews[acc->bufferView];
-    const unsigned char* data = model.buffers[buf->buffer].data.data() + buf->byteOffset;
+    const unsigned char* data = model.buffers[buf->buffer].data.data() + (buf->byteOffset ? buf->byteOffset : acc->byteOffset);
     int sizeInBytes = tinygltf::GetComponentSizeInBytes(acc->componentType);
 
     vec2.clear();

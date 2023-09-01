@@ -1,17 +1,31 @@
 
+#include <filesystem>
 #include <limits>
 #include <iostream>
 
-#include "render.h"
 #include "render_defines.h"
+#include "render.h"
+
+#include "color_argb.h"
+#include "frustum.h"
+#include "helper_gltf.h"
 #include "light_ambient.h"
+#include "light_factory.h"
+#include "material.h"
 #include "static_mesh.h"
 #include "triangle.h"
-#include "color_rgb.h"
-#include "frustum.h"
+
+#include "tiny_gltf.h"
 
 namespace Render
 {
+enum FileType
+{
+    GLTF,
+    GLB,
+};
+
+static FileType gFileType = FileType::GLTF;
 
 static unsigned char* gBuffer = nullptr;
 static int gWidth = 320;
@@ -19,13 +33,17 @@ static int gHeight = 240;
 
 static std::vector<StaticMesh*> gStaticMesh;
 static std::vector<ILight*> gLight;
+static std::vector<Material*> gMaterial;
 
 static std::vector<const Triangle*> gTriangle;
 
 static LightAmbient gLightAmbient(Vector3(1, 1, 1));
 
+static Material gMaterialDefault(time(nullptr));
+
 int gDebugIntX = 0;
 int gDebugIntY = 0;
+
 
 Camera& camera(void)
 {
@@ -45,6 +63,15 @@ int image_width()
 int image_height()
 {
     return gHeight;
+}
+
+
+void start()
+{
+    camera().reset();
+
+    gMaterialDefault.name() = "<default material>";
+    gMaterialDefault.diffuse() = ColorARGB::White;
 }
 
 void init(int w, int h)
@@ -140,6 +167,28 @@ LightAmbient& lightAmbient()
     return gLightAmbient;
 }
 
+Material* createMaterial(int uid)
+{
+    auto mat = new Material(uid);
+
+    gMaterial.push_back(mat);
+
+    return mat;
+}
+
+const Material* getMaterial(int uid)
+{
+    for (auto mat : gMaterial)
+    {
+        if (mat->uid() == uid)
+        {
+            return mat;
+        }
+    }
+
+    return &gMaterialDefault;
+}
+
 const std::vector<const Triangle*>& triangles()
 {
     return gTriangle;
@@ -232,6 +281,11 @@ void makeOrtho(REAL fFOV, REAL fAspect, REAL fNear, REAL fFar, Matrix4& m/*, boo
 
 REAL calculatePoint(const Ray& ray, const Triangle& triangle, ColorRGB& c)
 {
+    if (Render::gDebugIntX == 320 && Render::gDebugIntY == (480 - 240))
+    {
+        volatile int a = 1;
+    }
+
     Intersection ti;
     Vector3 t_normal = triangle.normal();
 
@@ -265,11 +319,6 @@ REAL calculatePoint(const Ray& ray, const Triangle& triangle, ColorRGB& c)
 
     Vector3 diffuse = Vector3::c0;
 
-    if (Render::gDebugIntX == 273 && Render::gDebugIntY == (480 - 142))
-    {
-        volatile int a = 1;
-    }
-
     for (auto light : gLight)
     {
         if (!light->enable())
@@ -301,10 +350,182 @@ REAL calculatePoint(const Ray& ray, const Triangle& triangle, ColorRGB& c)
         }
     }
 
-    c = Render::ColorRGB::White * gLightAmbient.ambient() + diffuse * Render::ColorRGB::White;
+    ColorARGB mat_color = triangle.material().diffuse();
+    c = Render::ColorRGB::White * gLightAmbient.ambient() + diffuse * triangle.material().diffuse();
     c.scaleByMax();
 
     return len;
+}
+
+bool loadObjectsFromGLTF(const tinygltf::Model& model, std::string& out);
+
+bool loadScene(const std::string& filename, std::string& out)
+{
+    bool res = false;
+    tinygltf::TinyGLTF loader;
+    tinygltf::Model model;
+    std::string err = "";
+    std::string warn = "";
+    std::string ext = std::filesystem::path(filename).extension().string();
+
+    if (ext == ".gltf")
+    {
+        res = loader.LoadASCIIFromFile(&model, &err, &warn, filename);
+        gFileType = FileType::GLTF;
+    }
+    else if (ext == ".glb")
+    {
+        res = loader.LoadBinaryFromFile(&model, &err, &warn, filename);
+        gFileType = FileType::GLB;
+    }
+    else
+    {
+        out += "ERR: Unknow file extenstion!\n";
+        return false;
+    }
+
+    if (!warn.empty()) {
+        out += "WARN: " + warn + "\n";
+    }
+
+    if (!err.empty()) {
+        out += "ERR: " + err + "\n";
+    }
+
+    if (!res)
+    {
+        out += "Failed to load file: '" + filename + "'\n";
+        return 1;
+    }
+    else
+    {
+        out += "Loaded file: '" + filename + "'\n";
+    }
+
+    Render::start();
+
+    if (!loadObjectsFromGLTF(model, out))
+    {
+        return false;
+    }
+
+    return true;
+}
+
+bool loadNodes(const tinygltf::Model& model, const std::vector<int>& nodes, const Render::Matrix4& parent_m4, std::string& out, const std::string& shift = "")
+{
+    for (auto& nodeId : nodes)
+    {
+        if (nodeId < 0)
+        {
+            continue;
+        }
+
+        auto& node = model.nodes[nodeId];
+
+        out += shift;
+
+        if (node.mesh >= 0)
+        {
+            auto mesh = createStaticMesh();
+
+            if(!mesh->loadFromTinygltf(node, model))
+            {
+                out += "Fault load mesh '" + node.name + "'\n";
+                return false;
+            }
+
+            //mesh->tranformation(parent_m4);
+
+            out += "Load mesh '" + mesh->name() +
+                       "', points: " + std::to_string(mesh->point().size()) +
+                       ", indices: " + std::to_string(mesh->index().size()) +
+                       ", tirangles: " + std::to_string(mesh->triangle().size()) +
+                       ",  obv: " + mesh->obVolume().type() +
+                       ",  min: " + mesh->obVolume().minPoint().toString() +
+                       ",  max: " + mesh->obVolume().maxPoint().toString() +
+                       "\n";
+        }
+        else if (node.camera >= 0)
+        {
+            if (gFileType == FileType::GLB)
+            {
+                camera().setDirection_Z();
+            }
+
+            if (!Render::camera().loadFromTinygltf(node, model))
+            {
+                out += "Fault load camera '" + node.name + "'\n";
+                return false;
+            }
+
+            out += "Load camera '" + camera().name() +
+                       "', pos: " + camera().position().toString() +
+                       ", dir " + camera().direction().toString() +
+                       ", up " + camera().up().toString() +
+                       ", right " + camera().right().toString() +
+                       "\n";
+        }
+        else if (node.light >= 0)
+        {
+            auto light = LightFactory::loadFromTinygltf(node, model);
+
+            if (!light)
+            {
+                out += "Fault load light '" + node.name + "'\n";
+                return false;
+            }
+
+            addLight(light);
+            out += "Load light '" + light->name() + "'\n";
+        }
+        else if (node.children.size())
+        {
+            out += "Container '" + node.name + "' open...\n";
+
+            Matrix4 m4 = loadNodeTransformationMatrix(node);
+
+            if (!loadNodes(model, node.children, m4, out, shift + "   "))
+            {
+                return false;
+            }
+            out += "Container '" + node.name + "' closed\n";
+        }
+        else
+        {
+            out += "Unknow element '" + node.name + "'\n";
+        }
+    }
+
+    return true;
+}
+
+bool loadObjectsFromGLTF(const tinygltf::Model& model, std::string& out)
+{
+    int mat_id = 0;
+    for (auto& material : model.materials)
+    {
+        auto mat = Render::createMaterial(mat_id++);
+
+        if(!mat->loadFromTinygltf(material))
+        {
+            out += "Fault load material '" + material.name + "'\n";
+            return false;
+        }
+
+        out += "Load material '" + mat->name() + "' [" + mat->strUid() + "]\n";
+    }
+
+    for (auto& scene : model.scenes)
+    {
+        if (!loadNodes(model, scene.nodes, Render::Matrix4::c1, out))
+        {
+            out += "Fault load scene '" + scene.name + "'\n";
+            return false;
+        }
+    }
+
+    return true;
 }
 
 }

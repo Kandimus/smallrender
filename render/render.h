@@ -9,12 +9,14 @@ class ILight;
 class LightAmbient;
 class StaticMesh;
 class Triangle;
+class Material;
 
 static const REAL MultiplierBackgroundAmbient = 1.05;
 
 extern int gDebugIntX;
 extern int gDebugIntY;
 
+bool loadScene(const std::string& filename, std::string& out);
 
 void init(int w, int h);
 void finalize();
@@ -33,6 +35,10 @@ const std::vector<StaticMesh*>& staticMeshes();
 LightAmbient& lightAmbient();
 void addLight(ILight* l);
 const std::vector<ILight*>& lights();
+
+//
+Material* createMaterial(int uid);
+const Material* getMaterial(int uid);
 
 const std::vector<const Triangle*>& triangles();
 

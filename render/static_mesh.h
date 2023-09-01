@@ -2,11 +2,14 @@
 
 #include "geom_object.h"
 #include "triangle.h"
+//#include "vertex.h"
 
 namespace Render
 {
 
 class Matrix4;
+class Material;
+class Vertex;
 
 class StaticMesh: public GeomObject
 {
@@ -14,8 +17,8 @@ public:
     StaticMesh() = default;
     virtual ~StaticMesh() = default ;
 
-//	Material* MeshMaterial();
-//    const Material* MeshMaterial() const;
+    Material* material();
+    const Material* material() const;
 
 //	TextureState* MeshTextureState();
 //	const TextureState* MeshTextureState() const;
@@ -36,14 +39,15 @@ public:
 
 private:
     void createTriangles();
+    void createVertices();
 
 protected:
-//	MaterialPtr f_pMaterial;
-//	TextureStatePtr f_pTextureState;
+    const Material* m_material;
     std::string m_texName[4];
 //    TexturePtr m_texture[4];
 
     std::vector<Triangle> m_triangle;
+    std::vector<Vertex*> m_vertex;
 
     IObVolume* m_obv = nullptr;
 };
