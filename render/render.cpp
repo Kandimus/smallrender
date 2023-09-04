@@ -297,6 +297,11 @@ REAL calculatePoint(const Ray& ray, const Triangle& triangle, ColorRGB& c)
         return REAL_MAXIMUM;
     }
 
+#ifdef RENDER_CALCULATED_NORMALS
+    t_normal = triangle.origin() * ti.w + triangle.point1() * ti.u + triangle.point2() * ti.v;
+    t_normal.normalize();
+#endif
+
     //return 1;
 
     // Проверка на попадание с обратной стороны треугольника
@@ -450,13 +455,18 @@ bool loadNodes(const tinygltf::Model& model, const std::vector<int>& nodes, cons
         {
             if (gFileType == FileType::GLB)
             {
-                camera().setDirection_Z();
+                camera().setDirectionInverse();
             }
 
             if (!Render::camera().loadFromTinygltf(node, model))
             {
                 out += "Fault load camera '" + node.name + "'\n";
                 return false;
+            }
+
+            if (gFileType == FileType::GLB)
+            {
+                camera().setDirectionInverse();
             }
 
             out += "Load camera '" + camera().name() +

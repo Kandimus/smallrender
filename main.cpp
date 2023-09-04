@@ -14,6 +14,7 @@
 #include "triangle.h"
 #include "color_rgb.h"
 #include "light_ambient.h"
+#include "light_point.h"
 #include "static_mesh.h"
 #include "material.h"
 
@@ -56,10 +57,15 @@ int main(int argc, const char** argv)
         return 1;
     }
 
+    std::cout << "Output file '" << rSimpleArgs::instance().getOption(arg::OUTPUT) << "'" << std::endl;
+
     Render::lightAmbient().ambient().x() = Render::ColorRGB::Grey25.red();
     Render::lightAmbient().ambient().y() = Render::ColorRGB::Grey25.green();
     Render::lightAmbient().ambient().z() = Render::ColorRGB::Grey25.blue();
     std::cout << "Create global ambient light" << std::endl;
+
+    Render::LightPoint* lp = new Render::LightPoint(Render::Vector3(-500, 800, 500), Render::Vector3::c1, Render::Vector3::c0, 100000);
+    Render::addLight(lp);
 
     // Render init
     int w = std::stoi(rSimpleArgs::instance().getOption(arg::WIDTH));

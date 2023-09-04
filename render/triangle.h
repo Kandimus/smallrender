@@ -15,6 +15,9 @@ struct Intersection
 {
     Vector3 point;
     REAL det;
+    REAL u;
+    REAL v;
+    REAL w;
 };
 
 class Triangle : public IObject
@@ -25,6 +28,8 @@ public:
     virtual ~Triangle() = default;
 
     inline const Vector3& origin() const { return m_origin->point(); }
+    inline const Vector3& point1() const { return m_v1->point(); }
+    inline const Vector3& point2() const { return m_v2->point(); }
     inline const Vector3& normal() const { return m_normal; }
     inline const Vector3& edge1() const { return m_edge1; }
     inline const Vector3& edge2() const { return m_edge2; }

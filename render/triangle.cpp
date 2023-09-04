@@ -28,18 +28,18 @@ REAL Triangle::intersect(const Ray& ray, Intersection& i) const
         return -1;
     }
 
-    float inv_det = 1 / i.det;
+    REAL inv_det = 1 / i.det;
     Vector3 tvec = ray.origin() - m_origin->point(); // Вектор из точки камеры до нулевой точки треугольника
-    float u = (tvec & pvec) * inv_det;
-    if (u < 0 || u > 1)
+    i.u = (tvec & pvec) * inv_det;
+    if (i.u < 0 || i.u > 1.0)
     {
         return -1;
     }
 
     Vector3 qvec = tvec ^ m_edge1;
-    float v = (ray.direction() & qvec) * inv_det;
+    i.v = (ray.direction() & qvec) * inv_det;
 
-    if (v < 0 || u + v > 1)
+    if (i.v < 0 || i.u + i.v > 1)
     {
         return -1;
     }
@@ -50,6 +50,7 @@ REAL Triangle::intersect(const Ray& ray, Intersection& i) const
         return -1;
     }
 
+    i.w = 1 - i.u - i.v;
     i.point = ray.point(fT); //NOTE может это вынести из функции, как часто нам нужна точка?
     return fT;
 }
