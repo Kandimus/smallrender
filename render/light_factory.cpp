@@ -1,14 +1,17 @@
 
-#include "tiny_gltf.h"
+
+#include "render.h"
 #include "helper_gltf.h"
-#include "light_ambient.h"
-//#include "light_directional.h"
+//#include "light_ambient.h"
+#include "light_directional.h"
 #include "light_point.h"
 //#include "light_spot.h"
 
+#include "tiny_gltf.h"
+
 namespace {
-//std::string nameLightDirectional = "";
-std::string nameLightPoint = "point";
+std::string typePoint = "point";
+std::string typeDirectional = "directional";
 };
 
 namespace Render
@@ -27,7 +30,9 @@ ILight* loadFromTinygltf(const tinygltf::Node& node, const tinygltf::Model& mode
     auto& light = model.lights[node.light];
 
     std::string name = light.name;
-    Vector3 position = loadNodeTranslation(node);
+    auto position = loadNodeTranslation(node);
+    auto rotation = loadNodeRotation(node);
+    auto m4 = loadNodeTransformationMatrix(node);
     Vector3 color = Vector3::c1;
     REAL intensity = light.intensity;
 
@@ -38,16 +43,31 @@ ILight* loadFromTinygltf(const tinygltf::Node& node, const tinygltf::Model& mode
         color.z() = light.color[2];
     }
 
-    if (light.type == ::nameLightPoint)
+    if (light.type == ::typePoint)
     {
         // Этот параметр в gltf задан в candela (lm/sr), переводим обратно в силу свечения (W) блендера
         // и умножаем на волшебный коэффициент
-        REAL watt = intensity * 4 * MATH_PI / 683.0;
-        auto l = new LightPoint(position, color, Vector3(1, 1, 1), watt / light_W_to_i, Vector3(0, 0, 1));
+        REAL watt = intensity * 4 * MATH_PI / LumensPerWatt;
+        REAL Ipoint  = watt / LightWattToIntensity;
+
+        auto l = new LightPoint(position, color, Vector3(1, 1, 1), Ipoint, Vector3(0, 0, 1)); //TODO эту настройку вынести в файл настроек
         l->name() = name;
+
         return l;
     }
+    else if (light.type == ::typeDirectional)
+    {
+        REAL Idir = intensity / LumensPerWatt;
+        Matrix4 mr = rotation.toRotationMatrix();
 
+        auto dir = (-Vector3::cZ) * mr; // Луч __ДО__ источника освещения
+
+        dir.normalize();
+        auto l = new LightDirectional(dir, color, Idir);
+        l->name() = name;
+
+        return l;
+    }
 
     return nullptr;
 }

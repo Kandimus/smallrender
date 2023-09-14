@@ -42,19 +42,21 @@ public:
     void setAttenuation(const Vector3& v) { m_attenuation = v; recalcRange(); }
     void setAttenuation(REAL Kc, REAL Kl, REAL Kq) { m_attenuation.x() = Kc; m_attenuation.y() = Kl; m_attenuation.z() = Kq; recalcRange(); }
 
+    // ILight
     virtual LightType type() const override { return LightType::POINT; }
     virtual Ray ray(const Vector3& p) const override { Vector3 dir = m_position - p; dir.normalize(); return Ray(p, dir); }
     virtual Vector3 intensity(const Ray& ray, const Vector3& p, const Vector3& n) const override
     {
-        //                 Ipoint * (p & n)
-        // Idiffuse = --------------------------
-        //             kc + kl * d + kq * d * d
+        //                   CLpoint * (pl & n)
+        // I(p)diffuse = --------------------------
+        //                kc + kl * d + kq * d * d
         //
+        // n - triangle normal
+        // p - directional to light
         auto pl = m_position - p;
         auto d = pl.length();
         pl.normalize();
         auto dp = pl & n;
-
 
         if (dp > 0)
         {
@@ -64,6 +66,15 @@ public:
         }
 
         return Vector3::c0;
+    }
+    virtual std::string toString() const override
+    {
+        return "{name: '" + name() +
+               "', color: " + m_diffuse.toString() +
+               ", dir: " + m_position.toString() +
+               ", atten: " + m_attenuation.toString() +
+               ", intensity: " + std::to_string(m_intensity) +
+               "}";
     }
 
 private:

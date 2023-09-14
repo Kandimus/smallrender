@@ -29,10 +29,9 @@ public:
     virtual bool& enable() = 0;
 
     virtual LightType type() const = 0;
-
     virtual Ray ray(const Vector3& p) const = 0;
-
     virtual Vector3 intensity(const Ray& ray, const Vector3& p, const Vector3& n) const = 0;
+    virtual std::string toString() const = 0;
 };
 
 } //namespace Render

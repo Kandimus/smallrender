@@ -11,7 +11,10 @@ class StaticMesh;
 class Triangle;
 class Material;
 
-static const REAL MultiplierBackgroundAmbient = 1.05;
+static const REAL MultiplierBackgroundAmbient = 1.1; // trick so that the background does not merge with the shadows
+static const REAL LightWattToIntensity = 10.0; // The MAGIC number for covertion light power from blender W to i
+static const REAL LumensPerWatt = 683.0; // Kv (683) - maximum spectral luminous efficacy of radiation for photoscopic vision
+
 
 extern int gDebugIntX;
 extern int gDebugIntY;

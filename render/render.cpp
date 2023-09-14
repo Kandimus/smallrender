@@ -281,11 +281,6 @@ void makeOrtho(REAL fFOV, REAL fAspect, REAL fNear, REAL fFar, Matrix4& m/*, boo
 
 REAL calculatePoint(const Ray& ray, const Triangle& triangle, ColorRGB& c)
 {
-    if (Render::gDebugIntX == 320 && Render::gDebugIntY == (480 - 240))
-    {
-        volatile int a = 1;
-    }
-
     Intersection ti;
     Vector3 t_normal = triangle.normal();
 
@@ -295,6 +290,11 @@ REAL calculatePoint(const Ray& ray, const Triangle& triangle, ColorRGB& c)
     if (len < 0)
     {
         return REAL_MAXIMUM;
+    }
+
+    if (Render::gDebugIntX == 317 && Render::gDebugIntY == (480 - 337))
+    {
+        volatile int a = 1;
     }
 
 #ifdef RENDER_CALCULATED_NORMALS
@@ -311,8 +311,14 @@ REAL calculatePoint(const Ray& ray, const Triangle& triangle, ColorRGB& c)
     auto rn = ray.direction() & t_normal;
     if (rn > MATH_EPS)
     {
-        t_normal = -t_normal;
-        //return len;
+        if (triangle.material().isDoubleSided())
+        {
+            t_normal = -t_normal;
+        }
+        else
+        {
+            return REAL_MAXIMUM;
+        }
     }
 
     // ILxxx - начальная интенсивность источника
@@ -487,7 +493,7 @@ bool loadNodes(const tinygltf::Model& model, const std::vector<int>& nodes, cons
             }
 
             addLight(light);
-            out += "Load light '" + light->name() + "'\n";
+            out += "Load light '" + light->toString() + "'\n";
         }
         else if (node.children.size())
         {

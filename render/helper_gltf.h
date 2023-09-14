@@ -16,9 +16,6 @@ class Node;
 namespace Render
 {
 
-// The MAGIC number for covertion light power from blender W to i
-static const REAL light_W_to_i = 35.0;
-
 Vector3 loadNodeTranslation(const tinygltf::Node& node);
 Quaternion loadNodeRotation(const tinygltf::Node& node);
 Vector3 loadNodeScale(const tinygltf::Node& node);
