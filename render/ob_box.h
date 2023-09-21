@@ -38,6 +38,12 @@ public:
     // IObject
     virtual bool intersect(const Ray& ray) const override;
     virtual void tranformation(const Matrix4& m4) override;
+    virtual std::string toString() const override
+    {
+        return "{type:" + type() +
+               ", min: " + m_minPoint.toString() +
+               ",  max: " + m_maxPoint.toString() + "}";
+    }
 
 protected:
     bool clip(REAL denom, REAL number, REAL& t0, REAL& t1) const;

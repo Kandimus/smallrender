@@ -2,10 +2,8 @@
 #include <iostream>
 
 #include "camera.h"
-#include "render.h"
 #include "helper_gltf.h"
 #include "tiny_gltf.h"
-
 
 namespace
 {
@@ -15,6 +13,28 @@ std::string PERSPECTIVE = "perspective";
 namespace Render
 {
 
+class CameraInternal
+{
+public:
+    REAL thetaY;
+    REAL tanThetaY;
+    REAL tanThetaX;
+    REAL vewportTop;
+    REAL vewportRight;
+};
+
+Camera::Camera()
+{
+    d = new CameraInternal();
+
+    reset();
+}
+
+Camera::~Camera()
+{
+    delete d;
+}
+
 void Camera::reset()
 {
     m_position  = Vector3::c0;
@@ -22,52 +42,63 @@ void Camera::reset()
     m_right     = Vector3::cX;
     m_up        = Vector3::cY;
 
-    m_frustum.fov() = REAL(M_PI_2);
-    m_frustum.nearClip() = REAL(1);
-    m_frustum.farClip() = REAL(52);
-    m_frustum.aspect() = REAL(1);
+    m_fov = REAL(M_PI_2);
+    m_near = REAL(1);
+    m_far = REAL(100);
+    m_aspect = REAL(1.3333333333333);
 
     m_portLeft = m_portBottom = 0;
     m_portRight = m_portTop = 1;
 
-    m_isChangedPosition = true;
-    m_isChangedDirection = true;
-
+    setChanged();
     update();
 }
 
-void Camera::setViewport()
+void Camera::setViewport(REAL left, REAL right, REAL top, REAL bottom)
 {
-    int w = Render::image_width();
-    int h = Render::image_height();
+    m_portLeft = left;
+    m_portRight = right;
+    m_portTop = top;
+    m_portBottom = bottom;
 
-    m_viewX = m_portLeft * w;
-    m_viewY = m_portBottom * h;
-    m_viewW = (m_portRight - m_portLeft) * w;
-    m_viewH = (m_portTop - m_portBottom) * h;
+    setChanged();
+}
+
+void Camera::setViewport(int w, int h)
+{
+    m_width = w;
+    m_height = h;
+
+    m_portLeft = 0.0;
+    m_portRight = 1.0;
+    m_portBottom = 0.0;
+    m_portTop = 1.0;
+
+    setChanged();
+}
+
+void Camera::setScreen(int w, int h)
+{
+    m_width = w;
+    m_height = h;
+
+    setChanged();
 }
 
 Ray Camera::ray(int screen_x, int screen_y) const
 {
-    if (screen_x < 0 || screen_x >= Render::image_width() ||
-        screen_y < 0 || screen_y >= Render::image_height())
+    if (screen_x < 0 || screen_x >= m_width ||
+        screen_y < 0 || screen_y >= m_height)
     {
         return Ray(Vector3::c0, Vector3::c0);
     }
 
-    REAL w = Render::image_width();
-    REAL h = Render::image_height();
-    REAL fPortX = (w - 1.0 - screen_x) / w;
-    REAL fPortY = (h - 1.0 - screen_y) / h;
+    REAL portX = (m_width - 1.0 - screen_x) / m_width;
+    REAL portY = (m_height - 1.0 - screen_y) / m_height;
+    REAL fViewX = (1 - portX) * -d->vewportRight + portX * d->vewportRight;
+    REAL fViewY = (1 - portY) * -d->vewportTop + portY * d->vewportTop;
 
-    //TODO оптимизировать, много статичных вычислений
-    REAL fVPTop = m_frustum.tanThetaY() * m_frustum.nearClip();
-    REAL fVPRight = m_frustum.tanThetaX() * m_frustum.nearClip();
-
-    REAL fViewX = (1 - fPortX) * -fVPRight + fPortX * fVPRight;
-    REAL fViewY = (1 - fPortY) * -fVPTop + fPortY * fVPTop;
-
-    Vector3 d = m_frustum.nearClip() * direction() - fViewX * right() + fViewY * up();
+    Vector3 d = m_near * direction() - fViewX * right() + fViewY * up();
     d.normalize();
 
     return Ray(m_position, d);
@@ -83,7 +114,12 @@ void Camera::update()
     updateDirection();
     updatePosition();
 
-    m_frustum.update();
+    // frustum
+    d->thetaY = REAL(0.5) * m_fov;
+    d->tanThetaY = TAN(d->thetaY);
+    d->tanThetaX = d->tanThetaY * m_aspect;
+    d->vewportTop = d->tanThetaY * m_near;
+    d->vewportRight = d->tanThetaX * m_near;
 
     m_isChangedPosition = false;
     m_isChangedDirection = false;
@@ -106,18 +142,41 @@ bool Camera::loadFromTinygltf(const tinygltf::Node& node, const tinygltf::Model&
         Matrix4 m4 = loadNodeTransformationMatrix(node);
         tranformation(m4);
 
-        m_frustum.aspect() = camera.perspective.aspectRatio;
-        m_frustum.fov() = camera.perspective.yfov;
-        m_frustum.farClip() = camera.perspective.zfar;
-        m_frustum.nearClip() = camera.perspective.znear;
+        m_aspect = camera.perspective.aspectRatio;
+        m_fov = camera.perspective.yfov;
+        m_far = camera.perspective.zfar;
+        m_near = camera.perspective.znear;
 
-        changed();
+        setChanged();
         update();
 
         return true;
     }
 
     return false;
+}
+
+// IObject
+void Camera::tranformation(const Matrix4& m4)
+{
+    m_position = m_position * m4;
+
+    Matrix4 mr = m4.clearTranslate();
+    m_direction = m_direction * mr;
+    m_up = m_up * mr;
+    m_right = m_right * mr;
+
+    m_direction.normalize();
+    m_up.normalize();
+    m_right.normalize();
+
+    //m_direction = -m_direction;
+}
+
+std::string Camera::toString() const
+{
+    return "{name: '" + m_name + "', pos: " + m_position.toString() + ", direction: " + m_direction.toString() +
+           ", up: " + m_up.toString() + ", right: " + m_right.toString() + "}";
 }
 
 // namespace Render

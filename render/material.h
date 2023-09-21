@@ -56,6 +56,11 @@ public:
 
     bool loadFromTinygltf(const tinygltf::Material& mat);
 
+    std::string toString() const
+    {
+        return "{name: '" + m_name + "', uid:" + m_strUid + "}";
+    }
+
 protected:
     std::string m_name;
     int m_uid;

@@ -1,11 +1,11 @@
 
 
-#include "render.h"
 #include "helper_gltf.h"
 //#include "light_ambient.h"
 #include "light_directional.h"
 #include "light_point.h"
 //#include "light_spot.h"
+#include "render_defines.h"
 
 #include "tiny_gltf.h"
 

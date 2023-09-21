@@ -10,6 +10,7 @@ namespace Render
 class Matrix4;
 class Material;
 class Vertex;
+class MaterialManager;
 
 class StaticMesh: public GeomObject
 {
@@ -31,11 +32,12 @@ public:
 
     IObVolume& obVolume() { return *m_obv; }
 
-    bool loadFromTinygltf(const tinygltf::Node& node, const tinygltf::Model& model);
+    bool loadFromTinygltf(const tinygltf::Node& node, const tinygltf::Model& model, const MaterialManager& mm);
 
     // IObject
     virtual bool intersect(const Ray& ray) const override;
     virtual void tranformation(const Matrix4& m4) override;
+    virtual std::string toString() const override;
 
 private:
     void createTriangles();

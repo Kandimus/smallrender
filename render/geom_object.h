@@ -39,7 +39,7 @@ public:
     std::vector<Vector2>& texCoord(int i = 0) { return m_texCoord[i]; }
     const std::vector<Vector2>& texCoord(int i = 0) const { return m_texCoord[i]; }
 
-    void toString() const;
+    std::string printObjectInfo() const;
 
     bool loadFromTinygltf(const tinygltf::Node& node, const tinygltf::Model& model);
 

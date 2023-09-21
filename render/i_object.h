@@ -1,5 +1,7 @@
 #pragma once
 
+#include <string>
+
 namespace Render
 {
 
@@ -14,6 +16,8 @@ public:
 
     virtual bool intersect(const Ray& ray) const = 0;
     virtual void tranformation(const Matrix4& m4) = 0;
+
+    virtual std::string toString() const = 0;
 };
 
 }

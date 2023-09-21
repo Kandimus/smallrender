@@ -2,7 +2,7 @@
 
 #include "tiny_gltf.h"
 
-#include "render.h"
+#include "material_manager.h"
 #include "obvalue_factory.h"
 #include "vertex.h"
 
@@ -57,7 +57,7 @@ void StaticMesh::createVertices()
 
 }
 
-bool StaticMesh::loadFromTinygltf(const tinygltf::Node& node, const tinygltf::Model& model)
+bool StaticMesh::loadFromTinygltf(const tinygltf::Node& node, const tinygltf::Model& model, const MaterialManager& mm)
 {
     if (!GeomObject::loadFromTinygltf(node, model))
     {
@@ -82,7 +82,7 @@ bool StaticMesh::loadFromTinygltf(const tinygltf::Node& node, const tinygltf::Mo
         }
     }
 
-    m_material = getMaterial(idMaterial);
+    m_material = mm.getMaterial(idMaterial);
 
     createVertices();
     createTriangles();
@@ -110,6 +110,14 @@ void StaticMesh::tranformation(const Matrix4& m4)
     {
         t.tranformation(m4);
     }
+}
+
+std::string StaticMesh::toString() const
+{
+    return "{name: '" + m_name + "', points: " + std::to_string(m_point.size()) +
+           ", indices: " + std::to_string(m_index.size()) +
+           ", tirangles: " + std::to_string(m_triangle.size()) +
+           ",  obv: " + m_obv->toString() + "}";
 }
 
 //namespace Render

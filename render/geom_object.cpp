@@ -3,6 +3,8 @@
 
 #include "geom_object.h"
 #include "helper_gltf.h"
+#include "matrix4.h"
+
 #include "tiny_gltf.h"
 
 namespace Render
@@ -106,7 +108,7 @@ bool GeomObject::loadFromTinygltf(const tinygltf::Node& node, const tinygltf::Mo
     return true;
 }
 
-void GeomObject::toString() const
+std::string GeomObject::printObjectInfo() const
 {
     std::string str = "";
     int i = 0;
@@ -131,6 +133,8 @@ void GeomObject::toString() const
         str += "[" + std::to_string(i++) + "] I " + std::to_string(m_index[jj]) + " " + std::to_string(m_index[jj + 1]) + " " + std::to_string(m_index[jj + 2]) + "\n";
     }
     str += "--- End ---\n";
+
+    return str;
 }
 
 // IObject
