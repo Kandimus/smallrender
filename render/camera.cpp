@@ -64,9 +64,9 @@ void Camera::setViewport(REAL left, REAL right, REAL top, REAL bottom)
     setChanged();
 }
 
-void Camera::setViewport(int w, int h)
+void Camera::setViewport(int h)
 {
-    m_width = w;
+    m_width = h * m_aspect;
     m_height = h;
 
     m_portLeft = 0.0;
@@ -77,9 +77,9 @@ void Camera::setViewport(int w, int h)
     setChanged();
 }
 
-void Camera::setScreen(int w, int h)
+void Camera::setScreen(int h)
 {
-    m_width = w;
+    m_width = h * m_aspect;
     m_height = h;
 
     setChanged();
@@ -131,8 +131,6 @@ bool Camera::loadFromTinygltf(const tinygltf::Node& node, const tinygltf::Model&
     {
         return false;
     }
-
-    reset();
 
     auto& camera = model.cameras[node.camera];
     m_name = camera.name;

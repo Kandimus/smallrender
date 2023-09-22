@@ -39,8 +39,8 @@ public:
     REAL aspect() const { return m_aspect; }
 
     void setViewport(REAL left, REAL right, REAL top, REAL bottom);
-    void setViewport(int w, int h);
-    void setScreen(int w, int h);
+    void setViewport(int h);
+    void setScreen(int h);
 
     Ray ray(int screen_x, int screen_y) const;
     Ray centralRay() const;

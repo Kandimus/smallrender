@@ -111,20 +111,25 @@ REAL Raytracer::calculatePoint(const Ray& ray, const Triangle& triangle, ColorRG
 
         if (!intersected)
         {
-            diffuse += light->intensity(ray, ti.point, t_normal); //TODO вот тут нужно решит что делать с backside
+            diffuse += light->intensity(ray, ti.point, t_normal);
         }
     }
 
-    ColorARGB mat_color = triangle.material().diffuse();
-    c = Render::ColorRGB::White * m_scene->lightAmbient() + diffuse * triangle.material().diffuse();
+    Vector2 textCoord = triangle.vertex0().texCoord(0) * ti.w + triangle.vertex1().texCoord(0) * ti.u + triangle.vertex2().texCoord(0) * ti.v;
+    //textCoord.normalize();
+
+    ColorARGB mat_color = triangle.material().diffuse(ti.u, ti.v);
+    c = m_scene->lightAmbient() + diffuse * triangle.material().diffuse(textCoord);
     c.scaleByMax();
 
     return len;
 }
 
-int Raytracer::renderScene(int h, const Scene& scene, const std::string& cameraName)
+int Raytracer::renderScene(int h, Scene& scene, const std::string& cameraName)
 {
     m_scene = &scene;
+
+    m_scene->setHeight(h);
 
     m_camera = m_scene->findCamera(cameraName);
 

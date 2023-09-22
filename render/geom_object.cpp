@@ -63,12 +63,7 @@ bool GeomObject::loadFromTinygltf(const tinygltf::Node& node, const tinygltf::Mo
         }
     }
 
-    if (idAccPoint < 0 || idAccIndices < 0)
-    {
-        return false;
-    }
-
-    if (!loadVectorOfVec3(m_point, idAccPoint, model))
+    if (idAccPoint < 0 || !loadVectorOfVec3(m_point, idAccPoint, model))
     {
         return false;
     }
@@ -78,7 +73,7 @@ bool GeomObject::loadFromTinygltf(const tinygltf::Node& node, const tinygltf::Mo
         return false;
     }
 
-    if (!loadVectorOfInt(m_index, idAccIndices, model))
+    if (idAccIndices < 0 || !loadVectorOfInt(m_index, idAccIndices, model))
     {
         return false;
     }

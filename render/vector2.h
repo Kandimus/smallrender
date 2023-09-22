@@ -68,17 +68,17 @@ public:
 //    bool operator <(REAL v) const { return m_x < v && m_y < v && m_z < v; }
 //    bool operator >(REAL v) const { return m_x > v && m_y > v && m_z > v; }
 
-    inline Vector2 operator +(const Vector2& v) { return Vector2(m_x + v.x(), m_y + v.y()); }
-    inline Vector2 operator -(const Vector2& v) { return Vector2(m_x - v.x(), m_y - v.y()); }
-    inline Vector2 operator *(const Vector2& v) { return Vector2(m_x * v.x(), m_y * v.y()); }
-    inline REAL    operator &(const Vector2& v) { return m_x * v.x() + m_y * v.y(); } // dot
-    inline Vector2 operator /(const Vector2& v)
+    inline Vector2 operator +(const Vector2& v) const { return Vector2(m_x + v.x(), m_y + v.y()); }
+    inline Vector2 operator -(const Vector2& v) const { return Vector2(m_x - v.x(), m_y - v.y()); }
+    inline Vector2 operator *(const Vector2& v) const { return Vector2(m_x * v.x(), m_y * v.y()); }
+    inline REAL    operator &(const Vector2& v) const { return m_x * v.x() + m_y * v.y(); } // dot
+    inline Vector2 operator /(const Vector2& v) const
     {
         return (v.x() != 0 && v.y() != 0) ? Vector2(m_x / v.x(), m_y / v.y()) : Vector2::c0;
     }
 
-    inline Vector2 operator *(REAL val) { return Vector2(m_x * val, m_y * val); }
-    inline Vector2 operator /(REAL val)
+    inline Vector2 operator *(REAL val) const { return Vector2(m_x * val, m_y * val); }
+    inline Vector2 operator /(REAL val) const
     {
         REAL inv = (val != 0) ? 1 / val : 0;
         return (val != 0) ? Vector2(m_x * inv, m_y * inv) : Vector2::c0;

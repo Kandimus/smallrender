@@ -6,10 +6,13 @@
 namespace tinygltf
 {
 class Material;
+class Model;
 }
 
 namespace Render
 {
+class Texture;
+class Vector2;
 
 class Material
 {
@@ -40,21 +43,22 @@ public:
     bool isDoubleSided() const { return m_isDoubleSided; }
     bool& isDoubleSided() { return m_isDoubleSided; }
 
+    ColorARGB diffuse(REAL u, REAL v) const;
+    ColorARGB diffuse(const Vector2& textcoord) const;
     const ColorARGB& emissive() const { return m_emissive; }
     const ColorARGB& ambient() const { return m_ambient; }
-    const ColorARGB& diffuse() const { return m_diffuse; }
     const ColorARGB& specular() const { return m_specular; }
     REAL power() const;
     REAL alpha() const;
 
+    ColorARGB& diffuseColor() { return m_diffuse; }
     ColorARGB& emissive() { return m_emissive; }
     ColorARGB& ambient() { return m_ambient; }
-    ColorARGB& diffuse()  { return m_diffuse; }
     ColorARGB& specular() { return m_specular; }
     REAL& power();
     REAL& alpha();
 
-    bool loadFromTinygltf(const tinygltf::Material& mat);
+    bool loadFromTinygltf(const tinygltf::Material& mat, const tinygltf::Model& model);
 
     std::string toString() const
     {
@@ -74,6 +78,8 @@ protected:
     ColorARGB m_specular;
     REAL m_power;
     REAL m_alpha;
+
+    Texture* m_texture;
 };
 
 } // namespace Render

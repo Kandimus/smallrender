@@ -41,6 +41,7 @@ public:
     bool isInit() const { return m_isInit; }
 
     const Camera* findCamera(const std::string& name) const;
+    void setHeight(int h);
 
     const std::vector<const StaticMesh*>& staticMeshes() const { return m_staticMesh; }
     const std::vector<const Triangle*>& triangles() const { return m_triangle; }
@@ -62,7 +63,7 @@ protected:
     bool m_isInit = false;
 
     MaterialManager m_materialManager;
-    std::vector<const Camera*> m_camera;
+    std::vector<Camera*> m_camera;
     std::vector<const StaticMesh*> m_staticMesh;
     std::vector<const ILight*> m_light;
     std::vector<const Triangle*> m_triangle;

@@ -24,7 +24,7 @@ public:
     int image_width() const { return m_width; }
     int image_height() const { return m_height; }
 
-    int renderScene(int h, const Scene& scene, const std::string& cameraName = "");
+    int renderScene(int h, Scene& scene, const std::string& cameraName = "");
     int saveScene(const std::string& filename);
 
 private:
@@ -37,7 +37,7 @@ private:
     int m_height = 240;
 
     const Camera* m_camera = nullptr;
-    const Scene* m_scene = nullptr;
+    Scene* m_scene = nullptr;
 
     int m_debugIntX = 0;
     int m_debugIntY = 0;

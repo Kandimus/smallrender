@@ -27,6 +27,11 @@ public:
     Triangle(const Vertex& p0, const Vertex& p1, const Vertex& p2) { set(p0, p1, p2); }
     virtual ~Triangle() = default;
 
+    inline const Vertex& vertex0() const { return *m_origin; }
+    inline const Vertex& vertex1() const { return *m_v1; }
+    inline const Vertex& vertex2() const { return *m_v2; }
+    inline const Vertex& vertex(int i) const { return i == 0 ? *m_origin : (i == 1 ? *m_v1 : *m_v2); }
+
     inline const Vector3& origin() const { return m_origin->point(); }
     inline const Vector3& point1() const { return m_v1->point(); }
     inline const Vector3& point2() const { return m_v2->point(); }

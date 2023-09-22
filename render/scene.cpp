@@ -72,6 +72,17 @@ const Camera* Scene::findCamera(const std::string& name) const
     return nullptr;
 }
 
+void Scene::setHeight(int h)
+{
+    outInfo("Set height: " + std::to_string(h));
+
+    for (auto itm : m_camera)
+    {
+        itm->setViewport(h);
+        itm->update();
+    }
+}
+
 ColorRGB Scene::lightAmbient() const
 {
     return m_lightAmbient->ambient();

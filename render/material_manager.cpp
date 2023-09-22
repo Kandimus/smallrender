@@ -12,7 +12,7 @@ MaterialManager::MaterialManager(std::ostream& output)
     // default material
     auto material = new Material(time(nullptr));
     material->name() = "<default material>";
-    material->diffuse() = ColorARGB::White;
+    material->diffuseColor() = ColorARGB::White;
     m_list.push_back(material);
 }
 
@@ -46,7 +46,7 @@ bool MaterialManager::loadFromTinygltf(const tinygltf::Model& model)
 
         m_list.push_back(mat);
 
-        if(!mat->loadFromTinygltf(material))
+        if(!mat->loadFromTinygltf(material, model))
         {
             out << "MaterialManager: error: " << "Fault load material '" << material.name << "'" << std::endl;
             return false;
