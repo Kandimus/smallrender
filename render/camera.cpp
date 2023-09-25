@@ -157,12 +157,12 @@ bool Camera::loadFromTinygltf(const tinygltf::Node& node, const tinygltf::Model&
 // IObject
 void Camera::tranformation(const Matrix4& m4)
 {
-    m_position = m_position * m4;
+    m_position = m4 * m_position;
 
     Matrix4 mr = m4.clearTranslate();
-    m_direction = m_direction * mr;
-    m_up = m_up * mr;
-    m_right = m_right * mr;
+    m_direction = mr * m_direction;
+    m_up = mr * m_up;
+    m_right = mr * m_right;
 
     m_direction.normalize();
     m_up.normalize();

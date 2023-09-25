@@ -138,13 +138,13 @@ void GeomObject::tranformation(const Matrix4& m4)
 {
     for (auto& p : m_point)
     {
-        p = p * m4;
+        p = m4 * p;
 
     }
 
     for (auto& n : m_normal)
     {
-        n = n * m4;
+        n = m4 * n;
         n.normalize();
     }
 }

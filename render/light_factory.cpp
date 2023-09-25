@@ -60,7 +60,7 @@ ILight* loadFromTinygltf(const tinygltf::Node& node, const tinygltf::Model& mode
         REAL Idir = intensity / LumensPerWatt;
         Matrix4 mr = rotation.toRotationMatrix();
 
-        auto dir = (-Vector3::cZ) * mr; // Луч __ДО__ источника освещения
+        auto dir = mr * (-Vector3::cZ); // Луч __ДО__ источника освещения
 
         dir.normalize();
         auto l = new LightDirectional(dir, color, Idir);

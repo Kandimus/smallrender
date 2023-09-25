@@ -74,15 +74,21 @@ public:
     REAL minor(int iR0, int iR1, int iR2, int iC0, int iC1, int iC2) const;
     REAL determinant() const { 	return m_00 * minor(1, 2, 3, 1, 2, 3) - m_01 * minor(1, 2, 3, 0, 2, 3) + m_02 * minor(1, 2, 3, 0, 1, 3) - m_03 * minor(1, 2, 3, 0, 1, 2); } //NOTE возможно считается криво
 
-    friend Vector3 operator *(const Vector3 &v, const Matrix4 &m);
+    //friend Vector3 operator *(const Vector3 &v, const Matrix4 &m);
     Vector3 operator *(const Vector3 &v) const
     {
-        REAL fInvW = 1 / (m_30 * v.x() + m_31 * v.y() + m_32 * v.z() + m_33);
+        if (m_33 == 1 && m_03 == 0 && m_13 == 0 && m_23 == 0)
+        {
+            return Vector3(v.x() * m_00 + v.y() * m_10 + v.z() * m_20 + m_30,
+                           v.x() * m_01 + v.y() * m_11 + v.z() * m_21 + m_31,
+                           v.x() * m_02 + v.y() * m_12 + v.z() * m_22 + m_32);
+        }
 
-        return Vector3(
-            (m_00 * v.x() + m_01 * v.y() + m_02 * v.z() + m_03) * fInvW,
-            (m_10 * v.x() + m_11 * v.y() + m_12 * v.z() + m_13) * fInvW,
-            (m_20 * v.x() + m_21 * v.y() + m_22 * v.z() + m_23) * fInvW);
+        REAL invW = 1 / (v.x() * m_03 + v.y() * m_13 + v.z() * m_23 + m_33);
+
+        return Vector3((v.x() * m_00 + v.y() * m_10 + v.z() * m_20 + m_30) * invW,
+                       (v.x() * m_01 + v.y() * m_11 + v.z() * m_21 + m_31) * invW,
+                       (v.x() * m_02 + v.y() * m_12 + v.z() * m_22 + m_32) * invW);
     }
 
     Matrix4 adjoint() const;
@@ -104,21 +110,23 @@ protected:
 };
 
 
-inline Vector3 operator *(const Vector3& v, const Matrix4& m)
-{
-    if (m.m_33 == 1 && m.m_03 == 0 && m.m_13 == 0 && m.m_23 == 0)
-    {
-        return Vector3(v.x() * m.m_00 + v.y() * m.m_10 + v.z() * m.m_20 + m.m_30,
-                       v.x() * m.m_01 + v.y() * m.m_11 + v.z() * m.m_21 + m.m_31,
-                       v.x() * m.m_02 + v.y() * m.m_12 + v.z() * m.m_22 + m.m_32);
-    }
+//inline Vector3 operator *(const Vector3& v, const Matrix4& m)
+//{
+//    if (m.m_33 == 1 && m.m_03 == 0 && m.m_13 == 0 && m.m_23 == 0)
+//    {
+//        return Vector3(
+//            m.m_00 * v.x() + m.m_01 * v.y() + m.m_02 * v.z() + m.m_03,
+//            m.m_10 * v.x() + m.m_11 * v.y() + m.m_12 * v.z() + m.m_13,
+//            m.m_20 * v.x() + m.m_21 * v.y() + m.m_22 * v.z() + m.m_23);
+//    }
 
-    REAL invW = 1 / (v.x() * m.m_03 + v.y() * m.m_13 + v.z() * m.m_23 + m.m_33);
+//    REAL fInvW = 1 / (m.m_30 * v.x() + m.m_31 * v.y() + m.m_32 * v.z() + m.m_33);
 
-    return Vector3((v.x() * m.m_00 + v.y() * m.m_10 + v.z() * m.m_20 + m.m_30) * invW,
-                   (v.x() * m.m_01 + v.y() * m.m_11 + v.z() * m.m_21 + m.m_31) * invW,
-                   (v.x() * m.m_02 + v.y() * m.m_12 + v.z() * m.m_22 + m.m_32) * invW);
-}
+//    return Vector3(
+//        (m.m_00 * v.x() + m.m_01 * v.y() + m.m_02 * v.z() + m.m_03) * fInvW,
+//        (m.m_10 * v.x() + m.m_11 * v.y() + m.m_12 * v.z() + m.m_13) * fInvW,
+//        (m.m_20 * v.x() + m.m_21 * v.y() + m.m_22 * v.z() + m.m_23) * fInvW);
+//}
 
 
 //ZONE_INLINE void Matrix4::ProjectToFrustum(Plane azPlane[6])

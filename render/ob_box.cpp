@@ -182,12 +182,12 @@ bool ObBox::intersect(const Ray& r) const
 
 void ObBox::tranformation(const Matrix4& m4)
 {
-    Vector3 pZ = Vector3(m_minPoint.x(), m_minPoint.y(), m_maxPoint.z()) * m4;
-    Vector3 pX = Vector3(m_maxPoint.x(), m_minPoint.y(), m_minPoint.z()) * m4;
-    Vector3 pY = Vector3(m_minPoint.x(), m_maxPoint.y(), m_minPoint.z()) * m4;
+    Vector3 pZ = m4 * Vector3(m_minPoint.x(), m_minPoint.y(), m_maxPoint.z());
+    Vector3 pX = m4 * Vector3(m_maxPoint.x(), m_minPoint.y(), m_minPoint.z());
+    Vector3 pY = m4 * Vector3(m_minPoint.x(), m_maxPoint.y(), m_minPoint.z());
 
-    m_minPoint = m_minPoint * m4;
-    m_maxPoint = m_maxPoint * m4;
+    m_minPoint = m4 * m_minPoint;
+    m_maxPoint = m4 * m_maxPoint;
 
     m_axis[0] = pX - m_minPoint;
     m_axis[1] = pY - m_minPoint;
