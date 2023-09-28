@@ -39,15 +39,19 @@ ColorARGB Texture::color(const Vector2& coord) const
     REAL dx = pointX - x;
     REAL dy = pointY - y;
 
+
+
     auto clr1 = pixel(x    , y    );
     auto clr2 = pixel(x + 1, y    );
     auto clr3 = pixel(x    , y + 1);
     auto clr4 = pixel(x + 1, y + 1);
 
-    return (clr1 * (0.0 - (1 - dx) * (1 - dy)) +
-           clr2 * (0.0 - (dx    ) * (1 - dy)) +
-           clr3 * (0.0 - (1 - dx) * (dy    )) +
-            clr4 * (0.0 - (dx    ) * (dy    ))) / 4;
+//    return pixel(x    , y    );
+//    return (clr1 * (0.0 - (1 - dx) * (1 - dy)) +
+//           clr2 * (0.0 - (dx    ) * (1 - dy)) +
+//           clr3 * (0.0 - (1 - dx) * (dy    )) +
+//            clr4 * (0.0 - (dx    ) * (dy    ))) / 4;
+    return clr1 * (1 - dx) * (1 - dy) + clr2 * (dx    ) * (1 - dy) + clr3 * (1 - dx) * (dy    ) + clr4 * (dx    ) * (dy    );
 }
 
 ColorARGB Texture::pixel(int x, int y) const

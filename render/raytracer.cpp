@@ -118,8 +118,8 @@ REAL Raytracer::calculatePoint(const Ray& ray, const Triangle& triangle, ColorRG
     Vector2 textCoord = triangle.vertex0().texCoord(0) * ti.w + triangle.vertex1().texCoord(0) * ti.u + triangle.vertex2().texCoord(0) * ti.v;
     //textCoord.normalize();
 
-    ColorARGB mat_color = triangle.material().diffuse(ti.u, ti.v);
-    c = m_scene->lightAmbient() + diffuse * triangle.material().diffuse(textCoord);
+    ColorARGB mat_color = triangle.material().diffuse(textCoord);
+    c = m_scene->ambient() * mat_color + diffuse * mat_color;
     c.scaleByMax();
 
     return len;
@@ -145,7 +145,7 @@ int Raytracer::renderScene(int h, Scene& scene, const std::string& cameraName)
     Render::Ray ray;
     Render::ColorRGB color;
     Render::ColorRGB c;
-    Render::ColorRGB bg = MultiplierBackgroundAmbient * m_scene->lightAmbient();
+    Render::ColorRGB bg = MultiplierBackgroundAmbient * m_scene->colorAmbient();
     REAL deep = std::numeric_limits<REAL>::infinity();
 
     volatile Render::Ray rr = m_camera->centralRay(); // TODO for tests

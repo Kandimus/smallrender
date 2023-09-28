@@ -24,8 +24,7 @@ Scene::Scene(std::ostream& output)
     : out(output)
     , m_materialManager(output)
 {
-    m_lightAmbient = new LightAmbient(Vector3(ColorRGB::Grey25.red(), ColorRGB::Grey25.green(),
-                                              ColorRGB::Grey25.blue()));
+    m_lightAmbient = new LightAmbient(Vector3(ColorRGB::Grey25.toVector3()));
     outInfo("Create global ambient light");
     outInfo("Create default material " + m_materialManager.getMaterial(-1)->toString());
 }
@@ -83,11 +82,15 @@ void Scene::setHeight(int h)
     }
 }
 
-ColorRGB Scene::lightAmbient() const
+Vector3 Scene::ambient() const
 {
     return m_lightAmbient->ambient();
 }
 
+ColorRGB Scene::colorAmbient() const
+{
+    return m_lightAmbient->ambient();
+}
 
 bool Scene::load(const std::string& filename)
 {

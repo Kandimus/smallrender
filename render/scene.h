@@ -46,7 +46,8 @@ public:
     const std::vector<const StaticMesh*>& staticMeshes() const { return m_staticMesh; }
     const std::vector<const Triangle*>& triangles() const { return m_triangle; }
 
-    ColorRGB lightAmbient() const;
+    Vector3 ambient() const;
+    ColorRGB colorAmbient() const;
     const std::vector<const ILight*>& lights() const { return m_light; }
 
 protected:

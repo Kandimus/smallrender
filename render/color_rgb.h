@@ -43,7 +43,6 @@ public:
     ColorRGB& operator +=(const ColorRGB& c) { m_red += c.red(); m_green += c.green(); m_blue += c.blue(); return *this; } //TODO оптимизировать
     ColorRGB& operator -=(const ColorRGB& c) { m_red -= c.red(); m_green -= c.green(); m_blue -= c.blue(); return *this; }
     ColorRGB& operator *=(const ColorRGB& c) { m_red *= c.red(); m_green *= c.green(); m_blue *= c.blue(); return *this; }
-    ColorRGB& operator *=(REAL v) { m_red *= v; m_green *= v; m_blue *= v; return *this; }
     ColorRGB& operator *=(const Vector3& v) { m_red *= v.x(); m_green *= v.y(); m_blue *= v.z(); return *this; } //TODO Нужно ли? или defuse и specular перевести на ColorRGB
     ColorRGB& operator /=(const ColorRGB& c)
     {
@@ -51,6 +50,8 @@ public:
         else { m_red /= c.red(); m_green /= c.green(); m_blue /= c.blue(); }
         return *this;
     }
+
+    ColorRGB& operator *=(REAL v) { m_red *= v; m_green *= v; m_blue *= v; return *this; }
     ColorRGB& operator /=(REAL v)
     {
         if (v == 0) *this = Black;
@@ -75,7 +76,7 @@ public:
     ColorRGB operator *(REAL v) const { return ColorRGB(m_red * v, m_green * v, m_blue * v); }
     ColorRGB operator /(REAL v) const { return v == 0 ? Black : ColorRGB(m_red / v, m_green / v, m_blue / v) ; }
 
-    ColorRGB operator *(const Vector3& v) const { return ColorRGB(m_red * v.x(), m_green * v.y(), m_blue * v.z()); } //TODO Нужно ли? или defuse и specular перевести на ColorRGB
+    ColorRGB operator *(const Vector3& v) const { return ColorRGB(m_red * v.x(), m_green * v.y(), m_blue * v.z()); }
 
     void adjustContrast(REAL c) { for (int i = 0; i < 3; ++i) m_color[i] = 0.5 + c * (m_color[i] - 0.5); }
     void adjustSaturation(REAL s)
@@ -90,6 +91,8 @@ public:
     {
         for(int i = 0; i < 3; ++i) m_color[i] = c1[i] + t * (c2[i] - c1[i]);
     }
+
+    Vector3 toVector3() const { return Vector3(m_red, m_blue, m_green); }
 
 private:
 	union

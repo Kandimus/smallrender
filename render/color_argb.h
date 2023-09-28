@@ -52,17 +52,17 @@ public:
     void scaleByMax();
 
     ColorARGB& operator =(const ColorARGB& c) { m_alpha = c.alpha(); m_rgb = c.color(); return *this; }
-
     ColorARGB& operator +=(const ColorARGB& c) { m_alpha += c.alpha(); m_rgb += c.color(); return *this; }
     ColorARGB& operator -=(const ColorARGB& c) { m_alpha -= c.alpha(); m_rgb -= c.color(); return *this; }
     ColorARGB& operator *=(const ColorARGB& c) { m_alpha *= c.alpha(); m_rgb *= c.color(); return *this; }
-    ColorARGB& operator *=(REAL v) { m_alpha *= v; m_rgb *= v; return *this; }
     ColorARGB& operator /=(const ColorARGB& c)
     {
         if (c.alpha() == 0 || c.red() == 0 || c.green() == 0 || c.blue() == 0) *this = ColorARGB(REAL(0));
         else { m_alpha /= c.alpha(); m_rgb /= c; }
         return *this;
     }
+
+    ColorARGB& operator *=(REAL v) { m_alpha *= v; m_rgb *= v; return *this; }
     ColorARGB& operator /=(REAL v)
     {
         if (v == 0 ) *this = ColorARGB(REAL(0));
@@ -85,7 +85,7 @@ public:
             : ColorARGB(m_alpha / c.alpha(), m_rgb / c);
     }
 
-    ColorARGB operator *(REAL v) const  { return ColorARGB(m_alpha + v, m_rgb + v); }
+    ColorARGB operator *(REAL v) const  { return ColorARGB(m_alpha * v, m_rgb * v); }
     ColorARGB operator /(REAL v) const
     {
         return (v == 0)
@@ -93,7 +93,8 @@ public:
             : ColorARGB(m_alpha / v, m_rgb / v);
     }
 
-    ColorRGB operator *(const Vector3& v) const { return (color() * v) * m_alpha; }
+    //ColorRGB operator *(const Vector3& v) const { return (color() * v) * m_alpha; }
+    ColorARGB operator *(const Vector3& v) const { return ColorARGB(m_alpha, color() * v); }
 
 	friend ColorARGB operator *(const float fScalar, const ColorARGB &zColor);
 	friend ColorARGB operator /(const float fScalar, const ColorARGB &zColor);
