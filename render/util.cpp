@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include <cstdint>
 
+#include "util.h"
+
 namespace Util
 {
 
@@ -38,6 +40,13 @@ void fastMemCopy(void* dst, const void* src, unsigned int count)
     }
 }
 
+
+std::string getStrUid(Uid uid)
+{
+    char buf[12] = {0};
+    sprintf(buf, "%02X-%02X-%04X", uid >> 24, (uid >> 16) & 0xFF, uid & 0xFFFF);
+    return std::string(buf);
+}
 
 } // namespace Util
 

@@ -2,6 +2,7 @@
 
 #include "defines.h"
 #include "color_argb.h"
+#include "util.h"
 
 namespace tinygltf
 {
@@ -27,15 +28,10 @@ public:
         m_power = 0;
         m_alpha = 1;
         m_uid = uid;
-
-        char buf[12] = {0};
-        sprintf(buf, "%02X-%02X-%04X", m_uid >> 24, (m_uid >> 16) & 0xFF, m_uid & 0xFFFF);
-        m_strUid = buf;
     }
     virtual ~Material() = default;
 
-    int uid() const { return m_uid; }
-    const std::string& strUid() const { return m_strUid; }
+    Util::Uid uid() const { return m_uid; }
 
     const std::string& name() const { return m_name; }
     std::string& name() { return m_name; }
@@ -62,13 +58,12 @@ public:
 
     std::string toString() const
     {
-        return "{name: '" + m_name + "', uid:" + m_strUid + "}";
+        return "{name: '" + m_name + "', uid:" + Util::getStrUid(m_uid) + "}";
     }
 
 protected:
     std::string m_name;
-    int m_uid;
-    std::string m_strUid;
+    Util::Uid m_uid;
 
     bool m_isDoubleSided;
 

@@ -33,7 +33,8 @@ public:
 
     std::string toString() const
     {
-        std::string result = "{point: " + m_point->toString() + ", normal: " + m_normal->toString() + ", material: '" + m_material->name() + "' [" + m_material->strUid() + "]";
+        std::string result = "{point: " + m_point->toString() + ", normal: " + m_normal->toString() +
+                             ", material: " + m_material->toString();
 
         int i = 0;
         for (auto tc : m_texCoord)

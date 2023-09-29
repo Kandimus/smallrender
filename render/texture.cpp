@@ -1,8 +1,6 @@
 #include "texture.h"
 
 #include "vector2.h"
-//#include "helper_gltf.h"
-#include "util.h"
 
 #include "tiny_gltf.h"
 
@@ -11,9 +9,6 @@ namespace Render
 
 Texture::Texture()
 {
-    char buf[12] = {0};
-    sprintf(buf, "%02X-%02X-%04X", m_uid >> 24, (m_uid >> 16) & 0xFF, m_uid & 0xFFFF);
-    m_strUid = buf;
 }
 
 Texture::~Texture()
@@ -39,21 +34,16 @@ ColorARGB Texture::color(const Vector2& coord) const
     REAL dx = pointX - x;
     REAL dy = pointY - y;
 
-
-
+    // linear filtrating
     auto clr1 = pixel(x    , y    );
     auto clr2 = pixel(x + 1, y    );
     auto clr3 = pixel(x    , y + 1);
     auto clr4 = pixel(x + 1, y + 1);
 
-//    return pixel(x    , y    );
-//    return (clr1 * (0.0 - (1 - dx) * (1 - dy)) +
-//           clr2 * (0.0 - (dx    ) * (1 - dy)) +
-//           clr3 * (0.0 - (1 - dx) * (dy    )) +
-//            clr4 * (0.0 - (dx    ) * (dy    ))) / 4;
-    return clr1 * (1 - dx) * (1 - dy) + clr2 * (dx    ) * (1 - dy) + clr3 * (1 - dx) * (dy    ) + clr4 * (dx    ) * (dy    );
+    return clr1 * (1 - dx) * (1 - dy) + clr2 * dx * (1 - dy) + clr3 * (1 - dx) * dy + clr4 * dx * dy;
 }
 
+//TODO оптимизировать
 ColorARGB Texture::pixel(int x, int y) const
 {
     if (m_bytePerPixel == 4)
@@ -98,7 +88,7 @@ bool Texture::loadFromTinygltf(const tinygltf::Texture& texture, const tinygltf:
     m_buffer = new unsigned char[img.image.size()];
     Util::fastMemCopy(m_buffer, img.image.data(), img.image.size());
 
-    // Samplers
+    //NOTE Do I need to consider filtering (samplers)?
     //TINYGLTF_TEXTURE_FILTER_LINEAR
     //TINYGLTF_TEXTURE_FILTER_LINEAR_MIPMAP_LINEAR
 

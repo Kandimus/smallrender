@@ -2,7 +2,6 @@
 
 #include "helper_gltf.h"
 #include "texture.h"
-#include "vector2.h"
 
 #include "tiny_gltf.h"
 
@@ -18,7 +17,7 @@ ColorARGB Material::diffuse(const Vector2& textcoord) const
 {
     if (m_texture)
     {
-        return m_texture->color(textcoord) * m_diffuse;
+        return m_texture->color(textcoord) * m_diffuse * m_alpha;
     }
 
     return m_diffuse;
