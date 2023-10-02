@@ -40,7 +40,8 @@ int main(int argc, const char** argv)
         return 1;
     }
 
-    std::cout << "Output file '" << rSimpleArgs::instance().getOption(arg::OUTPUT) << "'" << std::endl;
+    auto outputFile = rSimpleArgs::instance().getOption(arg::OUTPUT);
+    std::cout << "Output file '" << outputFile << "'" << std::endl;
 
     Render::Raytracer rt;
 
@@ -56,11 +57,12 @@ int main(int argc, const char** argv)
         return 1;
     }
 
-    rt.saveScene(rSimpleArgs::instance().getOption(arg::OUTPUT));
+    rt.saveScene(outputFile);
 
     auto t_end = GetTickCount64();
+    auto renderTime = t_end - t_start;
 
-    std::cout << "Render time: " << t_end - t_start << " msec" << std::endl;
+    std::cout << "Render time: " << renderTime << " msec" << std::endl;
 
     return 0;
 }

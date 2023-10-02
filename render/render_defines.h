@@ -15,7 +15,7 @@ const REAL LumensPerWatt = 683.0 ;            // Kv (683) - maximum spectral lum
     #define END_FOR_EACH_TRIANGLE   }}}
     #define POINTER_TRIANGLE        (&tmp_triangle_item)
 #else
-    #define FOR_EACH_TRIANGLE       { for (auto tmp_triangle_item : scene->triangles())
+    #define FOR_EACH_TRIANGLE       { for (auto tmp_triangle_item : m_scene->triangles())
     #define END_FOR_EACH_TRIANGLE   }
     #define POINTER_TRIANGLE        (tmp_triangle_item)
 #endif

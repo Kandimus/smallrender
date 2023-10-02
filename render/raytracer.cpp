@@ -188,6 +188,7 @@ int Raytracer::renderScene(int h, Scene& scene, const std::string& cameraName)
 int Raytracer::saveScene(const std::string& filename)
 {
     stbi_write_png(filename.c_str(), m_width, m_height, 3, m_image, m_width * 3);
+    return true;
 }
 
 }
