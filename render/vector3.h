@@ -37,7 +37,7 @@ public:
     inline Vector3 reflect(const Vector3 &v) const { return (*this) - REAL(2.0) * ((*this) & v) * v; } //NOTE отражение?
 
     const REAL* data() const { return m_value; }
-    REAL length() const {return SQRT(squaredLength()); }
+    REAL length() const {return SQRT(squaredLength()); } //NOTE: look to std::hypot
     inline REAL squaredLength() const { return m_x * m_x + m_y * m_y + m_z * m_z; }
     inline void normalize() { REAL l = length(); if(l != 0) (*this) *= 1 / l; else (*this) = 0; }
     inline void clip() { for(int i = 0; i < 3; ++i) if(m_value[i] <= 0) m_value[i] = 0; else if(m_value[i] >= 1) m_value[i] = 1; }

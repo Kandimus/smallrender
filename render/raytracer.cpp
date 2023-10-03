@@ -175,6 +175,8 @@ int Raytracer::renderScene(int h, Scene& scene, const std::string& cameraName)
             END_FOR_EACH_TRIANGLE
 
             // auto& list = Render::staticMeshes(); for (auto mesh : list) { if (mesh->intersect(ray)) { color = Render::ColorRGB::White; break; } }
+
+            color.toSRGB();
             m_image[w_3 * yy + 3 * xx + 0] = color.redHex();
             m_image[w_3 * yy + 3 * xx + 1] = color.greenHex();
             m_image[w_3 * yy + 3 * xx + 2] = color.blueHex();

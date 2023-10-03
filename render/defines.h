@@ -9,6 +9,7 @@
 
 #define SQRT std::sqrt
 #define ABSR std::abs
+#define POW  std::pow
 
 #define SIN sin
 #define COS cos

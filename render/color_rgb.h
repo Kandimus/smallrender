@@ -1,6 +1,7 @@
 #pragma once
 
 #include <memory.h>
+
 #include "defines.h"
 #include "vector3.h"
 
@@ -37,6 +38,20 @@ public:
 
     void clamp() { 	for(int i = 0; i < 3; ++i) m_color[i] = std::min(std::max(m_color[i], REAL(0)), REAL(1)); }
     void scaleByMax();
+
+    void toSRGB()
+    {
+        m_red = POW(m_red, 1.0 / 2.2);
+        m_green = POW(m_green, 1.0 / 2.2);
+        m_blue = POW(m_blue, 1.0 / 2.2);
+    }
+
+    void fromSRGB()
+    {
+        m_red = POW(m_red, 2.2);
+        m_green = POW(m_green, 2.2);
+        m_blue = POW(m_blue, 2.2);
+    }
 
     ColorRGB& operator =(const ColorRGB& c) { memcpy(m_color, c.data(), sizeof(REAL) * 3); return *this; }
 
