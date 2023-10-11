@@ -9,7 +9,7 @@ namespace Render
 class LightAmbient : public LightBase
 {
 public:
-    LightAmbient(const Vector3& ambient) : LightBase() { m_ambient = ambient; }
+    LightAmbient(const std::string& name, const Vector3& ambient);
     virtual ~LightAmbient() = default;
 
     const Vector3& ambient() const { return m_ambient; }

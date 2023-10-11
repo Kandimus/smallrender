@@ -6,7 +6,6 @@
 #include "scene.h"
 
 #include "camera.h"
-#include "color_argb.h"
 #include "light_ambient.h"
 #include "light_factory.h"
 #include "material.h"
@@ -20,12 +19,18 @@
 namespace Render
 {
 
-Scene::Scene(std::ostream& output)
+LightAmbient::LightAmbient(const std::string& name, const Vector3& ambient)
+    : LightBase()
+{
+    m_ambient = ambient; setName(name);
+}
+
+Scene::Scene(const Vector3& ambient, std::ostream& output)
     : out(output)
     , m_materialManager(output)
 {
-    m_lightAmbient = new LightAmbient(Vector3(ColorRGB::Grey25.toVector3()));
-    outInfo("Create global ambient light");
+    m_lightAmbient = new LightAmbient("<ambient>", ambient);
+    outInfo("Create global ambient light " + m_lightAmbient->toString());
     outInfo("Create default material " + m_materialManager.getMaterial(-1)->toString());
 }
 

@@ -74,7 +74,7 @@ protected:
     REAL m_power;
     REAL m_alpha;
 
-    Texture* m_texture;
+    Texture* m_texture = nullptr;
 };
 
 } // namespace Render

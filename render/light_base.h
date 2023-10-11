@@ -12,7 +12,7 @@ public:
     virtual ~LightBase() = default;
 
     virtual const std::string& name() const override { return m_name; }
-    virtual std::string& name() override { return m_name; }
+    virtual void setName(const std::string& name) override { m_name = name; }
 
     virtual bool enable() const override { return m_enable; }
     virtual bool& enable() override  { return m_enable; }

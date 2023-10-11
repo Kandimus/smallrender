@@ -32,7 +32,7 @@ public:
         GLB,
     };
 
-    Scene(std::ostream& output);
+    Scene(const Vector3& ambient, std::ostream& output);
     virtual ~Scene();
 
     FileType fileType() const { return m_fileType; }

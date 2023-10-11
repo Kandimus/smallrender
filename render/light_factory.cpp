@@ -51,7 +51,7 @@ ILight* loadFromTinygltf(const tinygltf::Node& node, const tinygltf::Model& mode
         REAL Ipoint  = watt / LightWattToIntensity;
 
         auto l = new LightPoint(position, color, Vector3(1, 1, 1), Ipoint, Vector3(0, 0, 1)); //TODO эту настройку вынести в файл настроек
-        l->name() = name;
+        l->setName(name);
 
         return l;
     }
@@ -64,7 +64,7 @@ ILight* loadFromTinygltf(const tinygltf::Node& node, const tinygltf::Model& mode
 
         dir.normalize();
         auto l = new LightDirectional(dir, color, Idir);
-        l->name() = name;
+        l->setName(name);
 
         return l;
     }
