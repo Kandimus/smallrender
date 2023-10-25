@@ -14,6 +14,7 @@
 #include "static_mesh.h"
 #include "triangle.h"
 #include "util.h"
+#include "ggx_model.h"
 
 #include "tiny_gltf.h"
 
@@ -111,7 +112,8 @@ REAL Raytracer::calculatePoint(const Ray& ray, const Triangle& triangle, ColorRG
 
         if (!intersected)
         {
-            diffuse += light->intensity(ray, ti.point, t_normal);
+            diffuse += light->intensity(ray, ti.point, t_normal);// * GGX::cookTorrance(t_normal, ray_to_light.direction(), ray.direction(), triangle.material());
+            //diffuse += GGX::cookTorrance(t_normal, -ray_to_light.direction(), ray.direction(), triangle.material());
         }
     }
 
@@ -120,6 +122,7 @@ REAL Raytracer::calculatePoint(const Ray& ray, const Triangle& triangle, ColorRG
 
     ColorARGB mat_color = triangle.material().diffuse(textCoord);
     c = m_scene->ambient() * mat_color + diffuse * mat_color;
+    //c = diffuse;
     c.scaleByMax();
 
     return len;
@@ -176,7 +179,7 @@ int Raytracer::renderScene(int h, Scene& scene, const std::string& cameraName)
 
             // auto& list = Render::staticMeshes(); for (auto mesh : list) { if (mesh->intersect(ray)) { color = Render::ColorRGB::White; break; } }
 
-            color.toSRGB();
+            //color.toSRGB();
             m_image[w_3 * yy + 3 * xx + 0] = color.redHex();
             m_image[w_3 * yy + 3 * xx + 1] = color.greenHex();
             m_image[w_3 * yy + 3 * xx + 2] = color.blueHex();

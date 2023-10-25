@@ -2,7 +2,7 @@
 
 #include <memory.h>
 
-#include "defines.h"
+#include "util.h"
 #include "vector3.h"
 
 namespace Render
@@ -36,7 +36,7 @@ public:
 
     const REAL* data() const { return m_color; }
 
-    void clamp() { 	for(int i = 0; i < 3; ++i) m_color[i] = std::min(std::max(m_color[i], REAL(0)), REAL(1)); }
+    void clamp() { 	for(int i = 0; i < 3; ++i) m_color[i] = Util::clamp(m_color[i]); }
     void scaleByMax();
 
     void toSRGB()

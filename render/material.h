@@ -36,8 +36,13 @@ public:
     const std::string& name() const { return m_name; }
     std::string& name() { return m_name; }
 
-    bool isDoubleSided() const { return m_isDoubleSided; }
-    bool& isDoubleSided() { return m_isDoubleSided; }
+    inline bool isDoubleSided() const { return m_isDoubleSided; }
+    inline bool& isDoubleSided() { return m_isDoubleSided; }
+
+    inline REAL roughness() const { return m_roughness[0]; }
+    inline REAL roughnessSqr() const { return m_roughness[1]; }
+    inline REAL metallic() const { return m_metallic; }
+    inline const Vector3& f0() const { return m_f0; }
 
     ColorARGB diffuse(REAL u, REAL v) const;
     ColorARGB diffuse(const Vector2& textcoord) const;
@@ -47,12 +52,12 @@ public:
     REAL power() const;
     REAL alpha() const;
 
-    ColorARGB& diffuseColor() { return m_diffuse; }
-    ColorARGB& emissive() { return m_emissive; }
-    ColorARGB& ambient() { return m_ambient; }
-    ColorARGB& specular() { return m_specular; }
-    REAL& power();
-    REAL& alpha();
+    void setDiffuseColor(const ColorARGB& clr) { m_diffuse = clr; }
+//    ColorARGB& emissive() { return m_emissive; }
+//    ColorARGB& ambient() { return m_ambient; }
+//    ColorARGB& specular() { return m_specular; }
+//    REAL& power();
+//    REAL& alpha();
 
     bool loadFromTinygltf(const tinygltf::Material& mat, const tinygltf::Model& model);
 
@@ -73,6 +78,10 @@ protected:
     ColorARGB m_specular;
     REAL m_power;
     REAL m_alpha;
+
+    REAL m_roughness[2] = {REAL(0), REAL(0)};
+    REAL m_metallic = REAL(0);
+    Vector3 m_f0;
 
     Texture* m_texture = nullptr;
 };

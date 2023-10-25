@@ -12,7 +12,7 @@ MaterialManager::MaterialManager(std::ostream& output)
     // default material
     auto material = new Material(time(nullptr));
     material->name() = "<default material>";
-    material->diffuseColor() = ColorARGB::White;
+    material->setDiffuseColor(ColorARGB::White);
     m_list.push_back(material);
 }
 

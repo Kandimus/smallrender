@@ -3,13 +3,17 @@
 #include <cmath>
 #include <string>
 #include <vector>
-#include "defines.h"
+
+#include "util.h"
+
 
 namespace Render
 {
 
 class Vector3
 {
+friend Vector3 operator *(REAL val, const Vector3& v);
+
 public:
     static Vector3 c0;
     static Vector3 c1;
@@ -40,10 +44,15 @@ public:
     REAL length() const {return SQRT(squaredLength()); } //NOTE: look to std::hypot
     inline REAL squaredLength() const { return m_x * m_x + m_y * m_y + m_z * m_z; }
     inline void normalize() { REAL l = length(); if(l != 0) (*this) *= 1 / l; else (*this) = 0; }
-    inline void clip() { for(int i = 0; i < 3; ++i) if(m_value[i] <= 0) m_value[i] = 0; else if(m_value[i] >= 1) m_value[i] = 1; }
+    inline void clamp() { for(int i = 0; i < 3; ++i) m_value[i] = Util::clamp(m_value[i]); }
+    inline Vector3& clampMax(REAL v) { for(int i = 0; i < 3; ++i) m_value[i] = std::max(v, m_value[i]); return *this; }
+    inline Vector3& clampMin(REAL v) { for(int i = 0; i < 3; ++i) m_value[i] = std::min(v, m_value[i]); return *this; }
 
     inline Vector3 min(const Vector3& v) { return Vector3(std::min(m_x, v.x()), std::min(m_y, v.y()), std::min(m_z, v.z())); }
     inline Vector3 max(const Vector3& v) { return Vector3(std::max(m_x, v.x()), std::max(m_y, v.y()), std::max(m_z, v.z())); }
+
+
+    std::string toString() const { return "[" + std::to_string(m_x) + ", " + std::to_string(m_y) + ", " + std::to_string(m_z) + "]"; }
 
     REAL& x() { return m_x; }
     REAL& y() { return m_y; }
@@ -70,10 +79,6 @@ public:
     Vector3 operator *(REAL val) const { return Vector3(m_x * val, m_y * val, m_z * val); }
     Vector3 operator /(REAL val) const { REAL inv = (val != 0) ? 1 / val : 0; return Vector3(m_x * inv, m_y * inv, m_z * inv); }
 
-    friend Vector3 operator *(REAL val, const Vector3& v);
-
-    std::string toString() const { return "[" + std::to_string(m_x) + ", " + std::to_string(m_y) + ", " + std::to_string(m_z) + "]"; }
-
 protected:
 	union
 	{
@@ -86,6 +91,16 @@ protected:
         REAL m_value[3];
 	};
 };
+
+inline Vector3 operator +(REAL val, const Vector3& v)
+{
+    return Vector3(val + v.x(), val + v.y(), val + v.z());
+}
+
+inline Vector3 operator -(REAL val, const Vector3& v)
+{
+    return Vector3(val - v.x(), val - v.y(), val - v.z());
+}
 
 inline Vector3 operator *(REAL val, const Vector3& v)
 {
